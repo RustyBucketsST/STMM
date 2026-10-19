@@ -1,0 +1,8 @@
+{
+  "entity.skibidi.skibidi_toilet": "Skibidi Toilet",
+  "item.skibidi.skibidi_toilet_spawn_egg": "Skibidi Toilet Spawn Egg",
+  "subtitles.skibidi.entity.skibidi_toilet.ambient": "Skibidi Toilet sings",
+  "subtitles.skibidi.entity.skibidi_toilet.hurt": "Skibidi Toilet hurts",
+  "subtitles.skibidi.entity.skibidi_toilet.death": "Skibidi Toilet flushes away",
+  "subtitles.skibidi.entity.skibidi_toilet.flush": "Skibidi Toilet flushes"
+}
