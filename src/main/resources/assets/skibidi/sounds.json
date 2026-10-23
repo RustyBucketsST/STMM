@@ -2,30 +2,263 @@
   "entity.skibidi_toilet.ambient": {
     "subtitle": "subtitles.skibidi.entity.skibidi_toilet.ambient",
     "sounds": [
-      { "name": "minecraft:mob/villager/idle1", "pitch": 1.5 },
-      { "name": "minecraft:mob/villager/idle2", "pitch": 1.7 },
-      { "name": "minecraft:mob/villager/idle3", "pitch": 1.3 }
+      "skibidi:toilet/sing1",
+      "skibidi:toilet/sing2",
+      "skibidi:toilet/sing3",
+      "skibidi:toilet/sing4"
     ]
   },
   "entity.skibidi_toilet.hurt": {
     "subtitle": "subtitles.skibidi.entity.skibidi_toilet.hurt",
     "sounds": [
-      { "name": "minecraft:mob/villager/hit1", "pitch": 1.4 },
-      { "name": "minecraft:mob/villager/hit2", "pitch": 1.4 }
+      "skibidi:toilet/hurt1",
+      "skibidi:toilet/hurt2"
     ]
   },
   "entity.skibidi_toilet.death": {
     "subtitle": "subtitles.skibidi.entity.skibidi_toilet.death",
     "sounds": [
-      { "name": "minecraft:liquid/splash", "pitch": 0.7 },
-      { "name": "minecraft:liquid/splash2", "pitch": 0.7 }
+      "skibidi:toilet/death1",
+      "skibidi:toilet/death2"
     ]
   },
   "entity.skibidi_toilet.flush": {
     "subtitle": "subtitles.skibidi.entity.skibidi_toilet.flush",
     "sounds": [
-      { "name": "minecraft:liquid/swim1", "pitch": 0.8 },
-      { "name": "minecraft:liquid/swim2", "pitch": 0.8 }
+      "skibidi:toilet/flush1",
+      "skibidi:toilet/flush2"
+    ]
+  },
+  "entity.skibidi_toilet.bite": {
+    "subtitle": "subtitles.skibidi.entity.skibidi_toilet.bite",
+    "sounds": [
+      "skibidi:toilet/bite"
+    ]
+  },
+  "entity.jetpack_toilet.shoot": {
+    "subtitle": "subtitles.skibidi.entity.jetpack_toilet.shoot",
+    "sounds": [
+      "skibidi:weapon/laser1",
+      "skibidi:weapon/laser2"
+    ]
+  },
+  "item.alliance_blaster.shoot": {
+    "subtitle": "subtitles.skibidi.item.alliance_blaster.shoot",
+    "sounds": [
+      "skibidi:weapon/blaster"
+    ]
+  },
+  "entity.camera_strider.shoot": {
+    "subtitle": "subtitles.skibidi.entity.camera_strider.shoot",
+    "sounds": [
+      "skibidi:weapon/strider_bolt"
+    ]
+  },
+  "entity.giant_flying_toilet.laser": {
+    "subtitle": "subtitles.skibidi.entity.giant_flying_toilet.laser",
+    "sounds": [
+      "skibidi:weapon/giant_laser"
+    ]
+  },
+  "entity.giant_flying_toilet.swoop": {
+    "subtitle": "subtitles.skibidi.entity.giant_flying_toilet.swoop",
+    "sounds": [
+      "skibidi:move/swoop"
+    ]
+  },
+  "entity.skibidi_urinal.spit": {
+    "subtitle": "subtitles.skibidi.entity.skibidi_urinal.spit",
+    "sounds": [
+      "skibidi:weapon/spit"
+    ]
+  },
+  "entity.fast_armored_toilet.rev": {
+    "subtitle": "subtitles.skibidi.entity.fast_armored_toilet.rev",
+    "sounds": [
+      "skibidi:move/charge_rev"
+    ]
+  },
+  "entity.fast_armored_toilet.crash": {
+    "subtitle": "subtitles.skibidi.entity.fast_armored_toilet.crash",
+    "sounds": [
+      "skibidi:move/crash"
+    ]
+  },
+  "entity.hat_toilet.slam": {
+    "subtitle": "subtitles.skibidi.entity.hat_toilet.slam",
+    "sounds": [
+      "skibidi:move/slam"
+    ]
+  },
+  "entity.titan.step": {
+    "subtitle": "subtitles.skibidi.entity.titan.step",
+    "sounds": [
+      "skibidi:move/titan_step"
+    ]
+  },
+  "entity.saint_toilet.hymn": {
+    "subtitle": "subtitles.skibidi.entity.saint_toilet.hymn",
+    "sounds": [
+      "skibidi:move/choir"
+    ]
+  },
+  "entity.saint_toilet.roar": {
+    "subtitle": "subtitles.skibidi.entity.saint_toilet.roar",
+    "sounds": [
+      "skibidi:move/demonic_roar"
+    ]
+  },
+  "entity.dj_toilet.kick": {
+    "subtitle": "subtitles.skibidi.entity.dj_toilet.kick",
+    "sounds": [
+      "skibidi:dj/kick"
+    ]
+  },
+  "entity.dj_toilet.snare": {
+    "sounds": [
+      "skibidi:dj/snare"
+    ]
+  },
+  "entity.dj_toilet.hat": {
+    "sounds": [
+      "skibidi:dj/hat"
+    ]
+  },
+  "entity.dj_toilet.clap": {
+    "sounds": [
+      "skibidi:dj/clap"
+    ]
+  },
+  "entity.cameraman.flash": {
+    "subtitle": "subtitles.skibidi.entity.cameraman.flash",
+    "sounds": [
+      "skibidi:alliance/camera_flash"
+    ]
+  },
+  "entity.speakerman.blast": {
+    "subtitle": "subtitles.skibidi.entity.speakerman.blast",
+    "sounds": [
+      "skibidi:alliance/speaker_blast"
+    ]
+  },
+  "entity.tv_man.static": {
+    "subtitle": "subtitles.skibidi.entity.tv_man.static",
+    "sounds": [
+      "skibidi:alliance/tv_static"
+    ]
+  },
+  "story.mission_start": {
+    "sounds": [
+      "skibidi:story/mission_start"
+    ]
+  },
+  "story.objective": {
+    "sounds": [
+      "skibidi:story/objective"
+    ]
+  },
+  "story.mission_complete": {
+    "sounds": [
+      "skibidi:story/mission_complete"
+    ]
+  },
+  "story.mission_failed": {
+    "sounds": [
+      "skibidi:story/mission_failed"
+    ]
+  },
+  "story.reward": {
+    "sounds": [
+      "skibidi:story/reward"
+    ]
+  },
+  "ui.click": {
+    "sounds": [
+      "skibidi:ui/click"
+    ]
+  },
+  "power.holoshield": {
+    "subtitle": "subtitles.skibidi.power.holoshield",
+    "sounds": [
+      "skibidi:power/holoshield"
+    ]
+  },
+  "power.shield_hit": {
+    "subtitle": "subtitles.skibidi.power.shield_hit",
+    "sounds": [
+      "skibidi:power/shield_hit"
+    ]
+  },
+  "power.record_scan": {
+    "subtitle": "subtitles.skibidi.power.record_scan",
+    "sounds": [
+      "skibidi:power/record_scan"
+    ]
+  },
+  "power.sonic_boots": {
+    "subtitle": "subtitles.skibidi.power.sonic_boots",
+    "sounds": [
+      "skibidi:power/sonic_boots"
+    ]
+  },
+  "power.anthem_dance": {
+    "subtitle": "subtitles.skibidi.power.anthem_dance",
+    "sounds": [
+      {
+        "name": "skibidi:power/anthem",
+        "stream": true
+      }
+    ]
+  },
+  "power.hypnosis": {
+    "subtitle": "subtitles.skibidi.power.hypnosis",
+    "sounds": [
+      "skibidi:power/hypnosis"
+    ]
+  },
+  "power.teleport": {
+    "subtitle": "subtitles.skibidi.power.teleport",
+    "sounds": [
+      "skibidi:power/teleport"
+    ]
+  },
+  "power.burning_light": {
+    "subtitle": "subtitles.skibidi.power.burning_light",
+    "sounds": [
+      "skibidi:power/burning_light"
+    ]
+  },
+  "power.stun_flash": {
+    "subtitle": "subtitles.skibidi.power.stun_flash",
+    "sounds": [
+      "skibidi:power/stun_flash"
+    ]
+  },
+  "power.no_energy": {
+    "subtitle": "subtitles.skibidi.power.no_energy",
+    "sounds": [
+      {
+        "name": "skibidi:power/no_energy",
+        "volume": 0.35
+      }
+    ]
+  },
+  "item.stun_rifle.shoot": {
+    "subtitle": "subtitles.skibidi.item.stun_rifle.shoot",
+    "sounds": [
+      "skibidi:weapon/stun_rifle"
+    ]
+  },
+  "item.gravity_plunger.pull": {
+    "subtitle": "subtitles.skibidi.item.gravity_plunger.pull",
+    "sounds": [
+      "skibidi:weapon/gravity_pull"
+    ]
+  },
+  "item.energy_knife.swing": {
+    "subtitle": "subtitles.skibidi.item.energy_knife.swing",
+    "sounds": [
+      "skibidi:weapon/energy_knife"
     ]
   }
 }

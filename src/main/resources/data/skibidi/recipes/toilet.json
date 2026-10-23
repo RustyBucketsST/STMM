@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "T  ",
+    "TWT",
+    " T "
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:white_terracotta"
+    },
+    "W": {
+      "item": "minecraft:water_bucket"
+    }
+  },
+  "result": {
+    "item": "skibidi:toilet",
+    "count": 1
+  }
+}

@@ -1,0 +1,243 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "minecraft:block/quartz_block_bottom",
+    "porcelain": "minecraft:block/quartz_block_bottom",
+    "water": "minecraft:block/water_still",
+    "metal": "minecraft:block/iron_block"
+  },
+  "elements": [
+    {
+      "name": "pedestal",
+      "from": [
+        5,
+        0,
+        4
+      ],
+      "to": [
+        11,
+        6,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "name": "bowl",
+      "from": [
+        3,
+        6,
+        1
+      ],
+      "to": [
+        13,
+        9,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#water",
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "name": "rim_front",
+      "from": [
+        3,
+        9,
+        1
+      ],
+      "to": [
+        13,
+        10,
+        2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "name": "rim_left",
+      "from": [
+        3,
+        9,
+        2
+      ],
+      "to": [
+        4,
+        10,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "name": "rim_right",
+      "from": [
+        12,
+        9,
+        2
+      ],
+      "to": [
+        13,
+        10,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "name": "tank",
+      "from": [
+        3,
+        9,
+        12
+      ],
+      "to": [
+        13,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "name": "handle",
+      "from": [
+        11,
+        14,
+        11
+      ],
+      "to": [
+        12.5,
+        14.75,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#metal"
+        },
+        "east": {
+          "texture": "#metal"
+        },
+        "south": {
+          "texture": "#metal"
+        },
+        "west": {
+          "texture": "#metal"
+        },
+        "up": {
+          "texture": "#metal"
+        },
+        "down": {
+          "texture": "#metal"
+        }
+      }
+    }
+  ]
+}

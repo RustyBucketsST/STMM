@@ -3,18 +3,27 @@
   "id": "skibidi",
   "version": "${version}",
   "name": "Skibidi Toilet",
-  "description": "Adds the Skibidi Toilet, a hostile singing toilet that chases players.",
-  "authors": ["Landon"],
+  "description": "Adds Skibidi Toilets, the G-Man boss toilet, and the Alliance: Cameramen, Speakermen, TV Men and their Titans.",
+  "authors": [
+    "Landon"
+  ],
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-    "main": ["com.skibiditoilet.SkibidiToiletMod"],
-    "client": ["com.skibiditoilet.client.SkibidiToiletClient"]
+    "main": [
+      "com.skibiditoilet.SkibidiToiletMod"
+    ],
+    "client": [
+      "com.skibiditoilet.client.SkibidiToiletClient"
+    ]
   },
   "depends": {
     "fabricloader": ">=0.15.0",
     "minecraft": "~1.20.1",
     "java": ">=17",
     "fabric-api": "*"
-  }
+  },
+  "mixins": [
+    "skibidi.mixins.json"
+  ]
 }

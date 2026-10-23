@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.skibiditoilet.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "client.CameraMixin",
+    "client.LivingEntityRendererMixin",
+    "client.PlayerEntityRendererMixin",
+    "client.PlayerEntityModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
