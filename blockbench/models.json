@@ -1,10 +1,27 @@
 {
 	"skibidi_toilet.bbmodel": {
 		"class": "SkibidiToiletBbModel",
-		"separate": ["pedestal", "jetpack", "headphones", "halo", "hat"]
+		"separate": [
+			"pedestal",
+			"jetpack",
+			"headphones",
+			"halo",
+			"hat"
+		]
 	},
-	"skibidi_urinal.bbmodel": {"class": "SkibidiUrinalBbModel"},
-	"cameraman.bbmodel": {"class": "CameramanBbModel"},
-	"speakerman.bbmodel": {"class": "SpeakermanBbModel"},
-	"tv_man.bbmodel": {"class": "TvManBbModel"}
+	"skibidi_urinal.bbmodel": {
+		"class": "SkibidiUrinalBbModel"
+	},
+	"cameraman.bbmodel": {
+		"class": "CameramanBbModel"
+	},
+	"speakerman.bbmodel": {
+		"class": "SpeakermanBbModel"
+	},
+	"tv_man.bbmodel": {
+		"class": "TvManBbModel"
+	},
+	"titan_cameraman.bbmodel": {
+		"class": "TitanCameramanBbModel"
+	}
 }

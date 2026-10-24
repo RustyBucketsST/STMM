@@ -49,6 +49,7 @@ public class SkibidiToiletClient implements ClientModInitializer {
     public static final EntityModelLayer CAMERAMAN_LAYER = layer("cameraman");
     public static final EntityModelLayer SPEAKERMAN_LAYER = layer("speakerman");
     public static final EntityModelLayer TV_MAN_LAYER = layer("tv_man");
+    public static final EntityModelLayer TITAN_CAMERAMAN_LAYER = layer("titan_cameraman");
 
     @Override
     public void onInitializeClient() {
@@ -65,6 +66,7 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(CAMERAMAN_LAYER, AllianceModel::getCameramanModelData);
         EntityModelLayerRegistry.registerModelLayer(SPEAKERMAN_LAYER, AllianceModel::getSpeakermanModelData);
         EntityModelLayerRegistry.registerModelLayer(TV_MAN_LAYER, AllianceModel::getTvManModelData);
+        EntityModelLayerRegistry.registerModelLayer(TITAN_CAMERAMAN_LAYER, TitanModel::getCameramanModelData);
 
         EntityRendererRegistry.register(ModEntities.SKIBIDI_TOILET,
                 SkibidiToiletRenderer.factory(SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "skibidi_toilet", 1.0f));
@@ -102,7 +104,7 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.SPEAKERMAN, AllianceRenderer.factory(SPEAKERMAN_LAYER, "speakerman", 1.0f));
         EntityRendererRegistry.register(ModEntities.TV_MAN, AllianceRenderer.factory(TV_MAN_LAYER, "tv_man", 1.0f));
         EntityRendererRegistry.register(ModEntities.TITAN_CAMERAMAN,
-                AllianceRenderer.factory(CAMERAMAN_LAYER, "cameraman", TitanEntity.SCALE));
+                AllianceRenderer.titanFactory(TITAN_CAMERAMAN_LAYER, "titan_cameraman"));
         EntityRendererRegistry.register(ModEntities.TITAN_SPEAKERMAN,
                 AllianceRenderer.factory(SPEAKERMAN_LAYER, "speakerman", TitanEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.TITAN_TV_MAN,

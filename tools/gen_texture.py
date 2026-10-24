@@ -6,6 +6,7 @@ jetpack_toilet.png, skibidi_urinal.png               -- UVs match blockbench/ski
 entity/spider_toilet.png                             -- UVs match SpiderToiletModel
 entity/cameraman.png, speakerman.png, tv_man.png     -- UVs match blockbench/cameraman.bbmodel etc. (heads) and the
                                                         standard biped layout (suits)
+entity/titan_cameraman.png, titan_cameraman_glow.png -- UVs read from blockbench/titan_cameraman.bbmodel
 item/plunger.png, item/alliance_blaster.png, item/stun_rifle.png, item/gravity_plunger.png, item/energy_knife.png
 gui/power/*.png                                      -- 16x16 icons for the Powers menu and HUD
 player/*.png                                         -- UVs match PlayerHeadModels; grey parts are dyed in game
@@ -16,6 +17,7 @@ back (u+2d+w, v+d) w x h, bottom (u+d+w, v) w x d.
 
 Usage: python3 tools/gen_texture.py [textures_dir]
 """
+import json
 import math
 import random
 import sys
@@ -763,6 +765,217 @@ def commander():
     return img
 
 
+# ---------------------------------------------------------------- titans
+# Titans are modelled at twice the detail (2 texels per pixel). Their UVs are read from the .bbmodel by cube
+# name, so moving a cube's UV in Blockbench doesn't break the drawing. Glowing parts are drawn twice: on the
+# texture and on a "_glow" texture that the game draws full-bright on top.
+
+def bb_boxes(model):
+    """Box UV (u, v, w, h, d) of every cube in blockbench/<model>.bbmodel, by cube name."""
+    data = json.loads((Path(__file__).resolve().parent.parent / "blockbench" / f"{model}.bbmodel").read_text())
+    return {e["name"]: (*e["uv_offset"], *(round(e["to"][i] - e["from"][i]) for i in range(3)))
+            for e in data["elements"]}
+
+
+TITAN_COAT = (44, 44, 48)
+TITAN_COAT_DARK = (32, 32, 36)
+TITAN_SHIRT = (26, 26, 30)
+
+
+def camo(r, base, spots, noise=3):
+    """Mottled dark camouflage: a base with soft blotches."""
+    x, y, w, h = r
+    rect(x, y, w, h, base, noise)
+    for _ in range(w * h // 10):
+        cx, cy = x + random.randrange(w), y + random.randrange(h)
+        c = random.choice(spots)
+        for i in range(-1, 2):
+            for k in range(-1, 1):
+                if x <= cx + i < x + w and y <= cy + k < y + h and random.random() < 0.7:
+                    px[cx + i, cy + k] = shade(c, noise)
+
+
+def radial(x, y, w, h, inner, outer, color_at):
+    """Calls color_at(r) for the pixels of a w x h face between radius `inner` and `outer` (in pixels)."""
+    for i in range(w):
+        for k in range(h):
+            r = math.hypot(i - (w - 1) / 2, k - (h - 1) / 2)
+            if inner <= r <= outer:
+                px[x + i, y + k] = color_at(r) + (255,)
+
+
+def titan_cameraman_lights(b):
+    """The parts of the Titan Cameraman that glow: chest core, floodlights, thruster exhausts, tally light."""
+    x, y, w, h = faces(*b["core_ring"])["front"]
+    radial(x, y, w, h, 1.8, 3.3, lambda r: (40, 150 + int(30 * (3.3 - r)), 255))
+    f = faces(*b["core"])
+    for key in ("right", "left", "top", "bottom"):
+        rect(*f[key], (60, 190, 255), 0)
+    x, y, w, h = f["front"]
+    radial(x, y, w, h, 0, 9, lambda r: (min(255, 150 + int(60 * (2 - r))), 240, 255))
+    x, y, w, h = faces(*b["floodlight_right"])["front"]
+    for i in range(1, w - 1):
+        for k in range(1, h - 1):
+            px[x + i, y + k] = (240, 244, 248, 255) if (i + k) % 2 else (210, 216, 226, 255)
+    x, y, w, h = faces(*b["nozzle_right"])["bottom"]
+    radial(x, y, w, h, 0, 9, lambda r: (90, 210, 255) if r < 1.6 else (40, 140, 240))
+    x, y, w, h = faces(*b["hood"])["front"]
+    px[x + w - 2, y + 1] = (255, 50, 40, 255)
+
+
+def titan_cameraman():
+    b = bb_boxes("titan_cameraman")
+    new_image(256, 30, 128)
+
+    # Head: grey security gear with dark trim
+    box(*b["mount"], (56, 58, 64), 3)
+    f = faces(*b["housing"])
+    rect(*f["top"], (140, 144, 150), 3)
+    rect(*f["bottom"], (70, 72, 78), 3)
+    for r in sides(f):
+        gradient(r, (132, 136, 144), (100, 104, 112), 3)
+    for key in ("right", "left"):
+        x, y, w, h = f[key]
+        rect(x, y + 3, w, 1, (86, 90, 96), 2)               # panel seam
+        for i in range(2, w - 2, 2):
+            rect(x + i, y + 6, 1, 3, (70, 72, 78), 0)       # vents
+    x, y, w, h = f["back"]
+    rect(x + 2, y + 2, w - 4, h - 4, (96, 100, 106), 2)     # service panel
+    rect(x + w // 2 - 1, y + h - 4, 2, 2, (24, 24, 26), 0)  # cable port
+    f = faces(*b["hood"])
+    rect(*f["top"], (150, 154, 160), 3)
+    x, y, w, h = f["top"]
+    rect(x + w // 2 - 1, y, 2, h, (160, 164, 170), 2)       # ridge
+    rect(*f["bottom"], (58, 60, 66), 2)
+    for r in sides(f):
+        rect(*r, (112, 116, 124), 3)
+    f = faces(*b["lens"])
+    box(*b["lens"], (40, 40, 44), 3)
+    x, y, w, h = f["front"]
+    radial(x, y, w, h, 0, 9, lambda r: (26, 26, 30))
+    radial(x, y, w, h, 0, 2.6, lambda r: (150, 160, 176) if r > 1.2 else (64, 74, 96))
+    px[x + 2, y + 2] = (235, 240, 250, 255)                 # glint
+    for name in ("antenna", "side_antenna_right"):
+        u, v, w, h, d = b[name]
+        box(u, v, w, h, d, (52, 52, 56), 3)
+        rect(*faces(u, v, w, h, d)["top"], (160, 160, 166), 0)
+    f = faces(*b["side_cam_right"])
+    box(*b["side_cam_right"], (128, 132, 138), 3)
+    x, y, w, h = f["front"]
+    rect(x, y, w, h, (34, 34, 38), 2)
+    rect(x + 1, y + 1, 2, 2, (40, 70, 120), 0)
+    px[x + 1, y + 1] = (150, 190, 240, 255)
+    f = faces(*b["floodlight_right"])
+    box(*b["floodlight_right"], (44, 44, 48), 3)
+    rect(*f["front"], (60, 60, 66), 2)
+
+    # Coat: open at the front over a dark shirt, wide lapels, a seam down the back
+    f = faces(*b["chest"])
+    for r in sides(f):
+        gradient(r, (50, 50, 54), TITAN_COAT, 3)
+    rect(*f["top"], (52, 52, 56), 3)
+    rect(*f["bottom"], TITAN_COAT_DARK, 2)
+    x, y, w, h = f["front"]
+    rect(x + 7, y, w - 14, h, TITAN_SHIRT, 2)                     # shirt in the open front
+    for k in range(h):                                      # lapels widen toward the shoulders
+        spread = max(0, 4 - k // 3)
+        rect(x + 7 - spread, y + k, spread, 1, TITAN_COAT_DARK, 2)
+        rect(x + w - 7, y + k, spread, 1, TITAN_COAT_DARK, 2)
+        px[x + 6 - spread, y + k] = shade((60, 60, 64), 2)  # lapel edge catching the light
+        px[x + w - 7 + spread, y + k] = shade((60, 60, 64), 2)
+    x, y, w, h = f["back"]
+    rect(x + w // 2, y + 2, 1, h - 2, TITAN_COAT_DARK, 2)
+    f = faces(*b["waist"])
+    for r in sides(f):
+        rect(*r, TITAN_COAT, 3)
+    x, y, w, h = f["front"]
+    rect(x + 5, y, w - 10, h, TITAN_SHIRT, 2)
+    for k in range(h):
+        px[x + 4, y + k] = shade((60, 60, 64), 2)
+        px[x + w - 5, y + k] = shade((60, 60, 64), 2)
+    box(*b["collar"], TITAN_COAT_DARK, 3)
+    f = faces(*b["core_ring"])
+    box(*b["core_ring"], (112, 118, 128), 4)
+    x, y, w, h = f["front"]
+    radial(x, y, w, h, 3.3, 9, lambda r: (128, 134, 144))
+    for cx, cy in ((0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)):
+        px[x + cx, y + cy] = (80, 84, 92, 255)              # bolts
+    f = faces(*b["belt"])
+    for r in sides(f):
+        rect(*r, (30, 26, 22), 3)
+    x, y, w, h = f["front"]
+    rect(x + w // 2 - 2, y, 4, h, (182, 184, 192), 3)       # buckle
+    rect(x + w // 2 - 1, y, 2, 1, (120, 122, 130), 0)
+    for name in ("coat_back", "coat_side_right", "coat_front_right"):
+        f = faces(*b[name])
+        for r in sides(f):
+            gradient(r, TITAN_COAT, (36, 36, 40), 3)
+        rect(*f["bottom"], TITAN_COAT_DARK, 2)
+    x, y, w, h = faces(*b["coat_back"])["back"]
+    rect(x + w // 2, y + 4, 1, h - 4, (26, 26, 30), 0)      # back vent
+    f = faces(*b["backpack"])
+    box(*b["backpack"], (54, 56, 60), 3)
+    x, y, w, h = f["back"]
+    rect(x + 1, y + h // 2, w - 2, 1, (40, 42, 46), 0)
+    for cx in (1, w - 2):
+        for cy in (1, h - 2):
+            px[x + cx, y + cy] = (96, 98, 104, 255)
+    f = faces(*b["shoulder_lamp_right"])
+    box(*b["shoulder_lamp_right"], (110, 114, 120), 3)
+    rect(*f["front"], (200, 200, 190), 3)
+    f = faces(*b["thruster_right"])
+    for r in sides(f):
+        gradient(r, (78, 80, 86), (56, 58, 64), 3)
+        x, y, w, h = r
+        for k in (3, h - 5):
+            rect(x, y + k, w, 1, (44, 46, 50), 0)           # bands
+    rect(*f["top"], (104, 108, 114), 3)
+    rect(*f["bottom"], (40, 40, 44), 2)
+    box(*b["nozzle_right"], (40, 40, 44), 3)
+
+    # Arms: coat shoulders, camouflage sleeves, coat cuffs, dark gloves
+    f = faces(*b["shoulder_right"])
+    for r in sides(f):
+        gradient(r, (52, 52, 56), TITAN_COAT, 3)
+    rect(*f["top"], (54, 54, 58), 3)
+    rect(*f["bottom"], TITAN_COAT_DARK, 2)
+    f = faces(*b["sleeve_right"])
+    for key, r in f.items():
+        camo(r, (48, 48, 46), [(36, 38, 36), (62, 60, 54), (40, 42, 46)])
+    box(*b["cuff_right"], (38, 38, 42), 3)
+    f = faces(*b["hand_right"])
+    box(*b["hand_right"], (74, 74, 78), 4)
+    x, y, w, h = f["front"]
+    rect(x, y + 2, w, 1, (56, 56, 60), 0)                   # knuckles
+    for i in range(2, w, 2):
+        rect(x + i, y + 3, 1, h - 3, (58, 58, 62), 0)       # fingers
+    x, y, w, h = f["bottom"]
+    for i in range(2, w, 2):
+        rect(x + i, y, 1, h, (58, 58, 62), 0)
+
+    # Legs: dark trousers with a crease, black shoes
+    f = faces(*b["trouser_right"])
+    for r in sides(f):
+        gradient(r, (38, 38, 42), (32, 32, 36), 3)
+    x, y, w, h = f["front"]
+    rect(x + w // 2, y, 1, h, (28, 28, 32), 0)
+    f = faces(*b["shoe_right"])
+    box(*b["shoe_right"], (20, 20, 22), 2)
+    rect(*f["bottom"], (12, 12, 12), 0)
+    x, y, w, h = f["top"]
+    rect(x + 1, y + h - 3, w - 2, 2, (44, 44, 48), 2)       # shine on the toe caps
+    rect(x + 2, y + 2, w - 4, 2, (30, 30, 34), 0)           # laces
+
+    titan_cameraman_lights(b)
+    return img
+
+
+def titan_cameraman_glow():
+    new_image(256, 30, 128)
+    titan_cameraman_lights(bb_boxes("titan_cameraman"))
+    return img
+
+
 # ---------------------------------------------------------------- items
 
 def plunger():
@@ -1225,6 +1438,8 @@ outputs = {
     "entity/large_cameraman.png": lambda: large_alliance(cameraman_head, (34, 44, 66), (150, 155, 165)),
     "entity/large_speakerman.png": lambda: large_alliance(speakerman_head, (78, 56, 40), (20, 20, 22)),
     "entity/camera_strider.png": camera_strider,
+    "entity/titan_cameraman.png": titan_cameraman,
+    "entity/titan_cameraman_glow.png": titan_cameraman_glow,
     "entity/saint_skibidi_toilet.png": lambda: toilet(19, saint_head, halo, gold_trim),
     "entity/saint_skibidi_toilet_demonic.png": lambda: toilet(19, saint_head_demonic, halo, gold_trim),
     "entity/triple_skibidi_toilet.png": triple,

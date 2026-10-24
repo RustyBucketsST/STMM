@@ -28,10 +28,11 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
 
 ## Open questions / backlog (ask the owner before doing any of these)
 
-- **Blockbench**: the toilet (all its variants), the urinal and the Alliance mob heads were remodelled to look
-  like the series and now live in `blockbench/` (see "Models" below). Still hand-written Java: spider legs,
-  Triple side heads, Fast Armored, Camera Strider, player heads (`PlayerHeadModels`, which no longer match the
-  new mob heads), suits. Possible next: those, 3D tech items. Ask first.
+- **Blockbench**: the toilet (all its variants), the urinal, the Alliance mob heads and the Titan Cameraman
+  were remodelled to look like the series and now live in `blockbench/` (see "Models" below). Still
+  hand-written Java: spider legs, Triple side heads, Fast Armored, Camera Strider, player heads
+  (`PlayerHeadModels`, which no longer match the new mob heads), suits. Possible next: those, 3D tech items.
+  Ask first.
 - Never answered: Alliance vs toilet balance.
 - Ideas mentioned but not started: Titan branch of the story; Chapter 1 "batch 3" characters (Strider /
   Hydra Strider, Camera Toilet, Police/Camo, Scientist Cameraman, Helicopter, Strider Speaker, Mafia, Glitch,
@@ -71,9 +72,16 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   Groups/cubes with Export switched off are reference only (the suit in the Alliance files).
 - Java relies on the part name "head" (toilet/urinal animation and accessories attach to it; Alliance heads
   replace the biped head). The toilet model is a little wider/taller than its 0.8x1.3 hitbox.
-- Textures still come from `gen_texture.py`, so a UV moved in Blockbench must be moved in the drawing code too.
+- Textures still come from `gen_texture.py`, so a UV moved in Blockbench must be moved in the drawing code too
+  (except Titans, whose drawing code reads each cube's UV from the .bbmodel by cube name).
   `python3 tools/bbmodel_to_java.py --embed-textures` refreshes the texture copies inside the .bbmodel files.
   Toilet textures are 128x128: head and variant extras in the top half, toilet body in the bottom half.
+- **Titans** (owner is sending reference pictures one faction at a time; Titan Cameraman done, Speakerman and
+  TV Man still use the scaled-up regular model): `titan_*.bbmodel` is built at twice the detail (2 units per
+  pixel) with biped part names and doubled pivots, feet on the ground: head/body (0,-24,0), arms (+-10,-20,0),
+  legs (+-3.8,0,0.2). `TitanModel` converts the biped animation to those units and
+  `AllianceRenderer.titanFactory` draws it at half the Titan scale, plus `textures/entity/titan_*_glow.png`
+  full-bright (core, floodlights, thrusters).
 
 ## Generated assets
 
