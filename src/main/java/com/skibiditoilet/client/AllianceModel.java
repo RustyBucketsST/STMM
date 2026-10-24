@@ -1,5 +1,8 @@
 package com.skibiditoilet.client;
 
+import com.skibiditoilet.client.bbmodel.CameramanBbModel;
+import com.skibiditoilet.client.bbmodel.SpeakermanBbModel;
+import com.skibiditoilet.client.bbmodel.TvManBbModel;
 import com.skibiditoilet.entity.AllianceEntity;
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.model.ModelData;
@@ -11,9 +14,11 @@ import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
 
+import java.util.function.Consumer;
+
 /**
- * A guy in a suit (the standard biped body, textured in the top half of the 64x64 skin)
- * with a camera, speaker or TV for a head (textured from v = 32 down).
+ * A guy in a suit (the standard biped body, textured in rows 16-32 of the 64x64 skin) with a camera,
+ * speaker or TV for a head, modelled in blockbench/cameraman.bbmodel etc. (textured in the rest of the skin).
  */
 public class AllianceModel extends BipedEntityModel<AllianceEntity> {
     public AllianceModel(ModelPart root) {
@@ -21,27 +26,21 @@ public class AllianceModel extends BipedEntityModel<AllianceEntity> {
     }
 
     public static TexturedModelData getCameramanModelData() {
-        return withHead(ModelPartBuilder.create()
-                .uv(0, 32).cuboid(-3, -6, -5, 6, 6, 10)   // camera body
-                .uv(32, 32).cuboid(-2, -5, -7, 4, 4, 2)); // lens
+        return withHead(CameramanBbModel::addHead);   // a CCTV camera under a sun hood
     }
 
     public static TexturedModelData getSpeakermanModelData() {
-        return withHead(ModelPartBuilder.create()
-                .uv(0, 32).cuboid(-5, -10, -4, 10, 10, 8)); // speaker cabinet
+        return withHead(SpeakermanBbModel::addHead);  // a speaker cabinet with a woofer and tweeter
     }
 
     public static TexturedModelData getTvManModelData() {
-        return withHead(ModelPartBuilder.create()
-                .uv(0, 32).cuboid(-6, -9, -3.5f, 12, 9, 7) // TV set
-                .uv(40, 32).cuboid(-3, -12, 0, 1, 3, 1)    // antennas
-                .uv(40, 32).cuboid(2, -12, 0, 1, 3, 1));
+        return withHead(TvManBbModel::addHead);       // a CRT TV, its screen set back inside the bezel
     }
 
-    private static TexturedModelData withHead(ModelPartBuilder head) {
+    private static TexturedModelData withHead(Consumer<ModelPartData> addHead) {
         ModelData modelData = BipedEntityModel.getModelData(Dilation.NONE, 0.0f);
         ModelPartData root = modelData.getRoot();
-        root.addChild(EntityModelPartNames.HEAD, head, ModelTransform.NONE);
+        addHead.accept(root);
         root.addChild(EntityModelPartNames.HAT, ModelPartBuilder.create(), ModelTransform.NONE);
         return TexturedModelData.of(modelData, 64, 64);
     }

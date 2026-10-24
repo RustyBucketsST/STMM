@@ -1,9 +1,11 @@
 """Generates the mod's textures into src/main/resources/assets/skibidi/textures/.
 
 entity/skibidi_toilet.png, gman_toilet.png, big_skibidi_toilet.png, scientist_toilet.png,
-jetpack_toilet.png                                   -- UVs match SkibidiToiletModel
+jetpack_toilet.png, skibidi_urinal.png               -- UVs match blockbench/skibidi_toilet.bbmodel (urinal:
+                                                        skibidi_urinal.bbmodel) plus the extras in the toilet models
 entity/spider_toilet.png                             -- UVs match SpiderToiletModel
-entity/cameraman.png, speakerman.png, tv_man.png     -- UVs match AllianceModel
+entity/cameraman.png, speakerman.png, tv_man.png     -- UVs match blockbench/cameraman.bbmodel etc. (heads) and the
+                                                        standard biped layout (suits)
 item/plunger.png, item/alliance_blaster.png, item/stun_rifle.png, item/gravity_plunger.png, item/energy_knife.png
 gui/power/*.png                                      -- 16x16 icons for the Powers menu and HUD
 player/*.png                                         -- UVs match PlayerHeadModels; grey parts are dyed in game
@@ -49,6 +51,29 @@ def box(u, v, w, h, d, c, noise=6):
     rect(u, v + d, 2 * (d + w), h, c, noise)  # four sides
 
 
+def faces(u, v, w, h, d):
+    """Where each face of a box at uv (u, v) sits on the texture, as (x, y, width, height). Front, back and
+    sides read as seen from outside: "right" is the mob's right side (the -X side), "left" its left side.
+    The top reads as seen from above and in front, so its first row is the back edge."""
+    return {
+        "top": (u + d, v, w, d), "bottom": (u + d + w, v, w, d),
+        "right": (u, v + d, d, h), "front": (u + d, v + d, w, h),
+        "left": (u + d + w, v + d, d, h), "back": (u + 2 * d + w, v + d, w, h),
+    }
+
+
+def gradient(r, top, bottom, noise=2):
+    """Fills a face rectangle (x, y, w, h) with a vertical gradient from `top` to `bottom`."""
+    x, y, w, h = r
+    for k in range(h):
+        t = k / (h - 1) if h > 1 else 0.0
+        rect(x, y + k, w, 1, tuple(round(a + (b - a) * t) for a, b in zip(top, bottom)), noise)
+
+
+def sides(f):
+    return [f[k] for k in ("right", "front", "left", "back")]
+
+
 def outline(c):
     """Adds a 1px outline around everything drawn so far (for item icons)."""
     w, h = img.size
@@ -61,8 +86,6 @@ def outline(c):
 
 # ---------------------------------------------------------------- toilets
 
-PORCELAIN = (238, 240, 242)
-SHADOW = (196, 200, 206)
 SKIN = (224, 172, 120)
 HAIR = (70, 45, 30)
 
@@ -106,28 +129,97 @@ def gman_head():
     rect(fx + 2, fy + 5, 4, 1, (245, 245, 240), 0)  # teeth
 
 
+GLAZE = (250, 251, 252)       # tops catching the light
+GLAZE_HI = (243, 245, 247)    # sides, upper edge
+GLAZE_LO = (212, 217, 223)    # sides, lower edge
+UNDERSIDE = (176, 182, 190)
+SEAM = (206, 211, 218)        # the thin shadow where two pieces meet
+CHROME = (190, 197, 208)
+WATER = (96, 156, 206)
+WATER_DEEP = (66, 122, 182)
+
+
+def porcelain(u, v, w, h, d, hi=GLAZE_HI, lo=GLAZE_LO):
+    f = faces(u, v, w, h, d)
+    rect(*f["top"], GLAZE, 2)
+    rect(*f["bottom"], UNDERSIDE, 2)
+    for r in sides(f):
+        gradient(r, hi, lo)
+    return f
+
+
+def skin_extras():
+    """Neck 4x6x4 at (108, 96) and ears 1x2x1 at (118, 80), in the skin tone of the head just drawn."""
+    pixels = [px[x, y] for x in range(16, 24) for y in range(8)]   # underside of the chin is always bare skin
+    skin = tuple(sorted(p[i] for p in pixels)[len(pixels) // 2] for i in range(3))
+    dark = tuple(round(c * 0.84) for c in skin)
+    f = faces(108, 96, 4, 6, 4)
+    for r in sides(f):
+        gradient(r, dark, skin, 4)                   # shadowed just under the jaw
+    rect(*f["top"], skin, 4)
+    rect(*f["bottom"], dark, 2)
+    f = faces(118, 80, 1, 2, 1)
+    box(118, 80, 1, 2, 1, skin, 4)
+    rect(*f["front"], dark, 0)
+
+
+SEAT_BOXES = [(24, 96, 10, 1, 2), (0, 96, 2, 1, 10), (48, 96, 8, 1, 2)]   # front, sides, back
+TANK_LID = (38, 64, 15, 1, 6)
+HANDLE = (122, 80, 1, 1, 2)
+
+
+def trim(color, noise=3):
+    """Colors the edges of the seat and tank lid, and the flush handle."""
+    for u, v, w, h, d in SEAT_BOXES + [TANK_LID]:
+        for r in sides(faces(u, v, w, h, d)):
+            rect(*r, color, noise)
+    box(*HANDLE, color, noise)
+
+
 def toilet_body():
-    # Bowl 10x6x11 at (0, 16)
-    box(0, 16, 10, 6, 11, PORCELAIN)
-    rect(0, 32, 42, 1, SHADOW)             # shadow under the rim
-    rect(12, 17, 8, 9, (60, 140, 200), 10)  # water inside the bowl (top face, rim left white)
-    rect(13, 18, 6, 7, (45, 115, 180), 10)
-
-    # Flush handle 1x1x2 at (42, 16)
-    box(42, 16, 1, 1, 2, (170, 175, 185), 4)
-
-    # Tank 12x13x4 at (0, 33)
-    box(0, 33, 12, 13, 4, PORCELAIN)
-    rect(4, 33, 12, 1, SHADOW)             # tank lid seam
-
-    # Lid 10x9x1 at (32, 33)
-    box(32, 33, 10, 9, 1, PORCELAIN)
-    rect(35, 36, 6, 5, SHADOW)             # inner seat ring on the front of the lid
-    rect(36, 37, 4, 3, PORCELAIN, 4)
-
-    # Pedestal 6x6x7 at (0, 50)
-    box(0, 50, 6, 6, 7, PORCELAIN)
-    rect(0, 62, 26, 1, SHADOW)
+    # Tank 14x11x5 at (0, 64), with a seam shadow under the lid that overhangs it
+    f = porcelain(0, 64, 14, 11, 5, GLAZE_HI, (218, 222, 228))
+    for x, y, w, h in sides(f):
+        rect(x, y, w, 1, SEAM, 2)
+    # Tank lid 15x1x6 at (38, 64)
+    f = porcelain(*TANK_LID)
+    x, y, w, h = f["top"]
+    rect(x + 1, y + 1, w - 2, 1, (255, 255, 255), 0)      # glossy highlight along the back
+    # Seat lid 12x7x1 at (38, 71), standing up against the tank, with a rim round its underside
+    f = porcelain(38, 71, 12, 7, 1, (248, 249, 251), (226, 230, 235))
+    x, y, w, h = f["front"]
+    for i in range(w):
+        px[x + i, y] = shade((232, 235, 239), 2)
+    for k in range(h):
+        px[x, y + k] = shade((232, 235, 239), 2)
+        px[x + w - 1, y + k] = shade((232, 235, 239), 2)
+    rect(x + 2, y + 1, 1, 3, (255, 255, 255), 0)          # shine
+    porcelain(24, 100, 10, 1, 1, (248, 249, 251), (240, 242, 245))  # rounded top of the lid 10x1x1
+    # Bowl 12x3x12 at (80, 64): its top is the inside of the bowl, seen through the 8x9 hole in the seat
+    f = porcelain(80, 64, 12, 3, 12, (246, 248, 250), (220, 224, 230))
+    x, y, w, h = f["top"]
+    rect(x + 2, y + 2, 8, 9, (204, 210, 218), 2)          # sloping inner wall
+    rect(x + 3, y + 3, 6, 7, (186, 194, 204), 2)
+    rect(x + 4, y + 4, 4, 5, WATER, 6)
+    rect(x + 5, y + 5, 2, 3, WATER_DEEP, 6)
+    px[x + 4, y + 4] = (150, 196, 232, 255)                # glint on the water
+    x, y, w, h = f["front"]
+    px[x + 1, y] = (255, 255, 255, 255)                    # shine on the rim
+    porcelain(68, 96, 10, 3, 1, (246, 248, 250), (220, 224, 230))   # rounded front 10x3x1
+    # Seat 1px thick: front 10x1x2 at (24, 96), sides 2x1x10 at (0, 96), back 8x1x2 at (48, 96)
+    for u, v, w, h, d in SEAT_BOXES:
+        f = faces(u, v, w, h, d)
+        rect(*f["top"], (252, 252, 253), 1)
+        rect(*f["bottom"], UNDERSIDE, 2)
+    trim(SEAM, 2)
+    box(*HANDLE, CHROME, 6)
+    px[123, 82] = (236, 240, 246, 255)
+    # Bowl base 10x3x13 at (0, 80) and its front 8x3x1 at (90, 96): narrower and in the bowl's shadow
+    porcelain(0, 80, 10, 3, 13, (228, 232, 237), (206, 211, 217))
+    porcelain(90, 96, 8, 3, 1, (228, 232, 237), (206, 211, 217))
+    # Pedestal 6x5x10 at (46, 80) and foot 8x1x12 at (78, 80)
+    porcelain(46, 80, 6, 5, 10, (236, 239, 242), (210, 215, 221))
+    porcelain(78, 80, 8, 1, 12, (204, 209, 215), (204, 209, 215))
 
 
 BIG_SKIN = (222, 162, 122)
@@ -275,18 +367,27 @@ def urinal_head():
 
 
 def urinal():
-    new_image(64, 18)
+    new_image(128, 18)
     urinal_head()
-    # Back plate 10x20x2 at (0, 16)
-    box(0, 16, 10, 20, 2, PORCELAIN)
-    rect(2, 18, 10, 20, PORCELAIN, 4)              # front face, smooth
-    # Bowl 8x9x6 at (0, 38): the top face is the dark opening the head comes out of
-    box(0, 38, 8, 9, 6, PORCELAIN)
-    rect(6, 38, 8, 6, (70, 120, 160), 8)
-    rect(7, 39, 6, 4, (40, 80, 120), 6)
-    rect(0, 44, 28, 1, SHADOW)                     # shadow under the rim
-    # Flush pipe 2x4x2 at (32, 0)
-    box(32, 0, 2, 4, 2, (178, 184, 194), 6)
+    skin_extras()
+    # Shell 10x21x3 at (0, 64): the tall back of a floor-standing urinal, with a chrome spreader at the top
+    f = porcelain(0, 64, 10, 21, 3, GLAZE_HI, (214, 219, 225))
+    x, y, w, h = f["front"]
+    rect(x + 1, y + 4, w - 2, h - 5, (232, 235, 239), 2)  # the recessed back of the bowl
+    rect(x + 3, y + 1, 4, 1, CHROME, 4)
+    porcelain(0, 88, 8, 1, 3)                              # rounded top 8x1x3
+    porcelain(26, 64, 1, 17, 3)                            # side wings 1x17x3
+    # Bowl 8x5x7 at (34, 64): the top is the opening the head comes out of
+    f = porcelain(34, 64, 8, 5, 7, (246, 248, 250), (222, 226, 232))
+    x, y, w, h = f["top"]
+    rect(x + 1, y + 1, w - 2, h - 2, (204, 210, 218), 2)
+    rect(x + 2, y + 1, w - 4, h - 3, (70, 120, 160), 6)
+    rect(x + 3, y + 2, w - 6, 1, (40, 80, 120), 6)
+    porcelain(34, 76, 6, 3, 5, (222, 226, 232), (206, 211, 217))   # lower bowl 6x3x5
+    # Flush pipe 2x5x2 at (80, 64) and valve 3x2x3 at (88, 64)
+    box(80, 64, 2, 5, 2, CHROME, 6)
+    box(88, 64, 3, 2, 3, (170, 177, 188), 6)
+    rect(88, 67, 12, 1, (220, 226, 234), 3)
     return img
 
 
@@ -328,9 +429,7 @@ def halo():
 
 
 def gold_trim():
-    rect(0, 32, 42, 1, (200, 160, 50), 4)  # gold rim under the bowl instead of a plain shadow
-    rect(4, 33, 12, 1, (200, 160, 50), 4)  # gold seam on the tank lid
-    box(42, 16, 1, 1, 2, HALO_GOLD, 4)     # gold flush handle
+    trim((214, 172, 56), 4)   # gold seat and tank lid edges and a gold flush handle
 
 
 def head_strip(head, seed):
@@ -345,8 +444,9 @@ def head_strip(head, seed):
 
 
 def triple():
-    new_image(128, 20, 64)
+    new_image(128, 20)
     big_head()                              # middle head
+    skin_extras()
     toilet_body()
     img.paste(head_strip(urinal_head, 21), (64, 0))
     img.paste(head_strip(giant_flying_head, 22), (96, 0))
@@ -380,8 +480,9 @@ def top_hat():
 
 
 def hat_toilet():
-    new_image(128, 23, 64)
+    new_image(128, 23)
     hat_head()
+    skin_extras()
     toilet_body()
     top_hat()
     return img
@@ -435,8 +536,9 @@ def camera_strider():
 
 
 def toilet(seed, head, *extras):
-    new_image(64, seed)
+    new_image(128, seed)
     head()
+    skin_extras()
     toilet_body()
     for extra in extras:
         extra()
@@ -477,49 +579,159 @@ def suit(suit_color=SUIT, tie_color=TIE):
     rect(48, 16, 4, 4, HAND, 4)            # palms
 
 
-def cameraman_head():
-    # Camera body 6x6x10 at (0, 32)
-    box(0, 32, 6, 6, 10, (150, 155, 162))
-    rect(10, 32, 6, 10, (172, 177, 184))   # lighter top
-    rect(0, 44, 32, 1, (118, 123, 130))    # panel seam around the sides
-    rect(10, 42, 6, 6, (62, 64, 70), 3)    # dark front around the lens
-    px[15, 42] = (230, 30, 30, 255)        # red recording light
+CAMERA_BODY = (178, 182, 190)
+CAMERA_DARK = (52, 54, 60)
+GLASS = (26, 44, 88)
+MOUNT = (62, 64, 70)
 
-    # Lens 4x4x2 at (32, 32)
-    box(32, 32, 4, 4, 2, (48, 48, 54), 3)
-    rect(35, 35, 2, 2, (20, 30, 60), 0)    # glass
-    px[35, 35] = (130, 175, 235, 255)      # glint
+
+def mount(u, v):
+    # Neck mount 4x1x4: the bracket the device sits on
+    box(u, v, 4, 1, 4, MOUNT, 4)
+
+
+def lens_glass(x, y, w, h):
+    """A round lens on a w x h face: dark rim, deep blue glass, one glint."""
+    for i in range(w):
+        for k in range(h):
+            r = math.hypot(i - (w - 1) / 2, k - (h - 1) / 2) / (min(w, h) / 2)
+            if r <= 0.62:
+                px[x + i, y + k] = shade(GLASS, 4)
+            elif r <= 1.15:
+                px[x + i, y + k] = shade((22, 22, 26), 2)
+    px[x + w // 2 - 1, y + h // 2 - 1] = (150, 190, 240, 255)
+
+
+def cameraman_head():
+    # Housing 6x6x10 at (0, 32): a CCTV camera, light grey with a seam down each side and a dark front plate
+    f = faces(0, 32, 6, 6, 10)
+    rect(*f["top"], (196, 200, 207), 3)
+    rect(*f["bottom"], (128, 132, 140), 3)
+    for r in sides(f):
+        gradient(r, (190, 194, 201), (150, 155, 163), 3)
+    for key in ("right", "left"):
+        x, y, w, h = f[key]
+        rect(x, y + 1, w, 1, (140, 145, 152), 2)          # seam
+        for i in range(3):                                 # vent slots toward the back
+            vx = x + 1 + 2 * i if key == "right" else x + w - 2 - 2 * i
+            rect(vx, y + 3, 1, 2, (96, 100, 108), 0)
+    x, y, w, h = f["front"]
+    rect(x, y, w, h, CAMERA_DARK, 3)
+    px[x + w - 1, y] = (230, 30, 30, 255)                 # red recording light
+    x, y, w, h = f["back"]
+    rect(x + 1, y + 1, w - 2, h - 2, (160, 165, 172), 2)  # back cover
+    # Sun hood 8x1x12 at (0, 48) and its side skirts 1x2x6 at (40, 48)
+    f = faces(0, 48, 8, 1, 12)
+    rect(*f["top"], (206, 210, 216), 3)
+    x, y, w, h = f["top"]
+    rect(x + 3, y, 2, h, (214, 218, 224), 2)             # raised ridge down the middle
+    rect(*f["bottom"], (70, 72, 78), 3)                    # shadow under the hood
+    for r in sides(f):
+        rect(*r, (164, 168, 176), 2)
+    box(40, 48, 1, 2, 6, (164, 168, 176), 3)
+    # Lens 4x4x2 at (32, 32): black barrel, glass on the front
+    f = faces(32, 32, 4, 4, 2)
+    box(32, 32, 4, 4, 2, (34, 34, 38), 3)
+    lens_glass(*f["front"])
+    # Cable socket 2x2x1 at (32, 40)
+    box(32, 40, 2, 2, 1, (24, 24, 28), 2)
+    mount(44, 32)
+
+
+SPEAKER_BODY = (28, 28, 31)
+
+
+def speaker_cone(i, k, n=6):
+    """Color of pixel (i, k) of an n x n round speaker: dark surround, grey cone, dark dust cap."""
+    r = math.hypot(i - (n - 1) / 2, k - (n - 1) / 2)
+    if r <= n * 0.18:
+        return (44, 44, 48)
+    if r <= n * 0.4:
+        return (128 - int(r * 10), 130 - int(r * 10), 138 - int(r * 10))
+    return (70, 70, 76)
 
 
 def speakerman_head():
-    # Speaker cabinet 10x10x8 at (0, 32)
-    box(0, 32, 10, 10, 8, (28, 28, 30), 3)
-    fx, fy = 8, 40
-    for i in range(10):
-        for j in range(10):
-            woofer = math.hypot(i - 4.5, j - 6.0)
-            tweeter = math.hypot(i - 4.5, j - 1.0)
-            if woofer <= 1.2:
-                px[fx + i, fy + j] = shade((36, 36, 40), 2)   # dust cap
-            elif woofer <= 2.7:
-                px[fx + i, fy + j] = shade((108, 108, 116), 4)  # cone
-            elif woofer <= 3.5:
-                px[fx + i, fy + j] = shade((70, 70, 76), 2)   # surround
-            elif tweeter <= 0.8:
-                px[fx + i, fy + j] = shade((150, 150, 158), 2)
+    # Cabinet 8x10x7 at (0, 32): black, with a slightly lighter bevel round the front and a port on the back
+    f = faces(0, 32, 8, 10, 7)
+    for key, r in f.items():
+        rect(*r, SPEAKER_BODY, 3)
+    x, y, w, h = f["front"]
+    for i in range(w):
+        px[x + i, y] = shade((46, 46, 50), 2)
+        px[x + i, y + h - 1] = shade((40, 40, 44), 2)
+    for k in range(h):
+        px[x, y + k] = shade((42, 42, 46), 2)
+        px[x + w - 1, y + k] = shade((42, 42, 46), 2)
+    x, y, w, h = f["back"]
+    rect(x + 2, y + 6, 4, 2, (60, 60, 66), 2)            # terminal plate...
+    px[x + 3, y + 7] = (190, 40, 40, 255)                 # ...with red and black terminals
+    px[x + 4, y + 7] = (14, 14, 14, 255)
+    rect(x + 3, y + 2, 2, 2, (10, 10, 12), 0)             # bass port
+    # Woofer, a 6x6 octagon standing proud of the cabinet front: middle 4x6x1 at (30, 32), sides 1x4x1 at (40, 32)
+    box(30, 32, 4, 6, 1, (50, 50, 56), 2)
+    box(40, 32, 1, 4, 1, (50, 50, 56), 2)
+    x, y = faces(30, 32, 4, 6, 1)["front"][:2]
+    for i in range(4):
+        for k in range(6):
+            px[x + i, y + k] = shade(speaker_cone(i + 1, k), 2)
+    x, y = faces(40, 32, 1, 4, 1)["front"][:2]
+    for k in range(4):
+        px[x, y + k] = shade(speaker_cone(0, k + 1), 2)   # mirrored for the left side, which is symmetric
+    f = faces(44, 32, 2, 2, 1)
+    box(44, 32, 2, 2, 1, (50, 50, 56), 2)
+    x, y = f["front"][:2]
+    rect(x, y, 2, 2, (168, 170, 178), 3)                 # silver dome
+    px[x, y] = (220, 222, 228, 255)
+    mount(48, 32)
+
+
+TV_CASE = (58, 58, 64)
+TV_BEVEL = (80, 80, 88)
+
+
+def tv_screen(x, y, w, h, seed):
+    """Static on a CRT: grey-blue noise, darker scanlines, brighter in the middle, a glare in one corner."""
+    rnd = random.Random(seed)
+    for i in range(w):
+        for k in range(h):
+            centre = 1 - 0.5 * (abs(i - (w - 1) / 2) / w + abs(k - (h - 1) / 2) / h)
+            v = rnd.randint(140, 235) * centre * (0.84 if k % 2 else 1.0)
+            px[x + i, y + k] = (int(v * 0.92), int(v * 0.96), min(255, int(v * 1.08)), 255)
+    px[x, y] = (236, 240, 248, 255)
+    px[x + 1, y] = (214, 220, 232, 255)
+    px[x, y + 1] = (214, 220, 232, 255)
 
 
 def tv_man_head():
-    # TV set 12x9x7 at (0, 32)
-    box(0, 32, 12, 9, 7, (56, 56, 62), 4)
-    fx, fy = 7, 39
-    rect(fx + 1, fy + 1, 10, 7, (40, 90, 170), 6)        # screen
-    for y in range(fy + 2, fy + 8, 2):
-        rect(fx + 1, y, 10, 1, (62, 122, 212), 6)        # scanlines
-    rect(fx + 9, fy + 8, 2, 1, (170, 170, 176), 0)       # knobs
-
-    # Antenna 1x3x1 at (40, 32), used for both antennas
-    box(40, 32, 1, 3, 1, (175, 175, 182), 4)
+    # Body 12x9x4 at (0, 32): a CRT TV; the screen is the front face, seen through the bezel
+    f = faces(0, 32, 12, 9, 4)
+    for key, r in f.items():
+        rect(*r, TV_CASE, 3)
+    x, y, w, h = f["top"]
+    for i in range(2, w - 2, 2):
+        rect(x + i, y + 1, 1, h - 2, (40, 40, 44), 0)    # vent slots
+    x, y, w, h = f["front"]
+    tv_screen(x + 1, y + 1, w - 2, h - 3, 4)
+    # Picture tube 8x7x3 at (32, 32), tapering out the back
+    f = faces(32, 32, 8, 7, 3)
+    for key, r in f.items():
+        rect(*r, (50, 50, 56), 3)
+    x, y, w, h = f["back"]
+    for k in range(1, h - 1, 2):
+        rect(x + 1, y + k, w - 2, 1, (36, 36, 40), 0)    # back vents
+    # Bezel: top 12x1x1 at (0, 46), bottom 12x2x1 at (0, 49), sides 1x6x1 at (26, 46)
+    for u, v, w, h in ((0, 46, 12, 1), (0, 49, 12, 2), (26, 46, 1, 6)):
+        f = faces(u, v, w, h, 1)
+        for key, r in f.items():
+            rect(*r, TV_CASE, 3)
+        rect(*f["front"], TV_BEVEL, 3)
+    x, y, w, h = faces(0, 49, 12, 2, 1)["front"]
+    rect(x + 5, y + 1, 2, 1, (150, 152, 160), 2)         # badge
+    rect(x + 8, y + 1, 1, 1, (40, 40, 44), 0)             # buttons
+    rect(x + 9, y + 1, 1, 1, (40, 40, 44), 0)
+    px[x + 10, y + 1] = (60, 220, 90, 255)                 # power light
+    mount(32, 46)
 
 
 def alliance(seed, head):

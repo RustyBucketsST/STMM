@@ -35,7 +35,7 @@ public class TripleToiletModel extends SkibidiToiletModel {
         addToilet(root, true);
         addSideHead(root, "head_left", 64, -SIDE_X);
         addSideHead(root, "head_right", 96, SIDE_X);
-        return TexturedModelData.of(modelData, 128, 64);
+        return textured(modelData);
     }
 
     private static void addSideHead(ModelPartData root, String name, int faceU, float x) {

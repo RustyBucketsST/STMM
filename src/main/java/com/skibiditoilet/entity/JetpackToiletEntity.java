@@ -92,10 +92,10 @@ public class JetpackToiletEntity extends SkibidiToiletEntity {
     }
 
     private void spawnJetpackFlames() {
-        // The two nozzles sit behind the tank, about 2/3 of a block back and half a block up.
+        // The two nozzles sit behind the tank, about 0.8 of a block back and half a block up.
         float yaw = this.getBodyYaw() * MathHelper.RADIANS_PER_DEGREE;
-        double backX = MathHelper.sin(yaw) * 0.66;
-        double backZ = -MathHelper.cos(yaw) * 0.66;
+        double backX = MathHelper.sin(yaw) * 0.81;
+        double backZ = -MathHelper.cos(yaw) * 0.81;
         double sideX = MathHelper.cos(yaw) * 0.19;
         double sideZ = MathHelper.sin(yaw) * 0.19;
         for (int side = -1; side <= 1; side += 2) {

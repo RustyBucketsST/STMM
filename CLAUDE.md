@@ -28,9 +28,10 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
 
 ## Open questions / backlog (ask the owner before doing any of these)
 
-- Owner just connected a **Blockbench** connector for modelling. Models are currently hand-written Java
-  (`TexturedModelData` in `client/*Model.java`, `client/character/PlayerHeadModels.java`). Possible work:
-  export them to .bbmodel for editing, remodel characters, 3D tech items. Not decided yet.
+- **Blockbench**: the toilet (all its variants), the urinal and the Alliance mob heads were remodelled to look
+  like the series and now live in `blockbench/` (see "Models" below). Still hand-written Java: spider legs,
+  Triple side heads, Fast Armored, Camera Strider, player heads (`PlayerHeadModels`, which no longer match the
+  new mob heads), suits. Possible next: those, 3D tech items. Ask first.
 - Never answered: Alliance vs toilet balance.
 - Ideas mentioned but not started: Titan branch of the story; Chapter 1 "batch 3" characters (Strider /
   Hydra Strider, Camera Toilet, Police/Camo, Scientist Cameraman, Helicopter, Strider Speaker, Mafia, Glitch,
@@ -59,6 +60,20 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   (camera shake, hurt overlay, player model parts, Anthem Dance pose).
 - Docs for players: `docs/story-chapter1.md`, `docs/powers.md`, `docs/custom-sounds.md` (resource-pack guide;
   keep its table in sync when adding sounds).
+
+## Models (Blockbench)
+
+- `blockbench/*.bbmodel` (Modded Entity format, box UV) are the source of the classes in `client/bbmodel/`.
+  After editing one in Blockbench run `python3 tools/bbmodel_to_java.py`; never edit the generated Java.
+- `blockbench/models.json` maps each file to its class. Groups listed under "separate" (variant extras:
+  headphones, halo, hat, jetpack; and the pedestal, which the spider toilet leaves out) get their own
+  `add...` method instead of being added with their parent; they are hidden in Blockbench by default.
+  Groups/cubes with Export switched off are reference only (the suit in the Alliance files).
+- Java relies on the part name "head" (toilet/urinal animation and accessories attach to it; Alliance heads
+  replace the biped head). The toilet model is a little wider/taller than its 0.8x1.3 hitbox.
+- Textures still come from `gen_texture.py`, so a UV moved in Blockbench must be moved in the drawing code too.
+  `python3 tools/bbmodel_to_java.py --embed-textures` refreshes the texture copies inside the .bbmodel files.
+  Toilet textures are 128x128: head and variant extras in the top half, toilet body in the bottom half.
 
 ## Generated assets
 

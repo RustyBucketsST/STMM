@@ -41,7 +41,7 @@ public class SpiderToiletModel extends SkibidiToiletModel {
             root.addChild("left_leg_" + i, ModelPartBuilder.create().uv(26, 50).mirrored().cuboid(-1, -1, -1, 16, 2, 2),
                     ModelTransform.pivot(4, 15, LEG_Z[i]));
         }
-        return TexturedModelData.of(modelData, 64, 64);
+        return textured(modelData);
     }
 
     @Override
