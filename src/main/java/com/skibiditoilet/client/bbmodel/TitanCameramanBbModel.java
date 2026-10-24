@@ -18,46 +18,47 @@ public final class TitanCameramanBbModel {
     /** Adds group "head" from titan_cameraman.bbmodel. */
     public static ModelPartData addHead(ModelPartData parent) {
         ModelPartData part = parent.addChild("head", ModelPartBuilder.create()
-                .uv(194, 48).cuboid(-3, -4, -3, 6, 4, 6)  // mount
-                .uv(180, 0).cuboid(-5, -15, -5, 10, 11, 10)  // housing
-                .uv(132, 28).cuboid(-6, -18, -7, 12, 3, 13)  // hood
-                .uv(218, 48).cuboid(-3.5f, -13, -8, 7, 7, 3)  // lens
-                .uv(238, 48).cuboid(-0.5f, -27, 2, 1, 9, 1)  // antenna
-                .uv(170, 48).cuboid(-9, -12, -5, 4, 4, 8)  // side_cam_right
-                .uv(170, 48).mirrored().cuboid(5, -12, -5, 4, 4, 8),  // side_cam_left
+                .uv(190, 49).cuboid(-3, -4, -3, 6, 4, 6)  // mount
+                .uv(90, 0).cuboid(-5, -14, -6, 10, 10, 16)  // housing
+                .uv(0, 28).cuboid(-7, -16, -9, 14, 2, 19)  // hood
+                .uv(214, 49).cuboid(-3.5f, -12.5f, -9, 7, 7, 3)  // lens
+                .uv(102, 63).cuboid(-1.5f, -9, 10, 3, 3, 2)  // cable
+                .uv(234, 49).cuboid(-0.5f, -25, 6, 1, 9, 1)  // antenna
+                .uv(170, 49).cuboid(-7, -14, -9, 1, 3, 9)  // hood_side_right
+                .uv(170, 49).mirrored().cuboid(6, -14, -9, 1, 3, 9),  // hood_side_left
                 ModelTransform.pivot(0, -24, 0));
         ModelPartData floodlight_right_r1 = part.addChild("floodlight_right_r", ModelPartBuilder.create()
-                .uv(18, 62).cuboid(-7, -6, -1, 7, 6, 2),  // floodlight_right
-                ModelTransform.of(-5, -18, -3, 0, 0, -0.436332f));
+                .uv(18, 63).cuboid(-7, -6, -1, 7, 6, 2),  // floodlight_right
+                ModelTransform.of(-4, -16, 1, 0, 0, -0.436332f));
         ModelPartData floodlight_left_r1 = part.addChild("floodlight_left_r", ModelPartBuilder.create()
-                .uv(18, 62).mirrored().cuboid(0, -6, -1, 7, 6, 2),  // floodlight_left
-                ModelTransform.of(5, -18, -3, 0, 0, 0.436332f));
+                .uv(18, 63).mirrored().cuboid(0, -6, -1, 7, 6, 2),  // floodlight_left
+                ModelTransform.of(4, -16, 1, 0, 0, 0.436332f));
         ModelPartData side_antenna_right_r1 = part.addChild("side_antenna_right_r", ModelPartBuilder.create()
-                .uv(242, 48).cuboid(-0.5f, -8, -0.5f, 1, 8, 1),  // side_antenna_right
-                ModelTransform.of(-3, -18, 3, 0, 0, -0.349066f));
+                .uv(238, 49).cuboid(-0.5f, -8, -0.5f, 1, 8, 1),  // side_antenna_right
+                ModelTransform.of(-4, -16, 7, 0, 0, -0.349066f));
         ModelPartData side_antenna_left_r1 = part.addChild("side_antenna_left_r", ModelPartBuilder.create()
-                .uv(242, 48).mirrored().cuboid(-0.5f, -8, -0.5f, 1, 8, 1),  // side_antenna_left
-                ModelTransform.of(3, -18, 3, 0, 0, 0.349066f));
+                .uv(238, 49).mirrored().cuboid(-0.5f, -8, -0.5f, 1, 8, 1),  // side_antenna_left
+                ModelTransform.of(4, -16, 7, 0, 0, 0.349066f));
         return part;
     }
 
     /** Adds group "body" from titan_cameraman.bbmodel. */
     public static ModelPartData addBody(ModelPartData parent) {
         ModelPartData part = parent.addChild("body", ModelPartBuilder.create()
-                .uv(90, 0).cuboid(-11, 0, -6, 22, 14, 12)  // chest
-                .uv(0, 28).cuboid(-9, 14, -5, 18, 10, 10)  // waist
-                .uv(36, 62).cuboid(-7, -2, 3, 14, 3, 3)  // collar
-                .uv(0, 62).cuboid(-4, 4, -7, 8, 8, 1)  // core_ring
-                .uv(102, 62).cuboid(-2, 6, -8, 4, 4, 1)  // core
-                .uv(110, 48).cuboid(-9.5f, 21, -5.5f, 19, 2, 11)  // belt
-                .uv(182, 28).cuboid(-10, 23, 5, 20, 15, 1)  // coat_back
-                .uv(0, 48).cuboid(-8, 2, 6, 16, 12, 2)  // backpack
-                .uv(158, 0).cuboid(-10.5f, 23, -5, 1, 15, 10)  // coat_side_right
-                .uv(158, 0).mirrored().cuboid(9.5f, 23, -5, 1, 15, 10)  // coat_side_left
-                .uv(224, 28).mirrored(false).cuboid(-10.5f, 23, -6, 3, 15, 1)  // coat_front_right
-                .uv(224, 28).mirrored().cuboid(7.5f, 23, -6, 3, 15, 1)  // coat_front_left
-                .uv(70, 62).mirrored(false).cuboid(-9, -3, -1, 3, 3, 3)  // shoulder_lamp_right
-                .uv(70, 62).mirrored().cuboid(6, -3, -1, 3, 3, 3),  // shoulder_lamp_left
+                .uv(142, 0).cuboid(-11, 0, -6, 22, 14, 12)  // chest
+                .uv(66, 28).cuboid(-9, 14, -5, 18, 10, 10)  // waist
+                .uv(36, 63).cuboid(-7, -2, 3, 14, 3, 3)  // collar
+                .uv(0, 63).cuboid(-4, 4, -7, 8, 8, 1)  // core_ring
+                .uv(112, 63).cuboid(-2, 6, -8, 4, 4, 1)  // core
+                .uv(110, 49).cuboid(-9.5f, 21, -5.5f, 19, 2, 11)  // belt
+                .uv(198, 28).cuboid(-10, 23, 5, 20, 15, 1)  // coat_back
+                .uv(0, 49).cuboid(-8, 2, 6, 16, 12, 2)  // backpack
+                .uv(210, 0).cuboid(-10.5f, 23, -5, 1, 15, 10)  // coat_side_right
+                .uv(210, 0).mirrored().cuboid(9.5f, 23, -5, 1, 15, 10)  // coat_side_left
+                .uv(240, 28).mirrored(false).cuboid(-10.5f, 23, -6, 3, 15, 1)  // coat_front_right
+                .uv(240, 28).mirrored().cuboid(7.5f, 23, -6, 3, 15, 1)  // coat_front_left
+                .uv(70, 63).mirrored(false).cuboid(-9, -3, -1, 3, 3, 3)  // shoulder_lamp_right
+                .uv(70, 63).mirrored().cuboid(6, -3, -1, 3, 3, 3),  // shoulder_lamp_left
                 ModelTransform.pivot(0, -24, 0));
         ModelPartData thruster_right_r1 = part.addChild("thruster_right_r", ModelPartBuilder.create()
                 .uv(0, 0).cuboid(-4, -18, -3, 8, 22, 6),  // thruster_right
@@ -66,10 +67,10 @@ public final class TitanCameramanBbModel {
                 .uv(0, 0).mirrored().cuboid(-4, -18, -3, 8, 22, 6),  // thruster_left
                 ModelTransform.of(9, 2, 10, 0, 0, 0.698132f));
         ModelPartData nozzle_right_r1 = part.addChild("nozzle_right_r", ModelPartBuilder.create()
-                .uv(82, 62).cuboid(-3, 4, -2, 6, 2, 4),  // nozzle_right
+                .uv(82, 63).cuboid(-3, 4, -2, 6, 2, 4),  // nozzle_right
                 ModelTransform.of(-9, 2, 10, 0, 0, -0.698132f));
         ModelPartData nozzle_left_r1 = part.addChild("nozzle_left_r", ModelPartBuilder.create()
-                .uv(82, 62).mirrored().cuboid(-3, 4, -2, 6, 2, 4),  // nozzle_left
+                .uv(82, 63).mirrored().cuboid(-3, 4, -2, 6, 2, 4),  // nozzle_left
                 ModelTransform.of(9, 2, 10, 0, 0, 0.698132f));
         return part;
     }
@@ -77,10 +78,10 @@ public final class TitanCameramanBbModel {
     /** Adds group "right_arm" from titan_cameraman.bbmodel. */
     public static ModelPartData addRightArm(ModelPartData parent) {
         ModelPartData part = parent.addChild("right_arm", ModelPartBuilder.create()
-                .uv(56, 28).cuboid(-9, -5, -5.5f, 10, 7, 11)  // shoulder_right
+                .uv(122, 28).cuboid(-9, -5, -5.5f, 10, 7, 11)  // shoulder_right
                 .uv(28, 0).cuboid(-8, 2, -4.5f, 8, 19, 9)  // sleeve_right
-                .uv(36, 48).cuboid(-8.5f, 17.5f, -5, 9, 4, 10)  // cuff_right
-                .uv(98, 28).cuboid(-8, 21.5f, -4.5f, 8, 9, 9),  // hand_right
+                .uv(36, 49).cuboid(-8.5f, 17.5f, -5, 9, 4, 10)  // cuff_right
+                .uv(164, 28).cuboid(-8, 21.5f, -4.5f, 8, 9, 9),  // hand_right
                 ModelTransform.pivot(-10, -20, 0));
         return part;
     }
@@ -88,10 +89,10 @@ public final class TitanCameramanBbModel {
     /** Adds group "left_arm" from titan_cameraman.bbmodel. */
     public static ModelPartData addLeftArm(ModelPartData parent) {
         ModelPartData part = parent.addChild("left_arm", ModelPartBuilder.create()
-                .uv(56, 28).mirrored().cuboid(-1, -5, -5.5f, 10, 7, 11)  // shoulder_left
+                .uv(122, 28).mirrored().cuboid(-1, -5, -5.5f, 10, 7, 11)  // shoulder_left
                 .uv(28, 0).cuboid(0, 2, -4.5f, 8, 19, 9)  // sleeve_left
-                .uv(36, 48).cuboid(-0.5f, 17.5f, -5, 9, 4, 10)  // cuff_left
-                .uv(98, 28).cuboid(0, 21.5f, -4.5f, 8, 9, 9),  // hand_left
+                .uv(36, 49).cuboid(-0.5f, 17.5f, -5, 9, 4, 10)  // cuff_left
+                .uv(164, 28).cuboid(0, 21.5f, -4.5f, 8, 9, 9),  // hand_left
                 ModelTransform.pivot(10, -20, 0));
         return part;
     }
@@ -100,7 +101,7 @@ public final class TitanCameramanBbModel {
     public static ModelPartData addRightLeg(ModelPartData parent) {
         ModelPartData part = parent.addChild("right_leg", ModelPartBuilder.create()
                 .uv(62, 0).cuboid(-3.5f, 0, -3.5f, 7, 20, 7)  // trouser_right
-                .uv(74, 48).cuboid(-4, 20, -6, 8, 4, 10),  // shoe_right
+                .uv(74, 49).cuboid(-4, 20, -6, 8, 4, 10),  // shoe_right
                 ModelTransform.pivot(-3.8f, 0, 0.2f));
         return part;
     }
@@ -109,7 +110,7 @@ public final class TitanCameramanBbModel {
     public static ModelPartData addLeftLeg(ModelPartData parent) {
         ModelPartData part = parent.addChild("left_leg", ModelPartBuilder.create()
                 .uv(62, 0).mirrored().cuboid(-3.5f, 0, -3.5f, 7, 20, 7)  // trouser_left
-                .uv(74, 48).cuboid(-4, 20, -6, 8, 4, 10),  // shoe_left
+                .uv(74, 49).cuboid(-4, 20, -6, 8, 4, 10),  // shoe_left
                 ModelTransform.pivot(3.8f, 0, 0.2f));
         return part;
     }

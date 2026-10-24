@@ -805,7 +805,7 @@ def radial(x, y, w, h, inner, outer, color_at):
 
 
 def titan_cameraman_lights(b):
-    """The parts of the Titan Cameraman that glow: chest core, floodlights, thruster exhausts, tally light."""
+    """The parts of the Titan Cameraman that glow: chest core, floodlights, thruster exhausts, recording light."""
     x, y, w, h = faces(*b["core_ring"])["front"]
     radial(x, y, w, h, 1.8, 3.3, lambda r: (40, 150 + int(30 * (3.3 - r)), 255))
     f = faces(*b["core"])
@@ -819,52 +819,50 @@ def titan_cameraman_lights(b):
             px[x + i, y + k] = (240, 244, 248, 255) if (i + k) % 2 else (210, 216, 226, 255)
     x, y, w, h = faces(*b["nozzle_right"])["bottom"]
     radial(x, y, w, h, 0, 9, lambda r: (90, 210, 255) if r < 1.6 else (40, 140, 240))
-    x, y, w, h = faces(*b["hood"])["front"]
-    px[x + w - 2, y + 1] = (255, 50, 40, 255)
+    x, y, w, h = faces(*b["housing"])["front"]
+    px[x + w - 1, y] = (255, 40, 30, 255)                   # red recording light
 
 
 def titan_cameraman():
     b = bb_boxes("titan_cameraman")
     new_image(256, 30, 128)
 
-    # Head: grey security gear with dark trim
+    # Head: a CCTV camera like the regular Cameramen's, light grey with a dark front plate, under a sun hood
     box(*b["mount"], (56, 58, 64), 3)
     f = faces(*b["housing"])
-    rect(*f["top"], (140, 144, 150), 3)
-    rect(*f["bottom"], (70, 72, 78), 3)
+    rect(*f["top"], (196, 200, 207), 3)
+    rect(*f["bottom"], (128, 132, 140), 3)
     for r in sides(f):
-        gradient(r, (132, 136, 144), (100, 104, 112), 3)
+        gradient(r, (190, 194, 201), (150, 155, 163), 3)
     for key in ("right", "left"):
         x, y, w, h = f[key]
-        rect(x, y + 3, w, 1, (86, 90, 96), 2)               # panel seam
-        for i in range(2, w - 2, 2):
-            rect(x + i, y + 6, 1, 3, (70, 72, 78), 0)       # vents
-    x, y, w, h = f["back"]
-    rect(x + 2, y + 2, w - 4, h - 4, (96, 100, 106), 2)     # service panel
-    rect(x + w // 2 - 1, y + h - 4, 2, 2, (24, 24, 26), 0)  # cable port
-    f = faces(*b["hood"])
-    rect(*f["top"], (150, 154, 160), 3)
-    x, y, w, h = f["top"]
-    rect(x + w // 2 - 1, y, 2, h, (160, 164, 170), 2)       # ridge
-    rect(*f["bottom"], (58, 60, 66), 2)
-    for r in sides(f):
-        rect(*r, (112, 116, 124), 3)
-    f = faces(*b["lens"])
-    box(*b["lens"], (40, 40, 44), 3)
+        rect(x, y + 2, w, 1, (140, 145, 152), 2)            # seam
+        for i in range(4):                                  # vent slots toward the back
+            vx = x + 2 + 2 * i if key == "right" else x + w - 3 - 2 * i
+            rect(vx, y + 4, 1, 4, (96, 100, 108), 0)
     x, y, w, h = f["front"]
-    radial(x, y, w, h, 0, 9, lambda r: (26, 26, 30))
-    radial(x, y, w, h, 0, 2.6, lambda r: (150, 160, 176) if r > 1.2 else (64, 74, 96))
-    px[x + 2, y + 2] = (235, 240, 250, 255)                 # glint
+    rect(x, y, w, h, CAMERA_DARK, 3)
+    x, y, w, h = f["back"]
+    rect(x + 1, y + 1, w - 2, h - 2, (160, 165, 172), 2)    # back cover
+    f = faces(*b["hood"])
+    rect(*f["top"], (206, 210, 216), 3)
+    x, y, w, h = f["top"]
+    rect(x + w // 2 - 1, y, 2, h, (214, 218, 224), 2)       # raised ridge down the middle
+    rect(*f["bottom"], (70, 72, 78), 3)                     # shadow under the hood
+    for r in sides(f):
+        rect(*r, (164, 168, 176), 2)
+    box(*b["hood_side_right"], (164, 168, 176), 3)
+    f = faces(*b["lens"])
+    box(*b["lens"], (34, 34, 38), 3)
+    x, y, w, h = f["front"]
+    radial(x, y, w, h, 0, 9, lambda r: (22, 22, 26))
+    radial(x, y, w, h, 0, 2.6, lambda r: GLASS if r > 1.2 else (14, 24, 52))
+    px[x + 2, y + 2] = (150, 190, 240, 255)                 # glint
+    box(*b["cable"], (24, 24, 28), 2)
     for name in ("antenna", "side_antenna_right"):
         u, v, w, h, d = b[name]
         box(u, v, w, h, d, (52, 52, 56), 3)
         rect(*faces(u, v, w, h, d)["top"], (160, 160, 166), 0)
-    f = faces(*b["side_cam_right"])
-    box(*b["side_cam_right"], (128, 132, 138), 3)
-    x, y, w, h = f["front"]
-    rect(x, y, w, h, (34, 34, 38), 2)
-    rect(x + 1, y + 1, 2, 2, (40, 70, 120), 0)
-    px[x + 1, y + 1] = (150, 190, 240, 255)
     f = faces(*b["floodlight_right"])
     box(*b["floodlight_right"], (44, 44, 48), 3)
     rect(*f["front"], (60, 60, 66), 2)
