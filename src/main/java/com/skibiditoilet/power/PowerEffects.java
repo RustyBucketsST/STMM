@@ -2,6 +2,7 @@ package com.skibiditoilet.power;
 
 import com.skibiditoilet.entity.AllianceEntity;
 import com.skibiditoilet.entity.SkibidiToiletEntity;
+import com.skibiditoilet.entity.ability.Targets;
 import com.skibiditoilet.fx.ModFx;
 import com.skibiditoilet.registry.ModDamageTypes;
 import com.skibiditoilet.registry.ModEffects;
@@ -11,7 +12,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.Monster;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -29,7 +29,6 @@ import net.minecraft.world.RaycastContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * What each power does when it's used. Area powers hit what's in front of the player (a cone from their
@@ -43,8 +42,6 @@ final class PowerEffects {
     private static final int SCAN_COLOR = 0x7CFF9B;
     private static final int HYPNOSIS_COLOR = 0xB45CFF;
     private static final int BURN_COLOR = 0xFF9A3C;
-    /** Toilets this tough (G-Man, the Giant Flyer) shrug off hypnosis. */
-    private static final float HYPNOSIS_MAX_HEALTH = 150.0f;
 
     private PowerEffects() {
     }
@@ -109,7 +106,7 @@ final class PowerEffects {
                 int ticks = (int) (120 * scale);
                 int hypnotized = 0;
                 for (LivingEntity target : inCone(player, 10.0, 0.75)) {
-                    if (target instanceof SkibidiToiletEntity toilet && toilet.getMaxHealth() < HYPNOSIS_MAX_HEALTH) {
+                    if (target instanceof SkibidiToiletEntity toilet && toilet.canBeHypnotized()) {
                         toilet.addStatusEffect(new StatusEffectInstance(ModEffects.HYPNOTIZED, ticks), player);
                         toilet.setTarget(null);
                         ModFx.tvStatic(world, toilet.getEyePos(), 0.8f);
@@ -194,7 +191,7 @@ final class PowerEffects {
         float size = FormHolder.scale(player);
         Vec3d front = player.getPos().add(facing.multiply(size));
         Box box = new Box(front, front).expand(0.9 * size, 0.0, 0.9 * size).stretch(0.0, player.getHeight(), 0.0);
-        List<LivingEntity> hit = player.getServerWorld().getEntitiesByClass(LivingEntity.class, box, PowerEffects::isEnemy);
+        List<LivingEntity> hit = player.getServerWorld().getEntitiesByClass(LivingEntity.class, box, Targets::isMonster);
         if (hit.isEmpty()) {
             return;
         }
@@ -224,32 +221,13 @@ final class PowerEffects {
 
     // ---------------------------------------------------------------- targeting
 
-    /** Toilets and other monsters. Players and the Alliance are never hit by powers. */
-    private static boolean isEnemy(LivingEntity entity) {
-        return entity.isAlive() && entity instanceof Monster && entity.isPartOfGame();
-    }
-
     /** Enemies within {@code range} of the player's eyes that the player can see, inside a cone around where they're looking. */
     private static List<LivingEntity> inCone(ServerPlayerEntity player, double range, double minDot) {
-        Vec3d eyes = player.getEyePos();
-        Vec3d look = player.getRotationVec(1.0f);
-        return enemies(player, range, entity -> {
-            Vec3d to = entity.getBoundingBox().getCenter().subtract(eyes);
-            double distance = to.length();
-            // Something right in your face counts as in front, whatever the angle.
-            return distance < 1.5 || to.multiply(1.0 / distance).dotProduct(look) >= minDot;
-        });
+        return Targets.inCone(player, player.getEyePos(), player.getRotationVec(1.0f), range, minDot, Targets::isMonster);
     }
 
     private static List<LivingEntity> around(ServerPlayerEntity player, double range) {
-        return enemies(player, range, entity -> true);
-    }
-
-    private static List<LivingEntity> enemies(ServerPlayerEntity player, double range, Predicate<LivingEntity> where) {
-        Vec3d eyes = player.getEyePos();
-        return player.getServerWorld().getEntitiesByClass(LivingEntity.class, player.getBoundingBox().expand(range),
-                entity -> isEnemy(entity) && entity.getBoundingBox().getCenter().squaredDistanceTo(eyes) <= range * range
-                        && player.canSee(entity) && where.test(entity));
+        return Targets.around(player, player.getEyePos(), range, Targets::isMonster);
     }
 
     /**

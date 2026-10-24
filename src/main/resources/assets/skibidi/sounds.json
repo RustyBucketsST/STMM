@@ -96,6 +96,33 @@
       "skibidi:move/titan_step"
     ]
   },
+  "entity.titan.charge": {
+    "subtitle": "subtitles.skibidi.entity.titan.charge",
+    "sounds": [
+      {
+        "name": "skibidi:weapon/charge",
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.titan.jetpack": {
+    "subtitle": "subtitles.skibidi.entity.titan.jetpack",
+    "sounds": [
+      {
+        "name": "skibidi:move/jetpack",
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.titan.plasma": {
+    "subtitle": "subtitles.skibidi.entity.titan.plasma",
+    "sounds": [
+      {
+        "name": "skibidi:weapon/plasma",
+        "volume": 1.0
+      }
+    ]
+  },
   "entity.saint_toilet.hymn": {
     "subtitle": "subtitles.skibidi.entity.saint_toilet.hymn",
     "sounds": [

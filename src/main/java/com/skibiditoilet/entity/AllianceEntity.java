@@ -1,7 +1,10 @@
 package com.skibiditoilet.entity;
 
 import com.skibiditoilet.character.AllianceType;
+import com.skibiditoilet.entity.ability.AllianceAbilities;
+import com.skibiditoilet.entity.ability.MobAbilities;
 import com.skibiditoilet.fx.ModFx;
+import com.skibiditoilet.registry.ModEffects;
 import com.skibiditoilet.registry.ModSounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -24,9 +27,17 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
-/** A Cameraman, Speakerman or TV Man. Leaves players alone and hunts Skibidi Toilets. */
+/**
+ * A Cameraman, Speakerman or TV Man. Leaves players alone and hunts Skibidi Toilets, punching them and using its
+ * abilities (see AllianceAbilities).
+ */
 public class AllianceEntity extends PathAwareEntity {
+    @Nullable
+    private MobAbilities<AllianceEntity> abilities;
+    private boolean abilitiesMade;
+
     public AllianceEntity(EntityType<? extends PathAwareEntity> type, World world) {
         super(type, world);
     }
@@ -76,6 +87,18 @@ public class AllianceEntity extends PathAwareEntity {
     }
 
     @Override
+    protected void mobTick() {
+        super.mobTick();
+        if (!this.abilitiesMade) {
+            this.abilities = AllianceAbilities.of(this);
+            this.abilitiesMade = true;
+        }
+        if (this.abilities != null) {
+            this.abilities.tick(this);
+        }
+    }
+
+    @Override
     public boolean canImmediatelyDespawn(double distanceSquared) {
         // Stays in the world like an animal instead of despawning when players are far away.
         return false;
@@ -91,6 +114,8 @@ public class AllianceEntity extends PathAwareEntity {
 
         // Never turns on another Alliance member, even if one hits it by accident.
         this.targetSelector.add(1, new RevengeGoal(this, AllianceEntity.class));
-        this.targetSelector.add(2, new ActiveTargetGoal<>(this, SkibidiToiletEntity.class, true));
+        // Hypnotized toilets are on our side for now.
+        this.targetSelector.add(2, new ActiveTargetGoal<>(this, SkibidiToiletEntity.class, 10, true, false,
+                toilet -> !toilet.hasStatusEffect(ModEffects.HYPNOTIZED)));
     }
 }

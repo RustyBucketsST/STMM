@@ -47,12 +47,15 @@ and edit its list for that sound.
 | `weapon/blaster.ogg` | `item.alliance_blaster.shoot` |
 | `weapon/strider_bolt.ogg` | `entity.camera_strider.shoot` |
 | `weapon/giant_laser.ogg` | `entity.giant_flying_toilet.laser` |
+| `weapon/charge.ogg` | `entity.titan.charge` |
+| `weapon/plasma.ogg` | `entity.titan.plasma` |
 | `move/swoop.ogg` | `entity.giant_flying_toilet.swoop` |
 | `weapon/spit.ogg` | `entity.skibidi_urinal.spit` |
 | `move/charge_rev.ogg` | `entity.fast_armored_toilet.rev` |
 | `move/crash.ogg` | `entity.fast_armored_toilet.crash` |
 | `move/slam.ogg` | `entity.hat_toilet.slam` |
 | `move/titan_step.ogg` | `entity.titan.step` |
+| `move/jetpack.ogg` | `entity.titan.jetpack` |
 | `move/choir.ogg` | `entity.saint_toilet.hymn` |
 | `move/demonic_roar.ogg` | `entity.saint_toilet.roar` |
 | `dj/kick.ogg` | `entity.dj_toilet.kick` |

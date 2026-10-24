@@ -101,6 +101,11 @@ public class SkibidiToiletEntity extends HostileEntity {
         return super.isAiDisabled() || this.hasStatusEffect(ModEffects.STUNNED);
     }
 
+    /** Toilets this tough (G-Man, the Giant Flyer) shrug off hypnosis. */
+    public boolean canBeHypnotized() {
+        return this.getMaxHealth() < 150.0f;
+    }
+
     /** A hypnotized toilet won't go after players or the Alliance; it picks on other toilets instead. */
     @Override
     public boolean canTarget(LivingEntity target) {

@@ -618,6 +618,34 @@ def energy_knife():
     return reverb(mix((hum, 0.0), (slice_, 0.05)), wet=0.15)
 
 
+def charge():
+    """Energy gathering for a big shot: a rising whine with a pulsing hum under it."""
+    d = 1.0
+    t = seconds(d)
+    whine = chorus(glide(300, 1800, d, 1.8), d, 0.008) * envelope(int(SR * d), 0.2, 0.03) * 0.5
+    hum = lowpass(saw(np.full(int(SR * d), 70.0)), 600) * (0.6 + 0.4 * np.sin(2 * np.pi * (6 + 10 * t) * t))
+    hum = hum * envelope(int(SR * d), 0.3, 0.03) * 0.5
+    return reverb(whine + hum + crackle(d, 20) * 0.2, wet=0.25)
+
+
+def jetpack():
+    """A jetpack firing: a roar of burning fuel that swells and dies away."""
+    d = 1.4
+    roar = lowpass(noise(d), 900) * 1.0 + bandpass(noise(d), 2500, 0.7) * 0.4
+    roar = roar * envelope(int(SR * d), 0.08, 0.7)
+    thump = np.sin(phase_of(glide(80, 40, 0.3))) * decay(0.3, 0.08)
+    return reverb(mix((roar, 0.0), (thump, 0.0)) + crackle(d, 40) * 0.3, wet=0.2, size=1.3)
+
+
+def plasma():
+    """A plasma cannon: a heavy electric thump and a sizzling bolt."""
+    d = 0.7
+    bolt = laser(900, 120, d, 3.0) * 0.8
+    thump = np.sin(phase_of(glide(140, 45, 0.4))) * decay(0.4, 0.1) * 1.3
+    sizzle = highpass(noise(d), 3000) * decay(d, 0.2) * 0.35
+    return reverb(mix((bolt, 0.0), (thump, 0.0), (sizzle, 0.05)), wet=0.25, size=1.2)
+
+
 def transform():
     """Powering up into a bigger form: a charge winding up, servos whirring, and a deep boom as it lands."""
     d = 0.9
@@ -686,6 +714,9 @@ SOUNDS = {
     "power/stun_flash": stun_flash,
     "power/no_energy": no_energy,
     "power/transform": transform,
+    "weapon/charge": charge,
+    "move/jetpack": jetpack,
+    "weapon/plasma": plasma,
     "power/transform_back": transform_back,
     "weapon/stun_rifle": stun_rifle,
     "weapon/gravity_pull": gravity_pull,

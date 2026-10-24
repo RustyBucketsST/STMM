@@ -34,10 +34,27 @@
 - **Hat Skibidi Toilet**: top hat. Leaps at you from 4–14 blocks and slams down, hurting and knocking back
   everyone nearby.
 - **Large Cameraman / Large Speakerman** (Alliance): 1.6x size, 60/70 HP. The Speakerman's punches throw
-  further.
+  further. Their abilities are below.
 - **Camera Strider** (Alliance): a camera on three long legs. Shoots toilets, flying ones too, with blue bolts
   from 28 blocks away.
 - All of these have spawn eggs. None of them spawn naturally.
+
+## Alliance and boss abilities
+
+Besides punching, the Alliance mobs use the abilities they have in the series every few seconds. They only ever
+hit toilets and other monsters, never players or each other, and won't shoot if a player or ally is in the way.
+
+| Mob | Abilities |
+|---|---|
+| Cameraman | **Paralyzer rifle**: a laser shot from up to 16 blocks that stuns the toilet for 1.5 s. |
+| Large Cameraman | Paralyzer rifle from 20 blocks, harder hitting, 2.5 s stun. |
+| Speakerman | **Soundwaves**: a blast in front that hurts and throws back toilets within 6 blocks. |
+| Large Speakerman | Bigger soundwaves, 9 blocks. |
+| TV Man | **Hypnosis screen**: a toilet up to 10 blocks away fights other toilets for 5 s (the Alliance leaves it alone). **Teleport** next to a toilet 10–32 blocks away. |
+| Titan Cameraman (1.0) | **Jetpack**: flies at toilets far away or up high, landing unhurt. **Core beam**: his blue core charges for a second, then fires a thick beam (40 blocks) that bursts where it lands. **Riot shield**: lasers, spit and arrows do half damage to him. |
+| Titan Speakerman (1.0) | **Jetpack**, like the Titan Cameraman. **Soundwaves** from all his head and shoulder speakers at once: a huge blast (16 blocks) that shakes the ground. **Plasma cannon** on his left arm: a bolt from up to 36 blocks that bursts where it lands. |
+| Titan TV Man (1.0) | **Death screen**: his screen crackles, then flashes, stunning (4 s) and hurting every toilet in front of him up to 22 blocks. **Shoulder claws**: one sweep through every toilet close in front. **Grappling hook**: reels a toilet 10–30 blocks away in to him. |
+| G-Toilet | **Eye lasers**: his eyes spark yellow for a moment, then fire two lasers (40 blocks), as in episodes 12, 17 and 20. |
 
 ## Mission list
 

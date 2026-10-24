@@ -26,6 +26,9 @@ public final class ModSounds {
     public static final SoundEvent FAST_ARMORED_TOILET_CRASH = register("entity.fast_armored_toilet.crash");
     public static final SoundEvent HAT_TOILET_SLAM = register("entity.hat_toilet.slam");
     public static final SoundEvent TITAN_STEP = register("entity.titan.step");
+    public static final SoundEvent TITAN_CHARGE = register("entity.titan.charge");
+    public static final SoundEvent TITAN_JETPACK = register("entity.titan.jetpack");
+    public static final SoundEvent TITAN_PLASMA = register("entity.titan.plasma");
     public static final SoundEvent SAINT_TOILET_HYMN = register("entity.saint_toilet.hymn");
     public static final SoundEvent SAINT_TOILET_ROAR = register("entity.saint_toilet.roar");
     public static final SoundEvent DJ_KICK = register("entity.dj_toilet.kick");

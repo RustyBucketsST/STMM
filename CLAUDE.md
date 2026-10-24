@@ -43,7 +43,7 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
 - Never answered: Alliance vs toilet balance.
 - Ideas mentioned but not started: Titan branch of the story; Chapter 1 "batch 3" characters (Strider /
   Hydra Strider, Camera Toilet, Police/Camo, Scientist Cameraman, Helicopter, Strider Speaker, Mafia, Glitch,
-  infection); G-Toilet laser eyes and 2.0 form; stat upgrades and training NPCs (also a points source).
+  infection); G-Toilet 2.0 form; stat upgrades and training NPCs (also a points source).
 
 ## Build
 
@@ -58,7 +58,12 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   (CHARACTER, STORY, POWERS: persistent, copied on death).
 - `entity/` – `SkibidiToiletEntity` is the base of every toilet (plunger double damage, flush death, stun via
   `isAiDisabled`, hypnosis targeting, kill points). `AllianceEntity` is the base of the Alliance mobs.
-  `LaserBeam` is the instant-hit shot used by lasers, the Urinal's spray and tech items.
+  `LaserBeam` is the instant-hit shot used by lasers, the Urinal's spray and tech items (`fireFrom` shoots from
+  any point, e.g. a Titan's core).
+- `entity/ability/` – mob abilities from the series: `MobAbility` (cooldown, condition, optional windup),
+  `MobAbilities` (one at a time, ticked from mobTick), `AllianceAbilities` (every Alliance mob's, by entity type),
+  `Targets` (area targeting shared with the player powers). G-Toilet's eye lasers live in `GManToiletEntity`, the
+  Titan jetpack flames and riot shield in `TitanEntity`. Listed for players in `docs/story-chapter1.md`.
 - `character/` – creator data and sync. `story/` – missions (`StoryMissions` defines all 38), runner,
   parties. `power/` – `Power` and `Tech` enums, `PowerData` (points/unlocks), `PowerManager` (energy,
   cooldowns, runtime, forms: transform/drain/stats), `PowerEffects` (what each power does), `PowerSync`
