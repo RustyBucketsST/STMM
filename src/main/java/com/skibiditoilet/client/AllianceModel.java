@@ -3,6 +3,7 @@ package com.skibiditoilet.client;
 import com.skibiditoilet.client.bbmodel.CameramanBbModel;
 import com.skibiditoilet.client.bbmodel.LargeCameramanBbModel;
 import com.skibiditoilet.client.bbmodel.LargeSpeakermanBbModel;
+import com.skibiditoilet.client.bbmodel.LargeTvManBbModel;
 import com.skibiditoilet.client.bbmodel.SpeakermanBbModel;
 import com.skibiditoilet.client.bbmodel.TvManBbModel;
 import com.skibiditoilet.entity.AllianceEntity;
@@ -51,6 +52,16 @@ public class AllianceModel extends BipedEntityModel<AllianceEntity> {
         return fullBody(LargeSpeakermanBbModel.TEXTURE_WIDTH, LargeSpeakermanBbModel.TEXTURE_HEIGHT,
                 LargeSpeakermanBbModel::addHead, LargeSpeakermanBbModel::addBody, LargeSpeakermanBbModel::addRightArm,
                 LargeSpeakermanBbModel::addLeftArm, LargeSpeakermanBbModel::addRightLeg, LargeSpeakermanBbModel::addLeftLeg);
+    }
+
+    /**
+     * Large TV Man 1.0: a big static-filled CRT on a pipe, a black suit with a purple tie, and four little TVs on
+     * tendrils from his back (large_tv_man.bbmodel). Only players in the Large form use it so far.
+     */
+    public static TexturedModelData getLargeTvManModelData() {
+        return fullBody(LargeTvManBbModel.TEXTURE_WIDTH, LargeTvManBbModel.TEXTURE_HEIGHT,
+                LargeTvManBbModel::addHead, LargeTvManBbModel::addBody, LargeTvManBbModel::addRightArm,
+                LargeTvManBbModel::addLeftArm, LargeTvManBbModel::addRightLeg, LargeTvManBbModel::addLeftLeg);
     }
 
     /** A whole body from a .bbmodel whose groups are the biped parts at the standard pivots. */

@@ -51,6 +51,8 @@ public final class ModSounds {
     public static final SoundEvent POWER_BURNING_LIGHT = register("power.burning_light");
     public static final SoundEvent POWER_STUN_FLASH = register("power.stun_flash");
     public static final SoundEvent POWER_NO_ENERGY = register("power.no_energy");
+    public static final SoundEvent POWER_TRANSFORM = register("power.transform");
+    public static final SoundEvent POWER_TRANSFORM_BACK = register("power.transform_back");
     public static final SoundEvent STUN_RIFLE_SHOOT = register("item.stun_rifle.shoot");
     public static final SoundEvent GRAVITY_PLUNGER_PULL = register("item.gravity_plunger.pull");
     public static final SoundEvent ENERGY_KNIFE_SWING = register("item.energy_knife.swing");

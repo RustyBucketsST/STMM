@@ -3,8 +3,16 @@
   "minVersion": "0.8",
   "package": "com.skibiditoilet.mixin",
   "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "LivingEntityMixin",
+    "PlayerEntityMixin",
+    "ServerPlayerInteractionManagerMixin",
+    "ServerPlayNetworkHandlerMixin"
+  ],
   "client": [
     "client.CameraMixin",
+    "client.ClientPlayerInteractionManagerMixin",
+    "client.GameRendererMixin",
     "client.LivingEntityRendererMixin",
     "client.PlayerEntityRendererMixin",
     "client.PlayerEntityModelMixin"

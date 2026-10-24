@@ -243,6 +243,24 @@
       }
     ]
   },
+  "power.transform": {
+    "subtitle": "subtitles.skibidi.power.transform",
+    "sounds": [
+      {
+        "name": "skibidi:power/transform",
+        "volume": 0.8
+      }
+    ]
+  },
+  "power.transform_back": {
+    "subtitle": "subtitles.skibidi.power.transform_back",
+    "sounds": [
+      {
+        "name": "skibidi:power/transform_back",
+        "volume": 0.6
+      }
+    ]
+  },
   "item.stun_rifle.shoot": {
     "subtitle": "subtitles.skibidi.item.stun_rifle.shoot",
     "sounds": [

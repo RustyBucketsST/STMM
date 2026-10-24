@@ -4,6 +4,7 @@ import com.skibiditoilet.character.CharacterData;
 import com.skibiditoilet.client.character.AllianceButton;
 import com.skibiditoilet.client.character.AllianceUi;
 import com.skibiditoilet.client.character.ClientCharacterState;
+import com.skibiditoilet.power.Form;
 import com.skibiditoilet.power.Power;
 import com.skibiditoilet.power.PowerData;
 import com.skibiditoilet.power.Tech;
@@ -17,23 +18,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Powers menu: your points, your type's powers (unlock them with points) and the tech your type
- * builds (spend points to get one, or a replacement for half price).
+ * The Powers menu: your points and two tabs. Powers: your type's powers (unlock them with points) and the tech your
+ * type builds (spend points to get one, or a replacement for half price). Forms: the bigger forms, bought in order.
  */
 public class PowersScreen extends Screen {
     private static final int WIDTH = 330;
     private static final int ROW = 32;
     private static final int SECTION = 14;
     private static final int BUTTON_WIDTH = 84;
+    private static final int TAB_WIDTH = 64;
+    private static final int TOP = 13 + 16;
+
+    private enum Tab {
+        POWERS, FORMS
+    }
+
+    /** The tab the menu opens on: the one it was left on. */
+    private static Tab tab = Tab.POWERS;
 
     private final List<Power> powers;
     private final List<Tech> techs;
     private final List<Row> rows = new ArrayList<>();
+    private final List<Section> sections = new ArrayList<>();
     private int left;
     private int top;
     private int panelHeight;
 
-    private record Row(int y, Text name, Text details, Text description, Power power, Tech tech) {
+    private record Row(int y, Text name, Text details, Text description, Power power, Tech tech, Form form) {
+    }
+
+    private record Section(int y, Text label) {
     }
 
     public PowersScreen() {
@@ -46,17 +60,43 @@ public class PowersScreen extends Screen {
     @Override
     protected void init() {
         this.rows.clear();
-        this.panelHeight = 13 + 16 + SECTION + this.powers.size() * ROW + (this.techs.isEmpty() ? 0 : SECTION + this.techs.size() * ROW) + 6;
+        this.sections.clear();
+        int content = tab == Tab.POWERS
+                ? SECTION + this.powers.size() * ROW + (this.techs.isEmpty() ? 0 : SECTION + this.techs.size() * ROW)
+                : SECTION + Form.unlockable().length * ROW;
+        this.panelHeight = TOP + content + 6;
         this.left = (this.width - WIDTH) / 2;
         this.top = Math.max(4, (this.height - this.panelHeight) / 2);
-        int y = this.top + 13 + 16 + SECTION;
+        int tabX = this.left + (WIDTH - 2 * TAB_WIDTH - 4) / 2;
+        for (Tab each : Tab.values()) {
+            this.addDrawableChild(new AllianceButton(tabX + each.ordinal() * (TAB_WIDTH + 4), this.top + 14, TAB_WIDTH, 13,
+                    Text.translatable("screen.skibidi.powers.section." + each.name().toLowerCase()), () -> tab == each,
+                    () -> {
+                        tab = each;
+                        this.clearAndInit();
+                    }));
+        }
+        int y = this.top + TOP;
+        if (tab == Tab.POWERS) {
+            y = this.addPowers(y);
+            if (!this.techs.isEmpty()) {
+                this.addTechs(y);
+            }
+        } else {
+            this.addForms(y);
+        }
+    }
+
+    private int addPowers(int y) {
+        this.sections.add(new Section(y, Text.translatable("screen.skibidi.powers.section.powers")));
+        y += SECTION;
         for (int slot = 0; slot < this.powers.size(); slot++) {
             Power power = this.powers.get(slot);
             Text key = ClientPowerState.POWER_KEYS[slot].getBoundKeyLocalizedText();
             Text details = Text.translatable("screen.skibidi.powers.details", key, power.energyCost(),
                     String.format("%.0f", power.cooldown() / 20.0f));
             this.rows.add(new Row(y, Text.translatable(power.translationKey()), details,
-                    Text.translatable(power.descriptionKey()), power, null));
+                    Text.translatable(power.descriptionKey()), power, null, null));
             this.addDrawableChild(new AllianceButton(this.left + WIDTH - BUTTON_WIDTH - 6, y + 8, BUTTON_WIDTH, 16,
                     Text.empty(), () -> ClientPowerState.unlock(power)) {
                 @Override
@@ -72,24 +112,58 @@ public class PowersScreen extends Screen {
             });
             y += ROW;
         }
-        if (!this.techs.isEmpty()) {
-            y += SECTION;
-            for (Tech tech : this.techs) {
-                this.rows.add(new Row(y, tech.item().getName(), Text.empty(), Text.translatable(tech.descriptionKey()), null, tech));
-                this.addDrawableChild(new AllianceButton(this.left + WIDTH - BUTTON_WIDTH - 6, y + 8, BUTTON_WIDTH, 16,
-                        Text.empty(), () -> ClientPowerState.build(tech)) {
-                    @Override
-                    public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
-                        PowerData data = ClientPowerState.data();
-                        int cost = tech.cost(data.hasBuilt(tech));
-                        this.active = data.points() >= cost;
-                        this.setMessage(Text.translatable(data.hasBuilt(tech) ? "screen.skibidi.powers.rebuild"
-                                : "screen.skibidi.powers.build", cost));
-                        super.renderButton(context, mouseX, mouseY, delta);
-                    }
-                });
-                y += ROW;
+        return y;
+    }
+
+    private void addTechs(int y) {
+        this.sections.add(new Section(y, Text.translatable("screen.skibidi.powers.section.tech")));
+        y += SECTION;
+        for (Tech tech : this.techs) {
+            this.rows.add(new Row(y, tech.item().getName(), Text.empty(), Text.translatable(tech.descriptionKey()),
+                    null, tech, null));
+            this.addDrawableChild(new AllianceButton(this.left + WIDTH - BUTTON_WIDTH - 6, y + 8, BUTTON_WIDTH, 16,
+                    Text.empty(), () -> ClientPowerState.build(tech)) {
+                @Override
+                public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+                    PowerData data = ClientPowerState.data();
+                    int cost = tech.cost(data.hasBuilt(tech));
+                    this.active = data.points() >= cost;
+                    this.setMessage(Text.translatable(data.hasBuilt(tech) ? "screen.skibidi.powers.rebuild"
+                            : "screen.skibidi.powers.build", cost));
+                    super.renderButton(context, mouseX, mouseY, delta);
+                }
+            });
+            y += ROW;
+        }
+    }
+
+    private void addForms(int y) {
+        this.sections.add(new Section(y, Text.translatable("screen.skibidi.powers.section.forms")));
+        y += SECTION;
+        Text key = ClientPowerState.transformKey().getBoundKeyLocalizedText();
+        for (Form form : Form.unlockable()) {
+            Text details = Text.translatable("screen.skibidi.powers.form_details", key, form.transformCost(),
+                    String.format("%.1f", form.drain()));
+            Text description = Text.translatable(form.descriptionKey());
+            Form previous = form.previous();
+            if (previous != null && previous != Form.NORMAL) {
+                description = description.copy().append(" ").append(Text.translatable("screen.skibidi.powers.form_needs",
+                        Text.translatable(previous.translationKey())));
             }
+            this.rows.add(new Row(y, Text.translatable(form.translationKey()), details, description, null, null, form));
+            this.addDrawableChild(new AllianceButton(this.left + WIDTH - BUTTON_WIDTH - 6, y + 8, BUTTON_WIDTH, 16,
+                    Text.empty(), () -> ClientPowerState.unlock(form)) {
+                @Override
+                public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+                    PowerData data = ClientPowerState.data();
+                    boolean has = data.has(form);
+                    this.active = !has && (previous == null || data.has(previous)) && data.points() >= form.pointCost();
+                    this.setMessage(has ? Text.translatable("screen.skibidi.powers.unlocked")
+                            : Text.translatable("screen.skibidi.powers.unlock", form.pointCost()));
+                    super.renderButton(context, mouseX, mouseY, delta);
+                }
+            });
+            y += ROW;
         }
     }
 
@@ -108,10 +182,8 @@ public class PowersScreen extends Screen {
         context.drawTextWithShadow(this.textRenderer, energy, this.left + WIDTH - 6 - this.textRenderer.getWidth(energy), y,
                 AllianceUi.TEXT_DIM);
 
-        section(context, Text.translatable("screen.skibidi.powers.section.powers"), this.top + 13 + 16);
-        if (!this.techs.isEmpty()) {
-            section(context, Text.translatable("screen.skibidi.powers.section.tech"),
-                    this.top + 13 + 16 + SECTION + this.powers.size() * ROW);
+        for (Section section : this.sections) {
+            section(context, section.label, section.y);
         }
         for (Row row : this.rows) {
             row(context, row, data);
@@ -133,11 +205,12 @@ public class PowersScreen extends Screen {
 
     private void row(DrawContext context, Row row, PowerData data) {
         int x = this.left + 6;
-        boolean owned = row.power != null ? data.has(row.power) : data.hasBuilt(row.tech);
+        boolean owned = row.power != null ? data.has(row.power) : row.form != null ? data.has(row.form) : data.hasBuilt(row.tech);
         context.fill(x, row.y + 2, x + 20, row.y + 22, 0xFF0A121B);
         context.drawBorder(x, row.y + 2, 20, 20, owned ? AllianceUi.BORDER : AllianceUi.BORDER_DIM);
-        if (row.power != null) {
-            context.drawTexture(PowerHud.icon(row.power), x + 2, row.y + 4, 0, 0, 16, 16, 16, 16);
+        if (row.power != null || row.form != null) {
+            context.drawTexture(row.power != null ? PowerHud.icon(row.power) : PowerHud.icon(row.form),
+                    x + 2, row.y + 4, 0, 0, 16, 16, 16, 16);
             if (!owned) {
                 context.fill(x + 2, row.y + 4, x + 18, row.y + 20, 0x90000000);
             }

@@ -177,7 +177,8 @@ final class PowerEffects {
                 || toSource.normalize().dotProduct(facing.normalize()) < 0.3) {
             return false;
         }
-        Vec3d front = player.getEyePos().subtract(0.0, 0.4, 0.0).add(facing.normalize().multiply(0.8));
+        float size = FormHolder.scale(player);
+        Vec3d front = player.getEyePos().subtract(0.0, 0.4 * size, 0.0).add(facing.normalize().multiply(0.8 * size));
         ModFx.sparks(player.getServerWorld(), front, from, SHIELD_COLOR);
         sound(player, ModSounds.POWER_SHIELD_HIT, 1.0f + player.getRandom().nextFloat() * 0.2f);
         return true;
@@ -189,8 +190,10 @@ final class PowerEffects {
             return;
         }
         Vec3d facing = player.getRotationVec(1.0f).multiply(1, 0, 1).normalize();
-        Box box = new Box(player.getPos().add(facing.multiply(1.0)), player.getPos().add(facing.multiply(1.0)))
-                .expand(0.9, 0.0, 0.9).stretch(0.0, player.getHeight(), 0.0);
+        // In front of the shield, which is as big as the player.
+        float size = FormHolder.scale(player);
+        Vec3d front = player.getPos().add(facing.multiply(size));
+        Box box = new Box(front, front).expand(0.9 * size, 0.0, 0.9 * size).stretch(0.0, player.getHeight(), 0.0);
         List<LivingEntity> hit = player.getServerWorld().getEntitiesByClass(LivingEntity.class, box, PowerEffects::isEnemy);
         if (hit.isEmpty()) {
             return;

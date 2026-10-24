@@ -68,12 +68,24 @@ public class TitanModel extends AllianceModel {
     @Override
     public void setAngles(AllianceEntity entity, float limbAngle, float limbDistance,
                           float animationProgress, float headYaw, float headPitch) {
-        for (ModelPart part : this.parts) {
-            part.setPivot(part.pivotX / DETAIL, (part.pivotY + RAISE) / DETAIL, part.pivotZ / DETAIL);
-        }
+        toStandard(this.parts, DETAIL);
         super.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
-        for (ModelPart part : this.parts) {
-            part.setPivot(part.pivotX * DETAIL, part.pivotY * DETAIL - RAISE, part.pivotZ * DETAIL);
+        fromStandard(this.parts, DETAIL);
+    }
+
+    /** Moves the pivots of a model built at {@code detail} units per pixel to the standard biped units... */
+    public static void toStandard(List<ModelPart> parts, float detail) {
+        float raise = 24.0f * (detail - 1.0f);
+        for (ModelPart part : parts) {
+            part.setPivot(part.pivotX / detail, (part.pivotY + raise) / detail, part.pivotZ / detail);
+        }
+    }
+
+    /** ...and back, once the biped animation has set them. */
+    public static void fromStandard(List<ModelPart> parts, float detail) {
+        float raise = 24.0f * (detail - 1.0f);
+        for (ModelPart part : parts) {
+            part.setPivot(part.pivotX * detail, part.pivotY * detail - raise, part.pivotZ * detail);
         }
     }
 }

@@ -4,6 +4,8 @@ import com.skibiditoilet.SkibidiToiletMod;
 import com.skibiditoilet.character.CharacterData;
 import com.skibiditoilet.client.character.AllianceUi;
 import com.skibiditoilet.client.character.ClientCharacterState;
+import com.skibiditoilet.power.Form;
+import com.skibiditoilet.power.FormHolder;
 import com.skibiditoilet.power.Power;
 import com.skibiditoilet.power.PowerSync;
 import net.minecraft.client.MinecraftClient;
@@ -17,7 +19,8 @@ import java.util.List;
 
 /**
  * The bottom-left corner: the energy bar and a slot for each power, with its key, its cooldown counting
- * down, and a "+N points" popup when points come in. (The middle is the hotbar's, the top-left the mission's.)
+ * down, the form the player is in, and a "+N points" popup when points come in. (The middle is the hotbar's,
+ * the top-left the mission's.)
  */
 final class PowerHud {
     static final int SLOT = 18;
@@ -31,6 +34,10 @@ final class PowerHud {
 
     static Identifier icon(Power power) {
         return SkibidiToiletMod.id("textures/gui/power/" + power.id() + ".png");
+    }
+
+    static Identifier icon(Form form) {
+        return SkibidiToiletMod.id("textures/gui/power/" + form.id() + ".png");
     }
 
     static void render(DrawContext context, float tickDelta) {
@@ -63,6 +70,13 @@ final class PowerHud {
 
         for (int slot = 0; slot < powers.size(); slot++) {
             slot(context, textRenderer, powers.get(slot), slot, x + 4 + slot * (SLOT + GAP), y + 13, energy, tickDelta);
+        }
+
+        // The form, above the panel's right end, while it drains the bar.
+        Form form = FormHolder.form(client.player);
+        if (form != Form.NORMAL) {
+            Text name = Text.translatable(form.translationKey());
+            context.drawTextWithShadow(textRenderer, name, x + width - textRenderer.getWidth(name), y - 10, AllianceUi.HIGHLIGHT);
         }
 
         // "+N points", rising and fading above the panel.

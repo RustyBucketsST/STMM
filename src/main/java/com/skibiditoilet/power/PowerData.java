@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A player's points and what they've bought with them: unlocked powers (by id) and tech they've built.
+ * A player's points and what they've bought with them: unlocked powers and forms (by id) and tech they've built.
  * Points come from defeating toilets and from mission rewards.
  */
 @SuppressWarnings("UnstableApiUsage")
@@ -33,6 +33,11 @@ public record PowerData(int points, Set<String> unlocked, Set<String> built) {
         return power.isFree() || this.unlocked.contains(power.id());
     }
 
+    /** Normal is everyone's; the bigger forms are bought. */
+    public boolean has(Form form) {
+        return form == Form.NORMAL || this.unlocked.contains(form.id());
+    }
+
     public boolean hasBuilt(Tech tech) {
         return this.built.contains(tech.id());
     }
@@ -43,6 +48,10 @@ public record PowerData(int points, Set<String> unlocked, Set<String> built) {
 
     public PowerData withUnlocked(Power power) {
         return new PowerData(this.points - power.pointCost(), add(this.unlocked, power.id()), this.built);
+    }
+
+    public PowerData withUnlocked(Form form) {
+        return new PowerData(this.points - form.pointCost(), add(this.unlocked, form.id()), this.built);
     }
 
     public PowerData withBuilt(Tech tech, int cost) {

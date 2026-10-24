@@ -923,6 +923,85 @@ def large_speakerman():
     return img
 
 
+def crt_static(r, rnd, bright=(150, 240)):
+    """A TV screen full of white static, every other row a little darker like scan lines."""
+    x, y, w, h = r
+    for i in range(w):
+        for k in range(h):
+            v = rnd.randint(*bright) * (0.88 if k % 2 else 1.0)
+            px[x + i, y + k] = (int(v), int(v), min(255, int(v * 1.04)), 255)
+
+
+def large_tv_man():
+    # Large TV Man 1.0 (large_tv_man.bbmodel): a big black CRT showing static on a bracket and a thin pipe, a black
+    # suit with a purple tie, black gloves, and four little static TVs on thin metal tendrils from his back
+    b = bb_boxes("large_tv_man")
+    new_image(64, 11)
+    rnd = random.Random(45)
+    plastic, plastic_dark = (36, 36, 40), (24, 24, 28)
+    suit_black, suit_dark = (28, 28, 32), (20, 20, 24)
+    purple = (118, 52, 186)
+    metal = (112, 114, 122)
+    for name in ("tv", "side_tv_upper_right", "side_tv_lower_right"):
+        f = faces(*b[name])
+        for r in sides(f):
+            gradient(r, plastic, plastic_dark, 3)
+        rect(*f["top"], (40, 40, 44), 3)
+        rect(*f["bottom"], plastic_dark, 3)
+        x, y, w, h = f["front"]
+        rect(x, y, w, h, (18, 18, 20), 2)                    # bezel...
+        crt_static((x + 1, y + 1, w - 2 - (2 if name == "tv" else 0), h - 2), rnd)   # ...around the static
+        if name == "tv":
+            rect(x + w - 2, y + 2, 1, 1, (90, 92, 100), 0)   # dials beside the screen
+            rect(x + w - 2, y + 4, 1, 1, (90, 92, 100), 0)
+            x, y, w, h = f["top"]
+            for i in range(2, w - 2, 2):
+                rect(x + i, y + 2, 1, h - 3, (26, 26, 30), 0)   # vents
+    f = faces(*b["tv_back"])
+    for r in f.values():
+        rect(*r, plastic_dark, 3)
+    x, y, w, h = f["back"]
+    for k in range(1, h - 1, 2):
+        rect(x + 1, y + k, w - 2, 1, (16, 16, 18), 0)
+    for name in ("pipe", "bracket", "rod", "knob_right"):
+        box(*b[name], metal, 4)
+    for name in ("tendril_upper_right", "tendril_lower_right"):
+        f = faces(*b[name])
+        for r in f.values():
+            rect(*r, (58, 58, 64), 3)
+        for r in sides(f):
+            x, y, w, h = r
+            for i in range(1, w, 3):
+                px[x + i, y] = shade((84, 84, 92), 2)        # joints along the tendril
+    f = faces(*b["torso"])
+    for r in sides(f):
+        rect(*r, suit_black, 3)
+    x, y, w, h = f["front"]
+    rect(x + 2, y, 4, 4, SHIRT, 2)                           # shirt in the open collar...
+    rect(x + 3, y, 2, 1, (86, 34, 140), 0)                   # ...and a purple tie
+    rect(x + 3, y + 1, 2, 8, purple, 3)
+    rect(x + 1, y, 1, 5, suit_dark, 0)                       # lapels
+    rect(x + 6, y, 1, 5, suit_dark, 0)
+    for k in (6, 9):
+        px[x + 5, y + k] = (60, 60, 66, 255)                 # buttons
+    rect(*f["top"], suit_black, 3)
+    f = faces(*b["arm_right"])
+    for r in sides(f):
+        x, y, w, h = r
+        rect(x, y, w, h - 3, suit_black, 3)
+        rect(x, y + h - 4, w, 1, SHIRT, 2)                   # shirt cuff
+        rect(x, y + h - 3, w, 3, (38, 38, 42), 3)            # black gloves
+    rect(*f["top"], suit_black, 3)
+    rect(*f["bottom"], (38, 38, 42), 3)
+    f = faces(*b["leg_right"])
+    for r in sides(f):
+        x, y, w, h = r
+        rect(x, y, w, h, (24, 24, 28), 3)
+        rect(x, y + h - 2, w, 2, SHOE, 2)
+    rect(*f["bottom"], SHOE, 2)
+    return img
+
+
 GOLD = (212, 175, 55)
 
 
@@ -1833,6 +1912,58 @@ def icon_stun_flash():
     return img
 
 
+def figure(cx, bottom, h, suit, head, core=None):
+    """A blocky Alliance member h pixels tall standing on row `bottom`, centred on column cx: a boxy device
+    head, a suit with arms, two legs, and a glowing core on the chest if given."""
+    head_h = max(1, round(h * 0.28))
+    body_h = max(1, round(h * 0.4))
+    leg_h = h - head_h - body_h
+    half = max(1, round(h * 0.22))
+    top = bottom - h + 1
+    for x in range(cx - half, cx + half + 1):               # head
+        for y in range(top, top + head_h):
+            dot(x, y, head)
+    for x in range(cx - half - 1, cx + half + 2):           # shoulders, chest and arms
+        for y in range(top + head_h, top + head_h + body_h):
+            arm = x in (cx - half - 1, cx + half + 1)
+            if arm and y == top + head_h and h >= 8:
+                continue
+            dot(x, y, shade(suit, 4)[:3] if not arm else tuple(max(0, v - 25) for v in suit))
+    for x in (cx - max(1, half // 2) - (1 if h >= 8 else 0), cx + max(1, half // 2)):   # legs
+        for w in range(2 if h >= 8 else 1):
+            for y in range(bottom - leg_h + 1, bottom + 1):
+                dot(x + w, y, tuple(max(0, v - 15) for v in suit))
+    if core:
+        cy = top + head_h + body_h // 3
+        dot(cx, cy, core)
+        if h >= 10:
+            for x, y in ((cx - 1, cy), (cx + 1, cy), (cx, cy - 1), (cx, cy + 1)):
+                dot(x, y, tuple(min(255, v // 2 + 60) for v in core))
+
+
+def icon_form_large():
+    icon_tile(40, (255, 196, 90))
+    figure(4, 13, 6, (110, 114, 126), (176, 178, 186))
+    figure(10, 13, 10, (92, 96, 110), (214, 216, 224))
+    for x, y in ((6, 2), (5, 3), (6, 3), (7, 3), (4, 4), (6, 4), (8, 4), (6, 5), (6, 6)):   # arrow up
+        dot(x, y, (255, 214, 102))
+    return img
+
+
+def icon_form_titan():
+    icon_tile(41, (255, 196, 90))
+    figure(8, 14, 13, (92, 96, 110), (206, 208, 216), core=(120, 220, 255))
+    return img
+
+
+def icon_form_titan_2():
+    icon_tile(42, (255, 196, 90))
+    for x, y in ((2, 3), (13, 3), (2, 9), (13, 9), (3, 6), (12, 6)):     # power crackling off him
+        dot(x, y, (255, 230, 140))
+    figure(8, 14, 13, (104, 100, 92), (240, 206, 120), core=(255, 240, 160))
+    return img
+
+
 # ---------------------------------------------------------------- player characters
 # Each head/suit is drawn in several passes over the same model: a grey "casing" and "accent" layer that the
 # game dyes with the player's chosen colors, then an undyed "detail" layer. Transparent pixels are skipped.
@@ -2054,6 +2185,7 @@ outputs = {
     "entity/commander.png": commander,
     "entity/large_cameraman.png": large_cameraman,
     "entity/large_speakerman.png": large_speakerman,
+    "entity/large_tv_man.png": large_tv_man,
     "entity/camera_strider.png": camera_strider,
     "entity/titan_cameraman.png": titan_cameraman,
     "entity/titan_cameraman_glow.png": titan_cameraman_glow,
@@ -2093,6 +2225,9 @@ outputs = {
     "gui/power/teleport.png": icon_teleport,
     "gui/power/burning_light.png": icon_burning_light,
     "gui/power/stun_flash.png": icon_stun_flash,
+    "gui/power/form_large.png": icon_form_large,
+    "gui/power/form_titan.png": icon_form_titan,
+    "gui/power/form_titan_2.png": icon_form_titan_2,
     "particle/glow.png": soft_glow,
     "particle/ring.png": ring,
     "particle/droplet.png": droplet,

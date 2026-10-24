@@ -78,6 +78,8 @@ and edit its list for that sound.
 | `power/burning_light.ogg` | `power.burning_light` |
 | `power/stun_flash.ogg` | `power.stun_flash` |
 | `power/no_energy.ogg` | `power.no_energy` |
+| `power/transform.ogg` | `power.transform` |
+| `power/transform_back.ogg` | `power.transform_back` |
 | `weapon/stun_rifle.ogg` | `item.stun_rifle.shoot` |
 | `weapon/gravity_pull.ogg` | `item.gravity_plunger.pull` |
 | `weapon/energy_knife.ogg` | `item.energy_knife.swing` |

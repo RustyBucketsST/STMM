@@ -29,6 +29,10 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
 - Powers ("Like DMZ"): energy bar + powers on keys R/G/V/B, Powers menu on K, unlocked with points. Points
   come from killing toilets (maxHealth/10) and mission rewards. Cameramen and Speakermen also *build tech*
   items with points. Details: `docs/powers.md`.
+- Player forms (owner's choices): Normal → Large → Titan → Titan 2.0, bought in order in the Powers menu's Forms
+  tab, Y steps up (energy cost, then drains; Shift+Y back), **real size** (Large 1.6x, Titans the Titan mob scales,
+  Titan 2.0 x1.1) with the matching mob model. Titan 2.0 still uses the 1.0 models (2.0 models are planned).
+  Planned next (owner chose): buyable **gear that shows on the player's model** in every form and gives a bonus.
 
 ## Open questions / backlog (ask the owner before doing any of these)
 
@@ -57,11 +61,15 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   `LaserBeam` is the instant-hit shot used by lasers, the Urinal's spray and tech items.
 - `character/` – creator data and sync. `story/` – missions (`StoryMissions` defines all 38), runner,
   parties. `power/` – `Power` and `Tech` enums, `PowerData` (points/unlocks), `PowerManager` (energy,
-  cooldowns, runtime), `PowerEffects` (what each power does), `PowerSync` (packets).
+  cooldowns, runtime, forms: transform/drain/stats), `PowerEffects` (what each power does), `PowerSync`
+  (packets), `Form` (the forms and their numbers), `FormHolder` (form + scale kept on every player by
+  `mixin/PlayerEntityMixin`, which scales hitbox/eyes/fall).
+- Common mixins in `mixin/` (player size, jump, server reach checks); MixinExtras is available.
 - `fx/ModFx` – server-side effect requests (one small S2C packet each); drawn by `client/fx/ClientFx`.
 - `client/` – renderers/models, `character/` creator screens and player appearance, `story/` story
-  screen/HUD, `power/` HUD, Powers menu, Holoshield rendering. Client mixins in `mixin/client/`
-  (camera shake, hurt overlay, player model parts, Anthem Dance pose).
+  screen/HUD, `power/` HUD, Powers menu, Holoshield rendering, `PlayerFormRenderer`/`PlayerFormModel` (a player
+  in a form drawn as the mob). Client mixins in `mixin/client/` (camera shake and form camera distance, hurt
+  overlay, player model parts, form rendering, Anthem Dance pose, form reach).
 - Docs for players: `docs/story-chapter1.md`, `docs/powers.md`, `docs/custom-sounds.md` (resource-pack guide;
   keep its table in sync when adding sounds).
 
@@ -79,6 +87,8 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   Blockbench must be moved in the drawing code too; every other model's drawing code reads each cube's UV from
   its .bbmodel by cube name (`bb_boxes`).
   `python3 tools/bbmodel_to_java.py --embed-textures` refreshes the texture copies inside the .bbmodel files.
+- `large_tv_man.bbmodel` (Large TV Man 1.0, from the wiki picture) is only used by players in the Large form;
+  there is no Large TV Man mob.
   Toilet textures are 128x128: head and variant extras in the top half, toilet body in the bottom half.
 - **Titans** are their **1.0 forms** (owner's request), built from the wiki's 1.0 pictures and descriptions:
   `titan_cameraman`, `titan_speakerman` (owner's favourite, check his picture before changing him),

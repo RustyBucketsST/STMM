@@ -1,6 +1,8 @@
 package com.skibiditoilet.client.power;
 
 import com.skibiditoilet.client.character.ClientCharacterState;
+import com.skibiditoilet.power.Form;
+import com.skibiditoilet.power.FormHolder;
 import com.skibiditoilet.power.Power;
 import com.skibiditoilet.power.PowerData;
 import com.skibiditoilet.power.PowerSync;
@@ -15,6 +17,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +29,8 @@ import java.util.Map;
 
 /**
  * The client's copy of the player's powers: points and unlocks, energy and cooldowns, and which players
- * nearby have a shield up or are dancing. Also the power keys and the key that opens the Powers menu.
+ * nearby have a shield up or are dancing (the form each player is in is kept on the player, see FormHolder).
+ * Also the power keys, the transform key and the key that opens the Powers menu.
  */
 public final class ClientPowerState {
     private static final KeyBinding MENU_KEY = new KeyBinding("key.skibidi.powers", InputUtil.Type.KEYSYM,
@@ -38,6 +42,9 @@ public final class ClientPowerState {
             powerKey(3, GLFW.GLFW_KEY_V),
             powerKey(4, GLFW.GLFW_KEY_B),
     };
+    /** Steps up a form; with sneak, turns back to normal. */
+    private static final KeyBinding TRANSFORM_KEY = new KeyBinding("key.skibidi.transform", InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_Y, "key.categories.skibidi");
     /** How long the "+N points" popup stays up, in ticks. */
     static final int GAIN_TICKS = 50;
 
@@ -66,6 +73,7 @@ public final class ClientPowerState {
         for (KeyBinding key : POWER_KEYS) {
             KeyBindingHelper.registerKeyBinding(key);
         }
+        KeyBindingHelper.registerKeyBinding(TRANSFORM_KEY);
 
         ClientPlayNetworking.registerGlobalReceiver(PowerSync.DATA, (client, handler, buf, sender) -> {
             PowerData received = PowerSync.readData(buf);
@@ -90,6 +98,17 @@ public final class ClientPowerState {
             int duration = buf.readVarInt();
             client.execute(() -> VISIBLE.computeIfAbsent(entityId, id -> new EnumMap<>(PowerSync.Visible.class))
                     .put(visible, new long[]{ticks, ticks + duration}));
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(PowerSync.FORM, (client, handler, buf, sender) -> {
+            int entityId = buf.readVarInt();
+            Form form = buf.readEnumConstant(Form.class);
+            float scale = buf.readFloat();
+            client.execute(() -> {
+                if (client.world != null && client.world.getEntityById(entityId) instanceof PlayerEntity player) {
+                    FormHolder.set(player, form, scale);
+                }
+            });
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(ClientPowerState::tick);
@@ -126,6 +145,13 @@ public final class ClientPowerState {
                     buf.writeVarInt(slot);
                     ClientPlayNetworking.send(PowerSync.USE, buf);
                 }
+            }
+        }
+        while (TRANSFORM_KEY.wasPressed()) {
+            if (ready) {
+                PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeBoolean(client.player.isSneaking());
+                ClientPlayNetworking.send(PowerSync.TRANSFORM, buf);
             }
         }
         while (MENU_KEY.wasPressed()) {
@@ -196,6 +222,14 @@ public final class ClientPowerState {
 
     static void unlock(Power power) {
         send(PowerSync.UNLOCK, power.id());
+    }
+
+    static void unlock(Form form) {
+        send(PowerSync.UNLOCK, form.id());
+    }
+
+    static KeyBinding transformKey() {
+        return TRANSFORM_KEY;
     }
 
     static void build(Tech tech) {

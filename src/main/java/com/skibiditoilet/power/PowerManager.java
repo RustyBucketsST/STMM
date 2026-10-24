@@ -1,20 +1,30 @@
 package com.skibiditoilet.power;
 
+import com.skibiditoilet.character.AllianceType;
 import com.skibiditoilet.character.CharacterData;
 import com.skibiditoilet.character.Stat;
+import com.skibiditoilet.fx.ModFx;
 import com.skibiditoilet.registry.ModAttachments;
 import com.skibiditoilet.registry.ModSounds;
 import com.skibiditoilet.story.StoryData;
 import com.skibiditoilet.story.StorySync;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeInstance;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,14 +35,22 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Energy, cooldowns and the powers that last a while (the Holoshield, the Anthem Dance). Kept per player
- * while they're online; energy starts full on every login.
+ * Energy, cooldowns, forms and the powers that last a while (the Holoshield, the Anthem Dance). Kept per player
+ * while they're online; energy starts full on every login, and players log in, respawn and come back from the End
+ * in their normal form.
  */
 public final class PowerManager {
     private static final float BASE_ENERGY = 60.0f;
     private static final float ENERGY_PER_STAT = 10.0f;
     private static final float REGEN_PER_TICK = 4.0f / 20.0f;
     private static final int SYNC_TICKS = 5;
+    /** Ticks between transforming and transforming again (or turning back). */
+    private static final int TRANSFORM_COOLDOWN = 20;
+    private static final UUID FORM_HEALTH = UUID.fromString("4f0c2a6e-2b1d-4d7e-9a51-6d3c8e1f7a01");
+    private static final UUID FORM_ATTACK = UUID.fromString("4f0c2a6e-2b1d-4d7e-9a51-6d3c8e1f7a02");
+    private static final UUID FORM_ARMOR = UUID.fromString("4f0c2a6e-2b1d-4d7e-9a51-6d3c8e1f7a03");
+    private static final UUID FORM_SPEED = UUID.fromString("4f0c2a6e-2b1d-4d7e-9a51-6d3c8e1f7a04");
+    private static final UUID FORM_KNOCKBACK = UUID.fromString("4f0c2a6e-2b1d-4d7e-9a51-6d3c8e1f7a05");
 
     /** What's going on with one player's powers right now. */
     static final class Runtime {
@@ -42,6 +60,7 @@ public final class PowerManager {
         long danceUntil;
         long noFallUntil;
         long lastBash;
+        long transformReadyAt;
         boolean dirty = true;
     }
 
@@ -73,6 +92,12 @@ public final class PowerManager {
             }
             return now >= runtime.shieldUntil || !PowerEffects.shieldBlocks(player, source);
         });
+        // The client makes a new player entity in the new world, which has to be told the form again.
+        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
+            if (FormHolder.form(player) != Form.NORMAL) {
+                PowerSync.sendForm(player);
+            }
+        });
     }
 
     /** Points earned before powers existed were kept with the story; they move to the shared wallet once. */
@@ -95,9 +120,10 @@ public final class PowerManager {
         return BASE_ENERGY + ENERGY_PER_STAT * character.playerClass().startingStat(Stat.ENERGY);
     }
 
-    /** How hard powers hit: 10% more for each point of Power. */
+    /** How hard powers hit: 10% more for each point of Power, and more again in a bigger form. */
     public static float powerScale(ServerPlayerEntity player) {
-        return 1.0f + 0.1f * CharacterData.of(player).playerClass().startingStat(Stat.POWER);
+        float base = 1.0f + 0.1f * CharacterData.of(player).playerClass().startingStat(Stat.POWER);
+        return base * (1.0f + FormHolder.form(player).powerBonus());
     }
 
     private static Runtime runtime(ServerPlayerEntity player) {
@@ -161,6 +187,132 @@ public final class PowerManager {
         player.playSound(ModSounds.MISSION_REWARD, SoundCategory.PLAYERS, 1.0f, 1.2f);
     }
 
+    /** Forms are bought in order: each needs the one before it. */
+    static void unlock(ServerPlayerEntity player, Form form) {
+        PowerData data = PowerData.of(player);
+        Form previous = form.previous();
+        if (!CharacterData.of(player).created() || data.has(form) || (previous != null && !data.has(previous))
+                || data.points() < form.pointCost()) {
+            return;
+        }
+        PowerSync.set(player, data.withUnlocked(form));
+        player.playSound(ModSounds.MISSION_REWARD, SoundCategory.PLAYERS, 1.0f, 1.2f);
+    }
+
+    /**
+     * The transform key: takes the next form up if it's unlocked, there's energy for it and room to grow; with
+     * {@code back} (sneaking), turns back to normal.
+     */
+    static void transform(ServerPlayerEntity player, boolean back) {
+        CharacterData character = CharacterData.of(player);
+        if (!character.created() || player.isSpectator() || !player.isAlive()) {
+            return;
+        }
+        Runtime runtime = runtime(player);
+        long now = player.getServer().getTicks();
+        if (now < runtime.transformReadyAt) {
+            return;
+        }
+        Form current = FormHolder.form(player);
+        if (back) {
+            if (current != Form.NORMAL) {
+                setForm(player, Form.NORMAL);
+                runtime.transformReadyAt = now + TRANSFORM_COOLDOWN;
+            }
+            return;
+        }
+        Form next = current.next();
+        if (next == null) {
+            player.sendMessage(Text.translatable("form.skibidi.strongest").formatted(Formatting.GRAY), true);
+            return;
+        }
+        if (!PowerData.of(player).has(next)) {
+            player.sendMessage(Text.translatable("power.skibidi.locked", Text.translatable(next.translationKey()))
+                    .formatted(Formatting.GRAY), true);
+            return;
+        }
+        boolean free = player.isCreative();
+        if (!free && runtime.energy < next.transformCost()) {
+            player.playSound(ModSounds.POWER_NO_ENERGY, SoundCategory.PLAYERS, 1.0f, 1.0f);
+            player.sendMessage(Text.translatable("power.skibidi.no_energy").formatted(Formatting.AQUA), true);
+            return;
+        }
+        if (!hasRoom(player, next.scale(character.type()))) {
+            player.sendMessage(Text.translatable("form.skibidi.no_room").formatted(Formatting.GRAY), true);
+            return;
+        }
+        if (!free) {
+            runtime.energy -= next.transformCost();
+        }
+        runtime.transformReadyAt = now + TRANSFORM_COOLDOWN;
+        runtime.dirty = true;
+        setForm(player, next);
+    }
+
+    /** Whether the player would fit where they stand at {@code scale} times normal size. */
+    private static boolean hasRoom(ServerPlayerEntity player, float scale) {
+        EntityDimensions dimensions = player.getDimensions(player.getPose()).scaled(scale / FormHolder.scale(player));
+        Box box = dimensions.getBoxAt(player.getPos()).contract(1.0E-7);
+        return player.getWorld().isSpaceEmpty(player, box);
+    }
+
+    /**
+     * Puts the player in {@code form}: their size, their stats (keeping the same share of their health), and
+     * everyone around is told. Growing bursts out with the type's color; turning back just vents.
+     */
+    static void setForm(ServerPlayerEntity player, Form form) {
+        Form old = FormHolder.form(player);
+        if (form == old) {
+            return;
+        }
+        AllianceType type = CharacterData.of(player).type();
+        float healthShare = player.getHealth() / player.getMaxHealth();
+        FormHolder.set(player, form, form.scale(type));
+        modifier(player, EntityAttributes.GENERIC_MAX_HEALTH, FORM_HEALTH, form.health(), EntityAttributeModifier.Operation.ADDITION);
+        modifier(player, EntityAttributes.GENERIC_ATTACK_DAMAGE, FORM_ATTACK, form.attack(), EntityAttributeModifier.Operation.ADDITION);
+        modifier(player, EntityAttributes.GENERIC_ARMOR, FORM_ARMOR, form.armor(), EntityAttributeModifier.Operation.ADDITION);
+        modifier(player, EntityAttributes.GENERIC_MOVEMENT_SPEED, FORM_SPEED, form.speed(), EntityAttributeModifier.Operation.MULTIPLY_BASE);
+        modifier(player, EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, FORM_KNOCKBACK, form.knockbackResistance(),
+                EntityAttributeModifier.Operation.ADDITION);
+        if (player.isAlive()) {
+            player.setHealth(Math.max(1.0f, healthShare * player.getMaxHealth()));
+        }
+        PowerSync.sendForm(player);
+
+        ServerWorld world = player.getServerWorld();
+        Vec3d feet = player.getPos();
+        float size = player.getWidth();
+        if (form.ordinal() > old.ordinal()) {
+            ModFx.shockwave(world, feet, size * 2.0f, form == Form.LARGE ? 0.2f : 0.6f);
+            ModFx.ring(world, feet.add(0.0, player.getHeight() * 0.5, 0.0), size * 1.5f, color(type));
+            world.playSound(null, feet.x, feet.y, feet.z, ModSounds.POWER_TRANSFORM, SoundCategory.PLAYERS,
+                    1.0f + 0.3f * form.ordinal(), 1.2f - 0.15f * form.ordinal());
+        } else {
+            world.playSound(null, feet.x, feet.y, feet.z, ModSounds.POWER_TRANSFORM_BACK, SoundCategory.PLAYERS, 1.0f, 1.0f);
+        }
+    }
+
+    private static void modifier(ServerPlayerEntity player, EntityAttribute attribute, UUID id, double amount,
+                                 EntityAttributeModifier.Operation operation) {
+        EntityAttributeInstance instance = player.getAttributeInstance(attribute);
+        if (instance == null) {
+            return;
+        }
+        instance.removeModifier(id);
+        if (amount != 0.0) {
+            instance.addTemporaryModifier(new EntityAttributeModifier(id, "Skibidi form", amount, operation));
+        }
+    }
+
+    /** The color of each type's core: blue, red, purple. */
+    private static int color(AllianceType type) {
+        return switch (type) {
+            case CAMERAMAN -> 0x46C8FF;
+            case SPEAKERMAN -> 0xFF4646;
+            case TV_MAN -> 0xB45AFF;
+        };
+    }
+
     static void build(ServerPlayerEntity player, @Nullable Tech tech) {
         PowerData data = PowerData.of(player);
         CharacterData character = CharacterData.of(player);
@@ -180,13 +332,28 @@ public final class PowerManager {
         long now = server.getTicks();
         RUNTIMES.keySet().removeIf(uuid -> server.getPlayerManager().getPlayer(uuid) == null);
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+            Form form = FormHolder.form(player);
+            if (form != Form.NORMAL && (player.isSpectator() || !CharacterData.of(player).created())) {
+                setForm(player, Form.NORMAL);
+                form = Form.NORMAL;
+            }
             if (!CharacterData.of(player).created()) {
                 continue;
             }
             Runtime runtime = runtime(player);
             float max = maxEnergy(player);
-            // (Max energy can drop below what's stored if the player remakes their character with another class.)
-            if (runtime.energy != max) {
+            if (form != Form.NORMAL && player.isAlive()) {
+                // A form drains energy instead of letting it come back, until it runs out.
+                if (!player.isCreative()) {
+                    runtime.energy = Math.max(0.0f, Math.min(max, runtime.energy) - form.drain() / 20.0f);
+                    runtime.dirty = true;
+                    if (runtime.energy <= 0.0f) {
+                        setForm(player, Form.NORMAL);
+                        player.sendMessage(Text.translatable("form.skibidi.out_of_energy").formatted(Formatting.AQUA), true);
+                    }
+                }
+            } else if (runtime.energy != max) {
+                // (Max energy can drop below what's stored if the player remakes their character with another class.)
                 runtime.energy = Math.min(max, runtime.energy + REGEN_PER_TICK);
                 runtime.dirty = true;
             }

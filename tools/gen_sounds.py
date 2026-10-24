@@ -618,6 +618,26 @@ def energy_knife():
     return reverb(mix((hum, 0.0), (slice_, 0.05)), wet=0.15)
 
 
+def transform():
+    """Powering up into a bigger form: a charge winding up, servos whirring, and a deep boom as it lands."""
+    d = 0.9
+    t = seconds(d)
+    wind = chorus(glide(70, 340, d, 1.6), d, 0.01) * envelope(int(SR * d), 0.1, 0.02) * 0.5
+    servo = sweep_filter(square(np.full(int(SR * d), 55.0)) * (0.6 + 0.4 * np.sin(2 * np.pi * 9 * t)), 300, 2400, 4.0)
+    servo = servo * envelope(int(SR * d), 0.2, 0.05) * 0.35
+    d2 = 1.0
+    boom = np.sin(phase_of(glide(90, 32, d2))) * decay(d2, 0.25) * 1.4 + lowpass(noise(d2), 700) * decay(d2, 0.18)
+    return reverb(seq(wind + servo, boom + crackle(d2, 30) * 0.3), wet=0.3, size=1.4)
+
+
+def transform_back():
+    """Shrinking back to normal: power winding down and a soft hiss of venting air."""
+    d = 0.8
+    fall = chorus(glide(300, 60, d, 0.7), d, 0.01) * envelope(int(SR * d), 0.02, 0.3) * 0.6
+    vent = sweep_filter(noise(d), 4000, 600, 1.2) * envelope(int(SR * d), 0.05, 0.4) * 0.5
+    return reverb(fall + vent, wet=0.3)
+
+
 # ---------------------------------------------------------------- output
 
 SOUNDS = {
@@ -665,6 +685,8 @@ SOUNDS = {
     "power/burning_light": burning_light,
     "power/stun_flash": stun_flash,
     "power/no_energy": no_energy,
+    "power/transform": transform,
+    "power/transform_back": transform_back,
     "weapon/stun_rifle": stun_rifle,
     "weapon/gravity_pull": gravity_pull,
     "weapon/energy_knife": energy_knife,

@@ -12,6 +12,7 @@ you have an **energy bar**, each power goes on a key, and you unlock powers with
 | **G** | Power 2 |
 | **V** | Power 3 |
 | **B** | Power 4 |
+| **Y** | Transform into your next form; **Shift+Y** turns back to normal |
 | **K** | Opens the Powers menu |
 
 You can change all of them in Options > Controls > Skibidi Toilet.
@@ -61,6 +62,31 @@ The Cameramen invent their own tech, so besides their powers they can **build** 
 | Teleport | G | 50 | 20 | 3s | Vanish in static and reappear up to 16 blocks where you're looking. No fall damage when you land. |
 | Burning Light | V | 100 | 25 | 6s | Your screen blazes: toilets in front of you are burned and set on fire. |
 | Stun Flash | B | 160 | 35 | 15s | A blinding flash that stuns every toilet within 7 blocks. |
+
+## Forms
+
+Like the Alliance's own Large members and Titans, you can grow into bigger forms. Unlock them in order in the
+**Forms** tab of the Powers menu, then press **Y** to step up one form at a time (Normal → Large → Titan →
+Titan 2.0). Each step costs energy, and a form keeps draining energy (instead of it refilling) until you turn
+back with **Shift+Y** or run out, which turns you back to normal. In creative, forms are free and don't drain.
+
+You become as big as the real thing and look like it: Large forms are 1.6 times normal size, Titans are as tall
+as the Titan mobs (TV Man about 12 blocks, Cameraman about 10, Speakerman about 8.5). A bigger you has a bigger
+hitbox, reaches and hits that much further, steps up to 2.5 blocks, jumps higher and takes less fall damage. You
+need room to grow: if you wouldn't fit where you stand, you can't transform.
+
+| Form | Unlock | Energy to transform | Drain | Health | Attack | Armor | Speed | Powers |
+|---|---|---|---|---|---|---|---|---|
+| Large | 150 | 10 | 0.2/s | +20 | +3 | +4 | +15% | +20% |
+| Titan | 400 (needs Large) | 15 | 0.4/s | +80 | +10 | +10 | +60% | +60% |
+| Titan 2.0 | 800 (needs Titan) | 20 | 0.6/s | +140 | +16 | +14 | +75% | +100% |
+
+- Large: the Large Cameraman (long black coat, camcorder head), Large Speakerman (white shirt, tall speaker
+  head) or Large TV Man (big static-filled TV on a pipe, four little TVs on tendrils).
+- Titan: Titan Cameraman, Titan Speakerman or Titan TV Man in their 1.0 forms. Titan 2.0 is a little bigger
+  than Titan; for now it uses the 1.0 Titan models.
+- Your health keeps the same share when you transform or turn back. Titans and Titan 2.0 shrug off knockback.
+- You turn back to normal when you die, log out or go into spectator mode.
 
 ## Notes
 

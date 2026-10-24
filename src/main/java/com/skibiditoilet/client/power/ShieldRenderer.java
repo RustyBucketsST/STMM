@@ -1,5 +1,6 @@
 package com.skibiditoilet.client.power;
 
+import com.skibiditoilet.power.FormHolder;
 import com.skibiditoilet.power.PowerSync;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
@@ -66,23 +67,29 @@ final class ShieldRenderer {
     private static void pane(VertexConsumer buffer, Matrix4f matrix, AbstractClientPlayerEntity player, Vec3d cam,
                              float tickDelta, float alpha, float age) {
         float yaw = player.getYaw(tickDelta);
+        // A player in a big form gets a shield their size.
+        float size = FormHolder.scale(player);
+        double halfWidth = HALF_WIDTH * size;
+        double bottom = BOTTOM * size;
+        double top = TOP * size;
+        double edge = EDGE * size;
         Vec3d forward = Vec3d.fromPolar(0.0f, yaw);
         Vec3d right = new Vec3d(-forward.z, 0.0, forward.x);
-        Vec3d base = player.getLerpedPos(tickDelta).add(forward.multiply(DISTANCE)).subtract(cam);
+        Vec3d base = player.getLerpedPos(tickDelta).add(forward.multiply(DISTANCE * size)).subtract(cam);
 
         // The pane itself.
-        quad(buffer, matrix, base, right, -HALF_WIDTH, HALF_WIDTH, BOTTOM, TOP, 0.16f * alpha);
+        quad(buffer, matrix, base, right, -halfWidth, halfWidth, bottom, top, 0.16f * alpha);
         // The frame.
-        quad(buffer, matrix, base, right, -HALF_WIDTH, HALF_WIDTH, TOP - EDGE, TOP, 0.7f * alpha);
-        quad(buffer, matrix, base, right, -HALF_WIDTH, HALF_WIDTH, BOTTOM, BOTTOM + EDGE, 0.7f * alpha);
-        quad(buffer, matrix, base, right, -HALF_WIDTH, -HALF_WIDTH + EDGE, BOTTOM, TOP, 0.7f * alpha);
-        quad(buffer, matrix, base, right, HALF_WIDTH - EDGE, HALF_WIDTH, BOTTOM, TOP, 0.7f * alpha);
+        quad(buffer, matrix, base, right, -halfWidth, halfWidth, top - edge, top, 0.7f * alpha);
+        quad(buffer, matrix, base, right, -halfWidth, halfWidth, bottom, bottom + edge, 0.7f * alpha);
+        quad(buffer, matrix, base, right, -halfWidth, -halfWidth + edge, bottom, top, 0.7f * alpha);
+        quad(buffer, matrix, base, right, halfWidth - edge, halfWidth, bottom, top, 0.7f * alpha);
         // Scan lines rolling up.
-        double height = TOP - BOTTOM - 2 * EDGE;
+        double height = top - bottom - 2 * edge;
         for (int i = 0; i < 4; i++) {
             double t = (age * 0.025 + i / 4.0) % 1.0;
-            double y = BOTTOM + EDGE + t * height;
-            quad(buffer, matrix, base, right, -HALF_WIDTH + EDGE, HALF_WIDTH - EDGE, y, Math.min(TOP - EDGE, y + 0.025),
+            double y = bottom + edge + t * height;
+            quad(buffer, matrix, base, right, -halfWidth + edge, halfWidth - edge, y, Math.min(top - edge, y + 0.025 * size),
                     0.35f * alpha);
         }
     }

@@ -7,6 +7,7 @@ import com.skibiditoilet.client.character.PlayerAppearance;
 import com.skibiditoilet.client.character.PlayerHeadModels;
 import com.skibiditoilet.client.fx.ClientFx;
 import com.skibiditoilet.client.power.ClientPowerState;
+import com.skibiditoilet.client.power.PlayerFormRenderer;
 import com.skibiditoilet.client.story.ClientStoryState;
 import com.skibiditoilet.entity.BigSkibidiToiletEntity;
 import com.skibiditoilet.entity.CameraStriderEntity;
@@ -52,6 +53,7 @@ public class SkibidiToiletClient implements ClientModInitializer {
     public static final EntityModelLayer TV_MAN_LAYER = layer("tv_man");
     public static final EntityModelLayer LARGE_CAMERAMAN_LAYER = layer("large_cameraman");
     public static final EntityModelLayer LARGE_SPEAKERMAN_LAYER = layer("large_speakerman");
+    public static final EntityModelLayer LARGE_TV_MAN_LAYER = layer("large_tv_man");
     public static final EntityModelLayer TITAN_CAMERAMAN_LAYER = layer("titan_cameraman");
     public static final EntityModelLayer TITAN_SPEAKERMAN_LAYER = layer("titan_speakerman");
     public static final EntityModelLayer TITAN_TV_MAN_LAYER = layer("titan_tv_man");
@@ -74,6 +76,7 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(TV_MAN_LAYER, AllianceModel::getTvManModelData);
         EntityModelLayerRegistry.registerModelLayer(LARGE_CAMERAMAN_LAYER, AllianceModel::getLargeCameramanModelData);
         EntityModelLayerRegistry.registerModelLayer(LARGE_SPEAKERMAN_LAYER, AllianceModel::getLargeSpeakermanModelData);
+        EntityModelLayerRegistry.registerModelLayer(LARGE_TV_MAN_LAYER, AllianceModel::getLargeTvManModelData);
         EntityModelLayerRegistry.registerModelLayer(TITAN_CAMERAMAN_LAYER, TitanModel::getCameramanModelData);
         EntityModelLayerRegistry.registerModelLayer(TITAN_SPEAKERMAN_LAYER, TitanModel::getSpeakermanModelData);
         EntityModelLayerRegistry.registerModelLayer(TITAN_TV_MAN_LAYER, TitanModel::getTvManModelData);
@@ -139,6 +142,7 @@ public class SkibidiToiletClient implements ClientModInitializer {
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, helper, context) -> {
             if (entityRenderer instanceof PlayerEntityRenderer playerRenderer) {
                 PlayerAppearance.init(context.getModelLoader());
+                PlayerFormRenderer.init(context);
                 helper.register(new AllianceAppearanceFeature(playerRenderer));
             }
         });

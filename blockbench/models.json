@@ -45,6 +45,9 @@
 	"large_speakerman.bbmodel": {
 		"class": "LargeSpeakermanBbModel"
 	},
+	"large_tv_man.bbmodel": {
+		"class": "LargeTvManBbModel"
+	},
 	"camera_strider.bbmodel": {
 		"class": "CameraStriderBbModel"
 	}
