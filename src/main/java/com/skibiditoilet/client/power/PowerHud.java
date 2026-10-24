@@ -48,7 +48,7 @@ final class PowerHud {
             return;
         }
         TextRenderer textRenderer = client.textRenderer;
-        List<Power> powers = Power.of(character.type());
+        List<Power> powers = Power.onKeys(character.type(), FormHolder.form(client.player));
         int width = Math.max(4 * (SLOT + GAP) - GAP, powers.size() * (SLOT + GAP) - GAP) + 8;
         int height = SLOT + 18;
         int x = 2;

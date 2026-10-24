@@ -1964,6 +1964,98 @@ def icon_form_titan_2():
     return img
 
 
+def icon_core_beam():
+    icon_tile(43, (70, 200, 255))
+    for x in range(16):
+        for y in range(16):
+            r = math.hypot(x - 4.5, y - 7.5)
+            if r <= 3.2:
+                dot(x, y, (230, 250, 255) if r < 1.3 else (110, 215, 255) if r < 2.4 else (40, 110, 170))
+    for x in range(7, 15):                 # the beam, white in the middle
+        dot(x, 6, (110, 215, 255))
+        dot(x, 7, (235, 252, 255))
+        dot(x, 8, (110, 215, 255))
+    return img
+
+
+def icon_titan_jetpack():
+    icon_tile(44, (255, 150, 60))
+    rect(4, 2, 3, 7, (70, 72, 80), 3)       # two thrusters
+    rect(9, 2, 3, 7, (70, 72, 80), 3)
+    rect(4, 2, 8, 1, (100, 102, 110), 2)
+    for cx in (5, 10):                     # flames
+        for y, half in ((9, 1), (10, 1), (11, 1), (12, 0), (13, 0)):
+            for x in range(cx - half, cx + half + 2):
+                dot(x, y, (255, 230, 120) if y < 11 else (255, 140, 50))
+    return img
+
+
+def icon_titan_soundwaves():
+    icon_tile(45, (230, 70, 70))
+    for y0 in (2, 6, 10):                  # a column of speakers with red-lit drivers
+        rect(2, y0, 4, 4, (96, 96, 104), 2)
+        rect(3, y0 + 1, 2, 2, (255, 80, 80), 0)
+    for k, r in enumerate((4.0, 6.5, 9.0)):
+        for a in range(-50, 51, 7):
+            x = 5 + r * math.cos(math.radians(a))
+            y = 8 + r * math.sin(math.radians(a))
+            dot(int(round(x)), int(round(y)), (255, 150, 150) if k < 2 else (230, 70, 70))
+    return img
+
+
+def icon_plasma_cannon():
+    icon_tile(46, (230, 70, 70))
+    for t in range(7):                     # barrel, pointing up-right
+        rect(2 + t, 12 - t, 2, 2, (86, 88, 96), 2)
+    for t in range(4):                     # plasma bolt
+        dot(10 + t, 5 - t, (255, 120, 100))
+        dot(11 + t, 5 - t, (255, 230, 210))
+        dot(10 + t, 4 - t, (255, 74, 58))
+    return img
+
+
+def icon_death_screen():
+    icon_tile(47, (180, 90, 255))
+    rect(3, 4, 10, 8, (30, 30, 34), 2)      # TV
+    rnd = random.Random(47)
+    for x in range(4, 12):
+        for y in range(5, 11):
+            v = rnd.randint(150, 250)
+            px[x, y] = (v, v, min(255, v + 10), 255)
+    for x, y in ((1, 2), (14, 2), (1, 13), (14, 13), (8, 1), (8, 14)):
+        dot(x, y, (200, 130, 255))         # flash rays
+    return img
+
+
+def icon_claw_sweep():
+    icon_tile(48, (180, 90, 255))
+    for k in range(3):                     # three curved blades
+        for t in range(9):
+            x = 3 + t
+            y = 3 + k * 3 + int(round(0.08 * (t - 4) ** 2))
+            dot(x, y, (40, 40, 46))
+            dot(x, y + 1, (200, 130, 255) if t > 5 else (70, 70, 78))
+    return img
+
+
+def icon_grappling_hook():
+    icon_tile(49, (150, 150, 165))
+    for t in range(6):                     # the line
+        dot(2 + t, 13 - t, (170, 170, 182))
+    hook = ["..XX..",                       # a hook on the end of it
+            ".X..X.",
+            ".X..X.",
+            "....X.",
+            "X...X.",
+            "XX.X..",
+            ".XX..."]
+    for k, row in enumerate(hook):
+        for i, c in enumerate(row):
+            if c == "X":
+                dot(7 + i, 2 + k, (220, 222, 230))
+    return img
+
+
 # ---------------------------------------------------------------- player characters
 # Each head/suit is drawn in several passes over the same model: a grey "casing" and "accent" layer that the
 # game dyes with the player's chosen colors, then an undyed "detail" layer. Transparent pixels are skipped.
@@ -2228,6 +2320,13 @@ outputs = {
     "gui/power/form_large.png": icon_form_large,
     "gui/power/form_titan.png": icon_form_titan,
     "gui/power/form_titan_2.png": icon_form_titan_2,
+    "gui/power/core_beam.png": icon_core_beam,
+    "gui/power/titan_jetpack.png": icon_titan_jetpack,
+    "gui/power/titan_soundwaves.png": icon_titan_soundwaves,
+    "gui/power/plasma_cannon.png": icon_plasma_cannon,
+    "gui/power/death_screen.png": icon_death_screen,
+    "gui/power/claw_sweep.png": icon_claw_sweep,
+    "gui/power/grappling_hook.png": icon_grappling_hook,
     "particle/glow.png": soft_glow,
     "particle/ring.png": ring,
     "particle/droplet.png": droplet,

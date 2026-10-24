@@ -18,25 +18,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Powers menu: your points and two tabs. Powers: your type's powers (unlock them with points) and the tech your
+ * The Powers menu: your points and three tabs. Powers: your type's powers (unlock them with points) and the tech your
  * type builds (spend points to get one, or a replacement for half price). Forms: the bigger forms, bought in order.
+ * Titan: the Titan moves that come with the Titan form, and which keys they take.
  */
 public class PowersScreen extends Screen {
     private static final int WIDTH = 330;
     private static final int ROW = 32;
     private static final int SECTION = 14;
     private static final int BUTTON_WIDTH = 84;
-    private static final int TAB_WIDTH = 64;
+    private static final int TAB_WIDTH = 54;
     private static final int TOP = 13 + 16;
 
     private enum Tab {
-        POWERS, FORMS
+        POWERS, FORMS, TITAN
     }
 
     /** The tab the menu opens on: the one it was left on. */
     private static Tab tab = Tab.POWERS;
 
     private final List<Power> powers;
+    private final List<Power> titanKeys;
     private final List<Tech> techs;
     private final List<Row> rows = new ArrayList<>();
     private final List<Section> sections = new ArrayList<>();
@@ -54,6 +56,7 @@ public class PowersScreen extends Screen {
         super(Text.translatable("screen.skibidi.powers"));
         CharacterData character = ClientCharacterState.self();
         this.powers = Power.of(character.type());
+        this.titanKeys = Power.onKeys(character.type(), Form.TITAN);
         this.techs = Tech.of(character.type());
     }
 
@@ -61,13 +64,15 @@ public class PowersScreen extends Screen {
     protected void init() {
         this.rows.clear();
         this.sections.clear();
-        int content = tab == Tab.POWERS
-                ? SECTION + this.powers.size() * ROW + (this.techs.isEmpty() ? 0 : SECTION + this.techs.size() * ROW)
-                : SECTION + Form.unlockable().length * ROW;
+        int content = switch (tab) {
+            case POWERS -> SECTION + this.powers.size() * ROW + (this.techs.isEmpty() ? 0 : SECTION + this.techs.size() * ROW);
+            case FORMS -> SECTION + Form.unlockable().length * ROW;
+            case TITAN -> SECTION + this.titanKeys.size() * ROW;
+        };
         this.panelHeight = TOP + content + 6;
         this.left = (this.width - WIDTH) / 2;
         this.top = Math.max(4, (this.height - this.panelHeight) / 2);
-        int tabX = this.left + (WIDTH - 2 * TAB_WIDTH - 4) / 2;
+        int tabX = this.left + (WIDTH - Tab.values().length * (TAB_WIDTH + 4) + 4) / 2;
         for (Tab each : Tab.values()) {
             this.addDrawableChild(new AllianceButton(tabX + each.ordinal() * (TAB_WIDTH + 4), this.top + 14, TAB_WIDTH, 13,
                     Text.translatable("screen.skibidi.powers.section." + each.name().toLowerCase()), () -> tab == each,
@@ -82,8 +87,39 @@ public class PowersScreen extends Screen {
             if (!this.techs.isEmpty()) {
                 this.addTechs(y);
             }
-        } else {
+        } else if (tab == Tab.FORMS) {
             this.addForms(y);
+        } else {
+            this.addTitanKeys(y);
+        }
+    }
+
+    /** The keys in a Titan form: the Titan moves (which come with the form), then the type's own powers kept. */
+    private void addTitanKeys(int y) {
+        this.sections.add(new Section(y, Text.translatable("screen.skibidi.powers.section.titan_keys")));
+        y += SECTION;
+        for (int slot = 0; slot < this.titanKeys.size(); slot++) {
+            Power power = this.titanKeys.get(slot);
+            Text key = ClientPowerState.POWER_KEYS[slot].getBoundKeyLocalizedText();
+            Text details = Text.translatable("screen.skibidi.powers.details", key, power.energyCost(),
+                    String.format("%.0f", power.cooldown() / 20.0f));
+            this.rows.add(new Row(y, Text.translatable(power.translationKey()), details,
+                    Text.translatable(power.descriptionKey()), power, null, null));
+            this.addDrawableChild(new AllianceButton(this.left + WIDTH - BUTTON_WIDTH - 6, y + 8, BUTTON_WIDTH, 16,
+                    Text.empty(), () -> {
+            }) {
+                @Override
+                public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+                    PowerData data = ClientPowerState.data();
+                    this.active = false;
+                    this.setMessage(!power.isTitanMove()
+                            ? Text.translatable(data.has(power) ? "screen.skibidi.powers.kept" : "screen.skibidi.powers.locked")
+                            : Text.translatable(data.has(Form.TITAN) ? "screen.skibidi.powers.titan_ready"
+                            : "screen.skibidi.powers.titan_needed"));
+                    super.renderButton(context, mouseX, mouseY, delta);
+                }
+            });
+            y += ROW;
         }
     }
 
@@ -205,7 +241,8 @@ public class PowersScreen extends Screen {
 
     private void row(DrawContext context, Row row, PowerData data) {
         int x = this.left + 6;
-        boolean owned = row.power != null ? data.has(row.power) : row.form != null ? data.has(row.form) : data.hasBuilt(row.tech);
+        boolean owned = row.power != null ? (row.power.isTitanMove() ? data.has(Form.TITAN) : data.has(row.power))
+                : row.form != null ? data.has(row.form) : data.hasBuilt(row.tech);
         context.fill(x, row.y + 2, x + 20, row.y + 22, 0xFF0A121B);
         context.drawBorder(x, row.y + 2, 20, 20, owned ? AllianceUi.BORDER : AllianceUi.BORDER_DIM);
         if (row.power != null || row.form != null) {

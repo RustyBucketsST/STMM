@@ -72,6 +72,11 @@ public enum Form {
         return Math.min(2.5f, 0.6f * scale);
     }
 
+    /** Titan and Titan 2.0, which put the Titan moves on the power keys. */
+    public boolean isTitan() {
+        return this == TITAN || this == TITAN_2;
+    }
+
     /** The id kept in PowerData#unlocked when it's bought. */
     public String id() {
         return "form_" + this.id;

@@ -31,8 +31,11 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   items with points. Details: `docs/powers.md`.
 - Player forms (owner's choices): Normal → Large → Titan → Titan 2.0, bought in order in the Powers menu's Forms
   tab, Y steps up (energy cost, then drains; Shift+Y back), **real size** (Large 1.6x, Titans the Titan mob scales,
-  Titan 2.0 x1.1) with the matching mob model. Titan 2.0 still uses the 1.0 models (2.0 models are planned).
-  Planned next (owner chose): buyable **gear that shows on the player's model** in every form and gives a bonus.
+  Titan 2.0 x1.1) with the matching mob model. Titan 2.0 still uses the 1.0 models (owner chose: build the 2.0
+  models from the wiki next). In a Titan form the keys carry **Titan powers** (`Power.onKeys`, shared code in
+  `entity/ability/TitanMoves` with the Titan mobs); the type's own powers fill the remaining keys.
+  Planned next (owner chose): buyable **gear that shows on the player's model** in every form and gives a bonus:
+  jetpack, shoulder gear (CCTV cameras / speakers / blade claws by type), armor plates.
 
 ## Open questions / backlog (ask the owner before doing any of these)
 
@@ -62,7 +65,8 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   any point, e.g. a Titan's core).
 - `entity/ability/` – mob abilities from the series: `MobAbility` (cooldown, condition, optional windup),
   `MobAbilities` (one at a time, ticked from mobTick), `AllianceAbilities` (every Alliance mob's, by entity type),
-  `Targets` (area targeting shared with the player powers). G-Toilet's eye lasers live in `GManToiletEntity`, the
+  `TitanMoves` (the Titans' moves, used by Titan mobs and players in Titan form), `Targets` (area targeting
+  shared with the player powers). G-Toilet's eye lasers live in `GManToiletEntity`, the
   Titan jetpack flames and riot shield in `TitanEntity`. Listed for players in `docs/story-chapter1.md`.
 - `character/` – creator data and sync. `story/` – missions (`StoryMissions` defines all 38), runner,
   parties. `power/` – `Power` and `Tech` enums, `PowerData` (points/unlocks), `PowerManager` (energy,

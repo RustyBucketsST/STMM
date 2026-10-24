@@ -3,6 +3,7 @@ package com.skibiditoilet.power;
 import com.skibiditoilet.character.AllianceType;
 import com.skibiditoilet.character.CharacterData;
 import com.skibiditoilet.character.Stat;
+import com.skibiditoilet.entity.ability.TitanMoves;
 import com.skibiditoilet.fx.ModFx;
 import com.skibiditoilet.registry.ModAttachments;
 import com.skibiditoilet.registry.ModSounds;
@@ -59,6 +60,7 @@ public final class PowerManager {
         long shieldUntil;
         long danceUntil;
         long noFallUntil;
+        long jetpackUntil;
         long lastBash;
         long transformReadyAt;
         boolean dirty = true;
@@ -145,7 +147,7 @@ public final class PowerManager {
         if (!character.created() || player.isSpectator() || !player.isAlive()) {
             return;
         }
-        List<Power> powers = Power.of(character.type());
+        List<Power> powers = Power.onKeys(character.type(), FormHolder.form(player));
         if (slot < 0 || slot >= powers.size()) {
             return;
         }
@@ -278,6 +280,10 @@ public final class PowerManager {
             player.setHealth(Math.max(1.0f, healthShare * player.getMaxHealth()));
         }
         PowerSync.sendForm(player);
+        Runtime runtime = RUNTIMES.get(player.getUuid());
+        if (runtime != null) {
+            runtime.dirty = true;
+        }
 
         ServerWorld world = player.getServerWorld();
         Vec3d feet = player.getPos();
@@ -357,6 +363,9 @@ public final class PowerManager {
                 runtime.energy = Math.min(max, runtime.energy + REGEN_PER_TICK);
                 runtime.dirty = true;
             }
+            if (now < runtime.jetpackUntil) {
+                TitanMoves.jetpackFlames(player);
+            }
             if (now < runtime.shieldUntil) {
                 PowerEffects.shieldBash(player, runtime, now, powerScale(player));
             }
@@ -371,7 +380,7 @@ public final class PowerManager {
     }
 
     private static void sync(ServerPlayerEntity player, Runtime runtime, long now, float max) {
-        List<Power> powers = Power.of(CharacterData.of(player).type());
+        List<Power> powers = Power.onKeys(CharacterData.of(player).type(), FormHolder.form(player));
         int[] cooldowns = powers.stream().mapToInt(power -> (int) Math.max(0, runtime.readyAt.getOrDefault(power, 0L) - now))
                 .toArray();
         PowerSync.sendState(player, runtime.energy, max, cooldowns);

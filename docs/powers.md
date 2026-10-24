@@ -88,6 +88,29 @@ need room to grow: if you wouldn't fit where you stand, you can't transform.
 - Your health keeps the same share when you transform or turn back. Titans and Titan 2.0 shrug off knockback.
 - You turn back to normal when you die, log out or go into spectator mode.
 
+### Titan powers
+
+In Titan and Titan 2.0 form your power keys carry the 1.0 Titans' moves (the same ones the Titan mobs use), with
+the rest of your keys keeping your own powers. They come with the Titan form: nothing to unlock. The **Titan**
+tab of the Powers menu shows your keys in Titan form, and the HUD switches when you transform. They hit harder
+the stronger your form and your **Power** stat.
+
+| Type | R | G | V | B |
+|---|---|---|---|---|
+| Cameraman | Core Beam | Jetpack | Holoshield | Record & Scan |
+| Speakerman | Titan Soundwaves | Plasma Cannon | Jetpack | Anthem Dance |
+| TV Man | Death Screen | Shoulder Claws | Grappling Hook | Teleport |
+
+| Titan power | Energy | Cooldown | What it does |
+|---|---|---|---|
+| Core Beam | 25 | 8s | Your blue core fires a thick beam (40 blocks) at your crosshair that bursts where it lands. |
+| Jetpack | 15 | 4s | Launches you the way you're looking (look up to go higher). No fall damage for 6 seconds. |
+| Titan Soundwaves | 25 | 7s | Every speaker on your head and shoulders blasts at once: a huge cone (16 blocks) that throws toilets back and shakes the ground. |
+| Plasma Cannon | 20 | 4s | A bolt from your left arm (36 blocks) at your crosshair that bursts where it lands. |
+| Death Screen | 30 | 11s | Your screen flashes: every toilet in front of you up to 22 blocks is stunned for 4 s or more and hurt. |
+| Shoulder Claws | 15 | 5s | One sweep of your shoulder blades through every toilet close in front of you. |
+| Grappling Hook | 15 | 6s | Hooks the toilet you're looking at (30 blocks) and reels it in to you. |
+
 ## Notes
 
 - Powers only hit toilets and other monsters, never players or the Alliance.

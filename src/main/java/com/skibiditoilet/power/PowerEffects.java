@@ -1,8 +1,10 @@
 package com.skibiditoilet.power;
 
 import com.skibiditoilet.entity.AllianceEntity;
+import com.skibiditoilet.entity.LaserBeam;
 import com.skibiditoilet.entity.SkibidiToiletEntity;
 import com.skibiditoilet.entity.ability.Targets;
+import com.skibiditoilet.entity.ability.TitanMoves;
 import com.skibiditoilet.fx.ModFx;
 import com.skibiditoilet.registry.ModDamageTypes;
 import com.skibiditoilet.registry.ModEffects;
@@ -33,6 +35,7 @@ import java.util.List;
 /**
  * What each power does when it's used. Area powers hit what's in front of the player (a cone from their
  * eyes) or all around them, and only hit enemies: toilets and other monsters, never players or the Alliance.
+ * The Titan moves are the Titan mobs' own (TitanMoves), aimed where the player looks.
  */
 final class PowerEffects {
     static final int SHIELD_TICKS = 120;
@@ -42,6 +45,9 @@ final class PowerEffects {
     private static final int SCAN_COLOR = 0x7CFF9B;
     private static final int HYPNOSIS_COLOR = 0xB45CFF;
     private static final int BURN_COLOR = 0xFF9A3C;
+    /** Titan moves hit as hard as a Titan mob's when the player's power scale is about 1.7 (a Titan's). */
+    private static final float TITAN_POWER = 0.6f;
+    static final int JETPACK_TICKS = 40;
 
     private PowerEffects() {
     }
@@ -155,8 +161,49 @@ final class PowerEffects {
                 ModFx.shake(world, player.getPos(), 0.3f, 10.0f);
                 sound(player, ModSounds.POWER_STUN_FLASH, 1.0f);
             }
+            case CORE_BEAM -> TitanMoves.coreBeam(player, aimFrom(player, TitanMoves.core(player), TitanMoves.CORE_BEAM_RANGE),
+                    scale * TITAN_POWER);
+            case TITAN_SOUNDWAVES -> TitanMoves.soundwaves(player, look, scale * TITAN_POWER);
+            case PLASMA_CANNON -> TitanMoves.plasmaCannon(player,
+                    aimFrom(player, TitanMoves.cannon(player), TitanMoves.PLASMA_RANGE), scale * TITAN_POWER);
+            case TITAN_JETPACK -> {
+                Vec3d flat = new Vec3d(look.x, 0.0, look.z);
+                flat = flat.lengthSquared() < 1.0E-4 ? Vec3d.ZERO : flat.normalize().multiply(1.6);
+                TitanMoves.jetpack(player, new Vec3d(flat.x, 1.0 + Math.max(0.0, look.y) * 0.6, flat.z));
+                runtime.jetpackUntil = now + JETPACK_TICKS;
+                runtime.noFallUntil = now + 120;
+            }
+            case DEATH_SCREEN -> TitanMoves.deathScreen(player, look, scale * TITAN_POWER);
+            case CLAW_SWEEP -> TitanMoves.clawSweep(player, look, scale * TITAN_POWER);
+            case GRAPPLING_HOOK -> {
+                LivingEntity target = TitanMoves.firstMonster(player, eyes, look, TitanMoves.HOOK_RANGE);
+                if (target == null) {
+                    player.sendMessage(Text.translatable("power.skibidi.grappling_hook.none").formatted(Formatting.GRAY), true);
+                    return false;
+                }
+                TitanMoves.grapplingHook(player, target, scale * TITAN_POWER);
+            }
         }
         return true;
+    }
+
+    /**
+     * The way from {@code from} (a Titan's core, its arm cannon) to what the player's crosshair is on, so a shot
+     * from below the eyes still lands where they aim.
+     */
+    private static Vec3d aimFrom(ServerPlayerEntity player, Vec3d from, double range) {
+        Vec3d eyes = player.getEyePos();
+        Vec3d look = player.getRotationVec(1.0f);
+        Entity hit = LaserBeam.aim(player.getServerWorld(), player, look, range);
+        Vec3d point;
+        if (hit != null) {
+            point = hit.getBoundingBox().getCenter();
+        } else {
+            BlockHitResult block = player.getServerWorld().raycast(new RaycastContext(eyes, eyes.add(look.multiply(range)),
+                    RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, player));
+            point = block.getType() == HitResult.Type.MISS ? eyes.add(look.multiply(range)) : block.getPos();
+        }
+        return point.subtract(from).normalize();
     }
 
     /**

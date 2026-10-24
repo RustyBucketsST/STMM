@@ -1,6 +1,7 @@
 package com.skibiditoilet.entity;
 
 import com.skibiditoilet.character.AllianceType;
+import com.skibiditoilet.entity.ability.TitanMoves;
 import com.skibiditoilet.fx.ModFx;
 import com.skibiditoilet.registry.ModDamageTypes;
 import com.skibiditoilet.registry.ModSounds;
@@ -11,11 +12,9 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.PathAwareEntity;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -80,14 +79,8 @@ public class TitanEntity extends AllianceEntity {
     @Override
     public void tick() {
         super.tick();
-        if (this.age < this.jetpackUntil && this.getWorld() instanceof ServerWorld world) {
-            // Flames out of the jetpack on his back.
-            float yaw = this.bodyYaw * MathHelper.RADIANS_PER_DEGREE;
-            Vec3d back = new Vec3d(MathHelper.sin(yaw), 0.0, -MathHelper.cos(yaw)).multiply(this.getWidth() * 0.45);
-            Vec3d nozzle = this.getPos().add(back).add(0.0, this.getHeight() * 0.5, 0.0);
-            double spread = this.getWidth() * 0.12;
-            world.spawnParticles(ParticleTypes.FLAME, nozzle.x, nozzle.y, nozzle.z, 6, spread, spread, spread, 0.02);
-            world.spawnParticles(ParticleTypes.LARGE_SMOKE, nozzle.x, nozzle.y - spread, nozzle.z, 2, spread, spread, spread, 0.01);
+        if (this.age < this.jetpackUntil && !this.getWorld().isClient) {
+            TitanMoves.jetpackFlames(this);
         }
     }
 
