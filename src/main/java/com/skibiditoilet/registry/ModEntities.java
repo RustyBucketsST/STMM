@@ -99,9 +99,9 @@ public final class ModEntities {
                     .build());
 
     // No natural spawn: Titans will come from a questline.
-    public static final EntityType<TitanEntity> TITAN_CAMERAMAN = register("titan_cameraman", titan());
-    public static final EntityType<TitanEntity> TITAN_SPEAKERMAN = register("titan_speakerman", titan());
-    public static final EntityType<TitanEntity> TITAN_TV_MAN = register("titan_tv_man", titan());
+    public static final EntityType<TitanEntity> TITAN_CAMERAMAN = register("titan_cameraman", titan(TitanEntity.CAMERAMAN_SCALE));
+    public static final EntityType<TitanEntity> TITAN_SPEAKERMAN = register("titan_speakerman", titan(TitanEntity.SPEAKERMAN_SCALE));
+    public static final EntityType<TitanEntity> TITAN_TV_MAN = register("titan_tv_man", titan(TitanEntity.TV_MAN_SCALE));
 
     // Story NPC: placed with its spawn egg, never spawns on its own.
     public static final EntityType<CommanderEntity> COMMANDER = register("commander",
@@ -198,11 +198,11 @@ public final class ModEntities {
                 .build();
     }
 
-    private static EntityType<TitanEntity> titan() {
+    private static EntityType<TitanEntity> titan(float scale) {
         return FabricEntityTypeBuilder.createMob()
                 .spawnGroup(SpawnGroup.MISC)
                 .entityFactory(TitanEntity::new)
-                .dimensions(EntityDimensions.fixed(0.6f * TitanEntity.SCALE, 1.95f * TitanEntity.SCALE))
+                .dimensions(EntityDimensions.fixed(0.6f * scale, 1.95f * scale))
                 .build();
     }
 

@@ -2,7 +2,6 @@ package com.skibiditoilet.client;
 
 import com.skibiditoilet.SkibidiToiletMod;
 import com.skibiditoilet.entity.AllianceEntity;
-import com.skibiditoilet.entity.TitanEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.MobEntityRenderer;
@@ -33,15 +32,16 @@ public class AllianceRenderer extends MobEntityRenderer<AllianceEntity, Alliance
     }
 
     /**
-     * A Titan with its own detailed model (see TitanModel), drawn at Titan size, with the glowing parts of
-     * textures/entity/NAME_glow.png drawn full-bright on top.
+     * A Titan with its own detailed model (see TitanModel), drawn {@code scale} times a normal Alliance member,
+     * with the glowing parts of textures/entity/NAME_glow.png drawn full-bright on top.
      */
-    public static EntityRendererFactory<AllianceEntity> titanFactory(EntityModelLayer layer, String textureName) {
+    public static EntityRendererFactory<AllianceEntity> titanFactory(EntityModelLayer layer, String textureName,
+                                                                    float scale) {
         Identifier texture = SkibidiToiletMod.id("textures/entity/" + textureName + ".png");
         RenderLayer glow = RenderLayer.getEyes(SkibidiToiletMod.id("textures/entity/" + textureName + "_glow.png"));
         return context -> {
             AllianceRenderer renderer = new AllianceRenderer(context, new TitanModel(context.getPart(layer)), texture,
-                    TitanEntity.SCALE / TitanModel.DETAIL, 0.5f * TitanEntity.SCALE);
+                    scale / TitanModel.DETAIL, 0.5f * scale);
             renderer.addFeature(new EyesFeatureRenderer<AllianceEntity, AllianceModel>(renderer) {
                 @Override
                 public RenderLayer getEyesTexture() {

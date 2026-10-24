@@ -14,8 +14,11 @@ import net.minecraft.world.World;
 
 /** A giant Alliance member. Same brain as the regular ones, much bigger and tougher. */
 public class TitanEntity extends AllianceEntity {
-    /** About 10 blocks tall. */
-    public static final float SCALE = 5.0f;
+    // Heights as in the series: Titan TV Man the tallest (about 12 blocks), Titan Cameraman about 10 blocks,
+    // Titan Speakerman the shortest (about 8.5 blocks).
+    public static final float CAMERAMAN_SCALE = 5.0f;
+    public static final float SPEAKERMAN_SCALE = 4.25f;
+    public static final float TV_MAN_SCALE = 6.0f;
     /** A Titan takes many small steps for its size; only every so often is one a real stomp. */
     private static final int STOMP_TICKS = 12;
 
@@ -40,7 +43,7 @@ public class TitanEntity extends AllianceEntity {
         this.lastStomp = this.age;
         this.playSound(ModSounds.TITAN_STEP, 1.5f, 0.9f + this.random.nextFloat() * 0.2f);
         if (this.getWorld() instanceof ServerWorld world) {
-            ModFx.shockwave(world, this.getPos(), 3.2f, 0.22f);
+            ModFx.shockwave(world, this.getPos(), this.getWidth() * 1.1f, 0.22f);
         }
     }
 
@@ -48,7 +51,7 @@ public class TitanEntity extends AllianceEntity {
     public boolean tryAttack(Entity target) {
         boolean hit = super.tryAttack(target);
         if (hit && this.getWorld() instanceof ServerWorld world) {
-            ModFx.shockwave(world, target.getPos(), 5.0f, 0.45f);
+            ModFx.shockwave(world, target.getPos(), this.getWidth() * 1.7f, 0.45f);
         }
         return hit;
     }

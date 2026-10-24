@@ -16,6 +16,7 @@ import com.skibiditoilet.entity.GManToiletEntity;
 import com.skibiditoilet.entity.LargeAllianceEntity;
 import com.skibiditoilet.entity.MicroToiletEntity;
 import com.skibiditoilet.entity.SaintToiletEntity;
+import com.skibiditoilet.entity.TitanEntity;
 import com.skibiditoilet.entity.TripleToiletEntity;
 import com.skibiditoilet.registry.ModBlocks;
 import com.skibiditoilet.registry.ModEntities;
@@ -109,11 +110,11 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.SPEAKERMAN, AllianceRenderer.factory(SPEAKERMAN_LAYER, "speakerman", 1.0f));
         EntityRendererRegistry.register(ModEntities.TV_MAN, AllianceRenderer.factory(TV_MAN_LAYER, "tv_man", 1.0f));
         EntityRendererRegistry.register(ModEntities.TITAN_CAMERAMAN,
-                AllianceRenderer.titanFactory(TITAN_CAMERAMAN_LAYER, "titan_cameraman"));
+                AllianceRenderer.titanFactory(TITAN_CAMERAMAN_LAYER, "titan_cameraman", TitanEntity.CAMERAMAN_SCALE));
         EntityRendererRegistry.register(ModEntities.TITAN_SPEAKERMAN,
-                AllianceRenderer.titanFactory(TITAN_SPEAKERMAN_LAYER, "titan_speakerman"));
+                AllianceRenderer.titanFactory(TITAN_SPEAKERMAN_LAYER, "titan_speakerman", TitanEntity.SPEAKERMAN_SCALE));
         EntityRendererRegistry.register(ModEntities.TITAN_TV_MAN,
-                AllianceRenderer.titanFactory(TITAN_TV_MAN_LAYER, "titan_tv_man"));
+                AllianceRenderer.titanFactory(TITAN_TV_MAN_LAYER, "titan_tv_man", TitanEntity.TV_MAN_SCALE));
         EntityRendererRegistry.register(ModEntities.LARGE_CAMERAMAN,
                 AllianceRenderer.factory(CAMERAMAN_LAYER, "large_cameraman", LargeAllianceEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.LARGE_SPEAKERMAN,
