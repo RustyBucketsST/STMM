@@ -320,27 +320,6 @@ def jetpack_toilet():
     return img
 
 
-GIANT_SKIN = (214, 160, 118)
-GIANT_HAIR = (40, 32, 28)
-
-
-def giant_flying_head():
-    # Head 8x8x8 at (0, 0): slicked dark hair, heavy brows, stubble and a huge toothy grin.
-    box(0, 0, 8, 8, 8, GIANT_SKIN)
-    rect(8, 0, 8, 8, GIANT_HAIR)
-    rect(0, 8, 32, 1, GIANT_HAIR)
-    rect(24, 8, 8, 5, GIANT_HAIR)
-    fx, fy = 8, 8
-    rect(fx + 1, fy + 2, 2, 1, GIANT_HAIR, 0)       # heavy brows
-    rect(fx + 5, fy + 2, 2, 1, GIANT_HAIR, 0)
-    for x in (1, 5):
-        rect(fx + x, fy + 3, 2, 1, (255, 255, 255), 0)
-        px[fx + x + (1 if x == 1 else 0), fy + 3] = (20, 20, 20, 255)
-    rect(fx, fy + 5, 8, 3, (180, 130, 100), 6)      # stubble
-    rect(fx + 1, fy + 5, 6, 2, (70, 12, 12), 0)     # grin
-    rect(fx + 1, fy + 5, 6, 1, (245, 245, 240), 0)  # teeth
-
-
 DJ_SKIN = (190, 132, 92)
 SHADES = (18, 18, 22)
 
@@ -455,14 +434,53 @@ def head_strip(head, seed):
     return strip
 
 
+TRIPLE_SKIN = (150, 106, 78)
+
+
+def triple_face(face):
+    return lambda: head8(TRIPLE_SKIN, TRIPLE_SKIN, face, {"b": (70, 48, 36)}, side_rows=0, back_rows=0)
+
+
 def triple():
+    # Two toilets joined on a platform and a third behind them (triple_skibidi_toilet.bbmodel), with three
+    # bald heads grinning ear to ear: the top one at u 0 (with horns), the others' strips at u 64 and 96
+    b = bb_boxes("triple_skibidi_toilet")
     new_image(128, 20)
-    big_head()                              # middle head
-    skin_extras()
-    toilet_body()
-    img.paste(head_strip(urinal_head, 21), (64, 0))
-    img.paste(head_strip(giant_flying_head, 22), (96, 0))
-    box(64, 16, 3, 8, 3, SKIN)              # neck 3x8x3 at (64, 16)
+    triple_face(["ssssssss", "sdssssds", "sbbssbbs", "sWpssWps", "sssdDsss", "DttttttD", "sDmmmmDs", "ssssssss"])()
+    img.paste(head_strip(triple_face(["ssssssss", "ssssssss", "sbbssbbs", "WpWsWpWs", "sssdDsss",
+                                      "sDttttDs", "ssDmmDss", "ssssssss"]), 21), (64, 0))
+    img.paste(head_strip(triple_face(["ssssssss", "ssssssss", "bbsssbbs", "sWpssWps", "sssdDsss",
+                                      "DttttttD", "ssDmmDss", "ssssssss"]), 22), (96, 0))
+    for name in ("head_neck", "head_left_neck", "head_ear_right"):
+        u, v, w, h, d = b[name]
+        box(u, v, w, h, d, TRIPLE_SKIN, 4)
+        for r in sides(faces(u, v, w, h, d)):
+            x, y, rw, rh = r
+            rect(x, y, rw, 1, tuple(round(c * 0.82) for c in TRIPLE_SKIN), 2)   # under the jaw
+    f = faces(*b["horn_right"])
+    for r in sides(f):
+        gradient(r, (60, 54, 50), (110, 100, 92), 3)                            # dark horns, lighter at the base
+    rect(*f["top"], (44, 40, 38), 2)
+    # Porcelain, with the inside of each bowl seen from above and oval lids like the regular toilets
+    for name in ("pedestal_right", "bowl_lower_right", "bowl_right", "lid_top_right", "tank", "tank_lid",
+                 "back_pedestal", "back_bowl", "back_tank"):
+        porcelain(*b[name])
+    for name in ("bowl_right", "back_bowl"):
+        x, y, w, h = faces(*b[name])["top"]
+        rect(x + 2, y + 2, w - 4, h - 4, (204, 210, 218), 2)
+        rect(x + 3, y + 3, w - 6, h - 6, WATER, 6)
+    f = porcelain(*b["lid_right"], (248, 249, 251), (226, 230, 235))
+    x, y, w, h = f["front"]
+    for k in range(h):
+        for i in range(w):
+            r = math.hypot((i - (w - 1) / 2) / (w / 2), (k - (h - 1) / 2) / (h / 2))
+            if 0.62 < r < 0.86:
+                px[x + i, y + k] = shade((230, 233, 237), 2)
+            elif r >= 1.0:
+                px[x + i, y + k] = shade((214, 218, 224), 2)
+    f = faces(*b["platform"])
+    for r in f.values():
+        rect(*r, (120, 124, 130), 4)                                            # a grey stone platform
     return img
 
 
@@ -486,50 +504,120 @@ def hat_toilet():
     return img
 
 
-ARMOR = (34, 34, 38)
+STEEL = (152, 156, 162)
 
 
 def fast_armored():
-    new_image(64, 24)
-    # Shell 16x14x16 at (0, 0)
-    box(0, 0, 16, 14, 16, ARMOR, 5)
-    for x in range(0, 64, 8):               # plate seams down every side
-        rect(x, 16, 1, 14, (22, 22, 25), 2)
-    rect(0, 22, 64, 1, (22, 22, 25), 2)     # and one seam around the middle
-    for x in range(2, 64, 4):               # rivets along the top and bottom edges of the sides
-        px[x, 17] = (88, 88, 96, 255)
-        px[x, 28] = (88, 88, 96, 255)
-    fx, fy = 16, 16                         # front face
-    rect(fx + 2, fy + 4, 12, 3, (8, 8, 10), 0)     # visor slit...
-    rect(fx + 4, fy + 5, 2, 1, (255, 50, 40), 0)   # ...with eyes glaring out
-    rect(fx + 10, fy + 5, 2, 1, (255, 50, 40), 0)
-    # Plate 12x2x12 at (0, 30)
-    box(0, 30, 12, 2, 12, (52, 52, 58), 4)
+    # The Fast Armored Skibidi Toilet (fast_armored_skibidi_toilet.bbmodel): a brushed-steel prison toilet with
+    # a sink on top, a head in a black helmet with blank white eyes, a dark plate behind with six rockets
+    b = bb_boxes("fast_armored_skibidi_toilet")
+    new_image(128, 24, 64)
+    skin = (186, 140, 108)
+    u, v, w, h, d = b["head"]
+    f = faces(u, v, w, h, d)
+    for r in f.values():
+        rect(*r, skin, 4)
+    rect(*f["top"], (30, 26, 24), 3)
+    pixel_art(*f["front"][:2], ["HHHHHHHH", "HHHHHHHH", "HssssssH", "sWWssWWs",
+                                "sssdDsss", "sDttttDs", "ssDmmDss", "ssssssss"],
+              {"H": (30, 26, 24), "s": skin, "d": (164, 122, 94), "D": (120, 88, 66), "W": (250, 250, 250),
+               "t": (236, 232, 220), "m": (70, 16, 16)})
+    for key in ("right", "left"):
+        x, y, rw, rh = f[key]
+        rect(x + rw // 2, y + 3, 1, rh - 3, (50, 44, 36), 0)   # helmet strap down to the chin
+    rect(*f["bottom"], (164, 122, 94), 2)
+    f = faces(*b["helmet"])
+    for r in sides(f):
+        gradient(r, (40, 40, 44), (22, 22, 26), 3)
+    rect(*f["top"], (46, 46, 50), 3)
+    rect(*f["bottom"], (16, 16, 18), 0)
+    f = faces(*b["neck"])
+    for r in sides(f):
+        gradient(r, (150, 112, 86), skin, 3)
+    for name in ("base", "bowl", "rim", "back_unit", "sink", "faucet"):
+        f = faces(*b[name])
+        for r in sides(f):
+            x, y, rw, rh = r
+            gradient(r, tuple(c + 10 for c in STEEL), tuple(c - 22 for c in STEEL), 3)
+            for k in range(1, rh, 3):
+                rect(x, y + k, rw, 1, tuple(c - 8 for c in STEEL), 2)   # brushed lines
+        rect(*f["top"], tuple(c + 16 for c in STEEL), 3)
+        rect(*f["bottom"], (90, 92, 98), 2)
+    x, y, w, h = faces(*b["rim"])["top"]
+    rect(x + 2, y + 2, w - 4, h - 4, (70, 74, 82), 2)          # the inside of the bowl
+    rect(x + 3, y + 3, w - 6, h - 6, (60, 100, 140), 6)
+    x, y, w, h = faces(*b["sink"])["top"]
+    rect(x + 1, y + 1, w - 2, h - 2, (100, 104, 110), 2)       # basin
+    px[x + w // 2, y + h // 2] = (40, 40, 44, 255)            # drain
+    f = faces(*b["plate"])
+    for r in f.values():
+        rect(*r, (62, 64, 70), 3)
+    x, y, w, h = f["back"]
+    for k in range(0, h, 7):
+        rect(x, y + k, w, 1, (48, 50, 54), 0)                  # panel seams
+    for i in range(1, w, 4):
+        for k in (1, h - 2):
+            px[x + i, y + k] = (104, 106, 112, 255)            # rivets
+    f = faces(*b["rocket0_right"])
+    for r in sides(f):
+        gradient(r, (124, 126, 132), (90, 92, 98), 3)
+        x, y, rw, rh = r
+        rect(x, y + rh - 1, rw, 1, (60, 62, 66), 0)
+    for key in ("top", "bottom"):
+        x, y, rw, rh = f[key]
+        rect(x, y, rw, rh, (110, 112, 118), 3)
+        for k in range(1, rh, 2):
+            rect(x, y + k, rw, 1, (80, 82, 88), 0)             # bands along the rocket
+    x, y, w, h = f["back"]
+    rect(x, y, w, h, (40, 40, 44), 0)                          # nozzle...
+    rect(x + 1, y + 1, w - 2, h - 2, (250, 170, 60), 6)        # ...glowing hot
     return img
 
 
-STRIDER_BODY = (128, 133, 140)
-STRIDER_DARK = (58, 60, 66)
-
-
 def camera_strider():
-    new_image(64, 25)
-    # Body 12x10x16 at (0, 0)
-    box(0, 0, 12, 10, 16, STRIDER_BODY, 6)
-    rect(16, 0, 12, 16, (150, 155, 162), 6)        # lighter top
-    rect(0, 21, 56, 1, (100, 104, 110), 2)         # panel seam around the sides
-    rect(16, 16, 12, 10, STRIDER_DARK, 3)          # dark front around the lens
-    rect(40, 16, 12, 10, (110, 114, 120), 4)       # back panel
-    # Lens 6x6x6 at (0, 26): dark barrel with blue glass on the front
-    box(0, 26, 6, 6, 6, (36, 36, 42), 3)
-    rect(7, 33, 4, 4, (50, 110, 200), 6)
-    px[8, 34] = (170, 210, 255, 255)
-    # Leg 2x30x2 at (24, 26)
-    box(24, 26, 2, 30, 2, STRIDER_DARK, 4)
-    for y in (36, 46):                             # joints
-        rect(24, y, 8, 1, (30, 30, 34), 0)
-    # Light 2x1x2 at (32, 26)
-    box(32, 26, 2, 1, 2, (230, 40, 40), 0)
+    # The Camera Strider (camera_strider.bbmodel): a dark movie-camera body with a big glass lens, guns on top and
+    # underneath, a screen on the back, on three long dark legs
+    b = bb_boxes("camera_strider")
+    new_image(128, 25, 64)
+    f = faces(*b["housing"])
+    for r in sides(f):
+        gradient(r, (70, 72, 78), (48, 50, 56), 3)
+    rect(*f["top"], (84, 86, 92), 3)
+    rect(*f["bottom"], (40, 42, 46), 2)
+    for key in ("right", "left"):
+        x, y, w, h = f[key]
+        rect(x + 1, y + 1, w - 2, h - 2, (62, 64, 70), 2)   # side panel
+        for i, k in ((1, 1), (w - 2, 1), (1, h - 2), (w - 2, h - 2)):
+            px[x + i, y + k] = (110, 112, 118, 255)         # screws
+    x, y, w, h = f["back"]
+    rect(x + 2, y + 2, w - 4, h - 4, (40, 70, 96), 3)       # screen on the back
+    rect(x + 2, y + 2, w - 4, 1, (90, 130, 160), 2)
+    box(*b["lens"], (30, 30, 34), 3)
+    f = faces(*b["lens"])
+    for r in sides(f):
+        x, y, w, h = r
+        rect(x, y + 1, w, 1, (60, 60, 66), 0)               # focus rings
+        rect(x, y + h - 2, w, 1, (60, 60, 66), 0)
+    f = faces(*b["lens_hood"])
+    box(*b["lens_hood"], (24, 24, 28), 2)
+    x, y, w, h = f["front"]
+    radial(x, y, w, h, 0, w / 2 - 0.6, lambda r: (20, 34, 70) if r > 1.2 else (10, 16, 36))
+    px[x + 2, y + 2] = (150, 190, 240, 255)
+    px[x + 3, y + 2] = (110, 150, 210, 255)
+    for name in ("gun_top", "barrel_top", "gun_bottom", "barrel_bottom", "viewfinder"):
+        box(*b[name], (42, 44, 48), 3)
+    rect(*faces(*b["barrel_top"])["front"], (14, 14, 16), 0)
+    rect(*faces(*b["barrel_bottom"])["front"], (14, 14, 16), 0)
+    box(*b["light"], (230, 40, 40), 0)
+    for name in ("left_leg_thigh", "left_leg_shin"):
+        f = faces(*b[name])
+        for r in sides(f):
+            gradient(r, (78, 80, 86), (56, 58, 64), 3)
+            x, y, w, h = r
+            rect(x, y, w, 1, (34, 34, 38), 0)               # joint
+        rect(*f["bottom"], (30, 30, 34), 0)
+    x, y, w, h = faces(*b["left_leg_shin"])["front"]
+    rect(x, y + h - 3, w, 3, (40, 40, 44), 2)               # foot
     return img
 
 
@@ -739,10 +827,99 @@ def alliance(seed, head):
     return img
 
 
-def large_alliance(head, suit_color, tie_color):
+def large_cameraman():
+    # The Large Cameraman (large_cameraman.bbmodel): a long black coat over a white shirt and black tie,
+    # black gloves, and a black camcorder for a head
+    b = bb_boxes("large_cameraman")
     new_image(64, 9)
-    suit(suit_color, tie_color)
-    head()
+    coat, coat_dark = (30, 30, 34), (22, 22, 26)
+    box(*b["mount"], (44, 44, 48), 3)
+    f = faces(*b["camcorder"])
+    for r in sides(f):
+        gradient(r, (40, 40, 44), (24, 24, 28), 3)
+    rect(*f["top"], (46, 46, 50), 3)
+    x, y, w, h = f["right"]
+    rect(x + 1, y + 2, w - 2, 1, (54, 54, 60), 0)           # seam
+    x, y, w, h = f["front"]
+    px[x + w - 1, y] = (230, 30, 30, 255)                   # red recording light
+    box(*b["lens"], (20, 20, 24), 2)
+    lens_glass(*faces(*b["lens"])["front"])
+    for name in ("handle", "handle_front", "handle_back", "viewfinder"):
+        box(*b[name], (26, 26, 30), 2)
+    f = faces(*b["torso"])
+    for r in sides(f):
+        rect(*r, coat, 3)
+    x, y, w, h = f["front"]
+    rect(x + 2, y, 4, 3, SHIRT, 2)                          # shirt in the open collar...
+    rect(x + 3, y, 2, 9, TIE, 2)                            # ...and a black tie
+    rect(x + 1, y, 1, 4, coat_dark, 0)                      # lapels
+    rect(x + 6, y, 1, 4, coat_dark, 0)
+    for name in ("coat_back", "coat_side_right", "coat_front_right"):
+        f = faces(*b[name])
+        for r in sides(f):
+            gradient(r, coat, coat_dark, 3)
+    f = faces(*b["arm_right"])
+    for r in sides(f):
+        x, y, w, h = r
+        rect(x, y, w, h - 3, coat, 3)
+        rect(x, y + h - 4, w, 1, SHIRT, 2)                  # shirt cuff
+        rect(x, y + h - 3, w, 3, (40, 40, 44), 3)           # black gloves
+    rect(*f["top"], coat, 3)
+    rect(*f["bottom"], (40, 40, 44), 3)
+    f = faces(*b["leg_right"])
+    for r in sides(f):
+        x, y, w, h = r
+        rect(x, y, w, h, (26, 26, 30), 3)
+        rect(x, y + h - 2, w, 2, SHOE, 2)
+    rect(*f["bottom"], SHOE, 2)
+    return img
+
+
+def large_speakerman():
+    # The Large Speakerman (large_speakerman.bbmodel): a white dress shirt and dark red tie, black trousers and
+    # gloves, and a tall black speaker for a head: a big woofer and a column of small drivers
+    b = bb_boxes("large_speakerman")
+    new_image(64, 10)
+    shirt, shirt_shade = (232, 232, 228), (200, 200, 196)
+    box(*b["mount"], (40, 40, 44), 3)
+    f = faces(*b["cabinet"])
+    for r in f.values():
+        rect(*r, SPEAKER_BODY, 3)
+    x, y, w, h = f["front"]
+    for i in range(w):
+        px[x + i, y] = shade((46, 46, 50), 2)
+    px[x + 5, y + 1] = (160, 162, 170, 255)                 # tweeter
+    for k in (3, 5, 7):
+        rect(x + 5, y + k, 2, 1, (70, 70, 76), 0)           # small drivers down the side
+        px[x + 6, y + k] = (110, 112, 120, 255)
+    box(*b["woofer"], (50, 50, 56), 2)
+    x, y, w, h = faces(*b["woofer"])["front"]
+    for i in range(w):
+        for k in range(h):
+            px[x + i, y + k] = shade(speaker_cone(i, k, w), 2)
+    f = faces(*b["torso"])
+    for r in sides(f):
+        gradient(r, shirt, shirt_shade, 3)
+        x, y, w, h = r
+        rect(x, y + h - 1, w, 1, (24, 24, 26), 0)           # belt
+    x, y, w, h = f["front"]
+    rect(x + 3, y, 2, 1, (90, 14, 18), 0)                   # tie knot...
+    rect(x + 3, y + 1, 2, 8, (120, 22, 28), 2)              # ...and dark red tie
+    px[x + 2, y] = (210, 210, 206, 255)                     # collar points
+    px[x + 5, y] = (210, 210, 206, 255)
+    f = faces(*b["arm_right"])
+    for r in sides(f):
+        x, y, w, h = r
+        gradient((x, y, w, h - 3), shirt, shirt_shade, 3)
+        rect(x, y + h - 3, w, 3, (34, 34, 38), 3)           # black gloves
+    rect(*f["top"], shirt, 3)
+    rect(*f["bottom"], (34, 34, 38), 3)
+    f = faces(*b["leg_right"])
+    for r in sides(f):
+        x, y, w, h = r
+        rect(x, y, w, h, (24, 24, 28), 3)
+        rect(x, y + h - 2, w, 2, SHOE, 2)
+    rect(*f["bottom"], SHOE, 2)
     return img
 
 
@@ -1294,54 +1471,69 @@ def pixel_art(x, y, rows, colors, noise=3):
             px[x + i, y + k] = shade(colors[ch], noise if ch in "sdrH" else 1)
 
 
-def gman_hair_side(r, front_at_right):
-    """A side of G-Man's head: slicked hair over the top, down to the nape at the back; skin and jaw below."""
+# The colours of G-Man's head beyond his face palette; other heads in the same tall toilet pass their own.
+GMAN_LOOK = {
+    "skin": GMAN_SKIN, "hair": GMAN_HAIR, "streak": (54, 46, 58), "top_streak": (56, 48, 60),
+    "jaw": (200, 166, 130), "nape": (210, 176, 140), "chin": (190, 154, 120), "brow_shadow": (150, 110, 85),
+    "bridge": (232, 204, 170), "nose": (220, 186, 150), "nostril": (120, 78, 60), "nose_bottom": (150, 108, 84),
+    "ear": (214, 178, 142), "inner_ear": (190, 150, 118), "neck_top": (176, 140, 110), "neck_bottom": (214, 180, 146),
+}
+
+
+def hair_side(r, front_at_right, look):
+    """A side of the head: hair over the top, down to the nape at the back; skin and jaw below."""
     x, y, w, h = r
-    rect(x, y, w, h, GMAN_SKIN, 3)
+    rect(x, y, w, h, look["skin"], 3)
     for i in range(w):
         back = (w - 1 - i if front_at_right else i) / (w - 1)       # 1 at the back edge, 0 at the front
         line = round(5 + 6 * back ** 2)
-        rect(x + i, y, 1, line, GMAN_HAIR, 3)
+        rect(x + i, y, 1, line, look["hair"], 3)
         if i % 3 == 1:
-            rect(x + i, y + 1, 1, max(1, line - 3), (54, 46, 58), 2)  # combed streaks
-    rect(x, y + h - 2, w, 2, (200, 166, 130), 3)                    # jaw shadow
+            rect(x + i, y + 1, 1, max(1, line - 3), look["streak"], 2)  # combed streaks
+    rect(x, y + h - 2, w, 2, look["jaw"], 3)                        # jaw shadow
 
 
 def gman_toilet():
+    return infra_toilet("gman_toilet", 8, GMAN_FACE, ["bbssssssssbb", "sbbbbssbbbbs", "ssssbbbbssss"],
+                        GMAN_COLORS, GMAN_LOOK)
+
+
+def infra_toilet(model, seed, face, brow, colors, look):
+    """G-Toilet's tall toilet (gman_toilet.bbmodel's layout) with a 14x16 face and a 12x3 brow."""
     b = bb_boxes("gman_toilet")
-    new_image(256, 8, 128)
+    new_image(256, seed, 128)
 
     # Head
     f = faces(*b["head"])
-    pixel_art(*f["front"][:2], GMAN_FACE, GMAN_COLORS)
-    gman_hair_side(f["right"], True)
-    gman_hair_side(f["left"], False)
+    pixel_art(*f["front"][:2], face, colors)
+    hair_side(f["right"], True, look)
+    hair_side(f["left"], False, look)
     x, y, w, h = f["top"]
-    rect(x, y, w, h, GMAN_HAIR, 3)
+    rect(x, y, w, h, look["hair"], 3)
     for i in range(1, w, 3):
-        rect(x + i, y, 1, h, (56, 48, 60), 2)                       # slicked back, front to back
+        rect(x + i, y, 1, h, look["top_streak"], 2)                 # combed back, front to back
     x, y, w, h = f["back"]
-    rect(x, y, w, h, GMAN_HAIR, 3)
-    rect(x, y + h - 4, w, 4, (210, 176, 140), 3)                    # nape
-    rect(*f["bottom"], (190, 154, 120), 2)
+    rect(x, y, w, h, look["hair"], 3)
+    rect(x, y + h - 4, w, 4, look["nape"], 3)                       # nape
+    rect(*f["bottom"], look["chin"], 2)
     f = faces(*b["brow"])
-    box(*b["brow"], GMAN_SKIN, 3)
-    pixel_art(*f["front"][:2], ["bbssssssssbb", "sbbbbssbbbbs", "ssssbbbbssss"], GMAN_COLORS)
-    rect(*f["top"], GMAN_SKIN, 3)
-    rect(*f["bottom"], (150, 110, 85), 2)                           # shadow over the eyes
-    box(*b["nose_bridge"], (232, 204, 170), 3)
+    box(*b["brow"], look["skin"], 3)
+    pixel_art(*f["front"][:2], brow, colors)
+    rect(*f["top"], look["skin"], 3)
+    rect(*f["bottom"], look["brow_shadow"], 2)                      # shadow over the eyes
+    box(*b["nose_bridge"], look["bridge"], 3)
     f = faces(*b["nose"])
-    box(*b["nose"], (220, 186, 150), 3)
+    box(*b["nose"], look["nose"], 3)
     x, y, w, h = f["front"]
-    px[x + 1, y + h - 1] = (120, 78, 60, 255)                      # nostrils
-    px[x + 2, y + h - 1] = (120, 78, 60, 255)
-    rect(*f["bottom"], (150, 108, 84), 2)
+    px[x + 1, y + h - 1] = look["nostril"] + (255,)                 # nostrils
+    px[x + 2, y + h - 1] = look["nostril"] + (255,)
+    rect(*f["bottom"], look["nose_bottom"], 2)
     f = faces(*b["ear_right"])
-    box(*b["ear_right"], (214, 178, 142), 3)
-    rect(*f["right"], (190, 150, 118), 0)                           # inner ear
+    box(*b["ear_right"], look["ear"], 3)
+    rect(*f["right"], look["inner_ear"], 0)                         # inner ear
     f = faces(*b["neck"])
     for r in sides(f):
-        gradient(r, (176, 140, 110), (214, 180, 146), 3)            # in the shadow of the jaw
+        gradient(r, look["neck_top"], look["neck_bottom"], 3)       # in the shadow of the jaw
 
     # Toilet: smooth, slightly dull porcelain, darker toward the floor
     for name, hi, lo in (("rim", (240, 241, 243), (226, 228, 230)), ("bowl", (232, 234, 236), (214, 216, 220)),
@@ -1367,6 +1559,38 @@ def gman_toilet():
     box(*b["flush_knob"], (200, 204, 210), 3)
     rect(*faces(*b["flush_knob"])["top"], (226, 230, 236), 2)
     return img
+
+
+# Male_09 as the Giant Flying Skibidi Toilet: short dark hair, heavy brows, wide eyes, a huge toothy grin.
+GIANT_FACE = [
+    "HHHHHHHHHHHHHH",
+    "HHHHHHHHHHHHHH",
+    "HHssssssssssHH",
+    "ssssssssssssss",
+    "ssssssssssssss",
+    "ssssssssssssss",
+    "sbbbbssssbbbbs",
+    "sdDDDdssdDDDds",
+    "sDWWpDssDpWWDs",
+    "ssdddsssdddsss",
+    "rssDdnnnndDssr",
+    "sDttttttttttDs",
+    "sDmmmmmmmmmmDs",
+    "ssDttttttttDss",
+    "sssDllllllDsss",
+    "dssssddddssssd",
+]
+
+
+def giant_flying_toilet():
+    skin, hair = (214, 160, 118), (40, 32, 28)
+    colors = {**GMAN_COLORS, "H": hair, "h": (60, 48, 42), "s": skin, "d": (190, 140, 104), "D": (150, 106, 78),
+              "r": (220, 158, 120), "b": (34, 26, 22), "W": (236, 236, 230), "i": (90, 70, 50), "p": (30, 24, 20)}
+    look = {"skin": skin, "hair": hair, "streak": (56, 46, 40), "top_streak": (52, 42, 36), "jaw": (188, 138, 102),
+            "nape": (200, 148, 110), "chin": (180, 130, 96), "brow_shadow": (140, 100, 74), "bridge": (222, 170, 128),
+            "nose": (208, 154, 114), "nostril": (110, 70, 52), "nose_bottom": (150, 106, 78), "ear": (204, 150, 110),
+            "inner_ear": (176, 126, 92), "neck_top": (168, 120, 88), "neck_bottom": (206, 152, 112)}
+    return infra_toilet("gman_toilet", 16, GIANT_FACE, ["ssssssssssss", "bbbbbssbbbbb", "ssssssssssss"], colors, look)
 
 
 # ---------------------------------------------------------------- items
@@ -1820,7 +2044,7 @@ outputs = {
     "entity/scientist_toilet.png": lambda: toilet(14, scientist_head),
     "entity/skibidi_urinal.png": urinal,
     "entity/flying_skibidi_toilet.png": lambda: toilet(15, flying_head),
-    "entity/giant_flying_skibidi_toilet.png": lambda: toilet(16, giant_flying_head),
+    "entity/giant_flying_skibidi_toilet.png": giant_flying_toilet,
     "entity/dj_skibidi_toilet.png": lambda: toilet(17, dj_head, headphones),
     "entity/spider_toilet.png": lambda: toilet(7, skibidi_head, spider_legs),
     "entity/jetpack_toilet.png": jetpack_toilet,
@@ -1828,8 +2052,8 @@ outputs = {
     "entity/speakerman.png": lambda: alliance(9, speakerman_head),
     "entity/tv_man.png": lambda: alliance(9, tv_man_head),
     "entity/commander.png": commander,
-    "entity/large_cameraman.png": lambda: large_alliance(cameraman_head, (34, 44, 66), (150, 155, 165)),
-    "entity/large_speakerman.png": lambda: large_alliance(speakerman_head, (78, 56, 40), (20, 20, 22)),
+    "entity/large_cameraman.png": large_cameraman,
+    "entity/large_speakerman.png": large_speakerman,
     "entity/camera_strider.png": camera_strider,
     "entity/titan_cameraman.png": titan_cameraman,
     "entity/titan_cameraman_glow.png": titan_cameraman_glow,

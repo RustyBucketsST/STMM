@@ -50,6 +50,8 @@ public class SkibidiToiletClient implements ClientModInitializer {
     public static final EntityModelLayer CAMERAMAN_LAYER = layer("cameraman");
     public static final EntityModelLayer SPEAKERMAN_LAYER = layer("speakerman");
     public static final EntityModelLayer TV_MAN_LAYER = layer("tv_man");
+    public static final EntityModelLayer LARGE_CAMERAMAN_LAYER = layer("large_cameraman");
+    public static final EntityModelLayer LARGE_SPEAKERMAN_LAYER = layer("large_speakerman");
     public static final EntityModelLayer TITAN_CAMERAMAN_LAYER = layer("titan_cameraman");
     public static final EntityModelLayer TITAN_SPEAKERMAN_LAYER = layer("titan_speakerman");
     public static final EntityModelLayer TITAN_TV_MAN_LAYER = layer("titan_tv_man");
@@ -70,6 +72,8 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(CAMERAMAN_LAYER, AllianceModel::getCameramanModelData);
         EntityModelLayerRegistry.registerModelLayer(SPEAKERMAN_LAYER, AllianceModel::getSpeakermanModelData);
         EntityModelLayerRegistry.registerModelLayer(TV_MAN_LAYER, AllianceModel::getTvManModelData);
+        EntityModelLayerRegistry.registerModelLayer(LARGE_CAMERAMAN_LAYER, AllianceModel::getLargeCameramanModelData);
+        EntityModelLayerRegistry.registerModelLayer(LARGE_SPEAKERMAN_LAYER, AllianceModel::getLargeSpeakermanModelData);
         EntityModelLayerRegistry.registerModelLayer(TITAN_CAMERAMAN_LAYER, TitanModel::getCameramanModelData);
         EntityModelLayerRegistry.registerModelLayer(TITAN_SPEAKERMAN_LAYER, TitanModel::getSpeakermanModelData);
         EntityModelLayerRegistry.registerModelLayer(TITAN_TV_MAN_LAYER, TitanModel::getTvManModelData);
@@ -92,8 +96,10 @@ public class SkibidiToiletClient implements ClientModInitializer {
                 SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "skibidi_toilet", MicroToiletEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.FLYING_TOILET, SkibidiToiletRenderer.factory(
                 SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "flying_skibidi_toilet", 1.0f));
-        EntityRendererRegistry.register(ModEntities.GIANT_FLYING_TOILET, SkibidiToiletRenderer.factory(
-                SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "giant_flying_skibidi_toilet", GiantFlyingToiletEntity.SCALE));
+        // In the series the Giant Flying Toilet has the same tall toilet as G-Toilet.
+        EntityRendererRegistry.register(ModEntities.GIANT_FLYING_TOILET, SkibidiToiletRenderer.detailed(
+                GMAN_TOILET_LAYER, GManToiletModel::new, "giant_flying_skibidi_toilet", GiantFlyingToiletEntity.SCALE,
+                GManToiletModel.DETAIL));
         EntityRendererRegistry.register(ModEntities.DJ_TOILET, SkibidiToiletRenderer.factory(
                 DJ_TOILET_LAYER, SkibidiToiletModel::new, "dj_skibidi_toilet", 1.0f));
         EntityRendererRegistry.register(ModEntities.SAINT_TOILET, SkibidiToiletRenderer.factory(
@@ -116,9 +122,9 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.TITAN_TV_MAN,
                 AllianceRenderer.titanFactory(TITAN_TV_MAN_LAYER, "titan_tv_man", TitanEntity.TV_MAN_SCALE));
         EntityRendererRegistry.register(ModEntities.LARGE_CAMERAMAN,
-                AllianceRenderer.factory(CAMERAMAN_LAYER, "large_cameraman", LargeAllianceEntity.SCALE));
+                AllianceRenderer.factory(LARGE_CAMERAMAN_LAYER, "large_cameraman", LargeAllianceEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.LARGE_SPEAKERMAN,
-                AllianceRenderer.factory(SPEAKERMAN_LAYER, "large_speakerman", LargeAllianceEntity.SCALE));
+                AllianceRenderer.factory(LARGE_SPEAKERMAN_LAYER, "large_speakerman", LargeAllianceEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.CAMERA_STRIDER, ScaledMobRenderer.factory(
                 CAMERA_STRIDER_LAYER, CameraStriderModel::new, "camera_strider", CameraStriderEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.COMMANDER, AllianceRenderer.factory(CAMERAMAN_LAYER, "commander", 1.0f));

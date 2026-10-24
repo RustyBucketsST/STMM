@@ -32,5 +32,20 @@
 	},
 	"titan_tv_man.bbmodel": {
 		"class": "TitanTvManBbModel"
+	},
+	"triple_skibidi_toilet.bbmodel": {
+		"class": "TripleSkibidiToiletBbModel"
+	},
+	"fast_armored_skibidi_toilet.bbmodel": {
+		"class": "FastArmoredToiletBbModel"
+	},
+	"large_cameraman.bbmodel": {
+		"class": "LargeCameramanBbModel"
+	},
+	"large_speakerman.bbmodel": {
+		"class": "LargeSpeakermanBbModel"
+	},
+	"camera_strider.bbmodel": {
+		"class": "CameraStriderBbModel"
 	}
 }

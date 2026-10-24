@@ -1,18 +1,16 @@
 package com.skibiditoilet.client;
 
+import com.skibiditoilet.client.bbmodel.FastArmoredToiletBbModel;
 import com.skibiditoilet.entity.FastArmoredToiletEntity;
 import net.minecraft.client.model.ModelData;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.model.ModelPartBuilder;
-import net.minecraft.client.model.ModelPartData;
-import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.util.math.MathHelper;
 
 /**
- * The Fast Armored Toilet: a big black armored box with a visor slit, and a raised plate on top.
- * It shakes while it revs up and charges. Ground at y = 24.
+ * The Fast Armored Toilet as in the series (blockbench/fast_armored_skibidi_toilet.bbmodel): a steel prison
+ * toilet with a helmeted head and a gigantic rocket plate behind it. It shakes while it revs up and charges.
  */
 public class FastArmoredToiletModel extends SinglePartEntityModel<FastArmoredToiletEntity> {
     private final ModelPart root;
@@ -25,11 +23,9 @@ public class FastArmoredToiletModel extends SinglePartEntityModel<FastArmoredToi
 
     public static TexturedModelData getTexturedModelData() {
         ModelData modelData = new ModelData();
-        ModelPartData root = modelData.getRoot();
-        ModelPartData shell = root.addChild("shell", ModelPartBuilder.create().uv(0, 0).cuboid(-8, 10, -8, 16, 14, 16),
-                ModelTransform.NONE);
-        shell.addChild("plate", ModelPartBuilder.create().uv(0, 30).cuboid(-6, 8, -6, 12, 2, 12), ModelTransform.NONE);
-        return TexturedModelData.of(modelData, 64, 64);
+        FastArmoredToiletBbModel.addShell(modelData.getRoot());
+        return TexturedModelData.of(modelData, FastArmoredToiletBbModel.TEXTURE_WIDTH,
+                FastArmoredToiletBbModel.TEXTURE_HEIGHT);
     }
 
     @Override

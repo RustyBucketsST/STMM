@@ -1,17 +1,17 @@
 package com.skibiditoilet.client;
 
+import com.skibiditoilet.client.bbmodel.CameraStriderBbModel;
 import com.skibiditoilet.entity.CameraStriderEntity;
 import net.minecraft.client.model.ModelData;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.model.ModelPartBuilder;
 import net.minecraft.client.model.ModelPartData;
-import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.util.math.MathHelper;
 
 /**
- * The Camera Strider: a camera body with a big lens, up on three long legs (two in front, one behind).
+ * The Camera Strider as in the series (blockbench/camera_strider.bbmodel): a movie camera with a big lens and
+ * guns on top and underneath, up on three long legs that bend at the knee (two at the sides, one behind).
  * The body turns to aim at what it's looking at; the legs step as it walks. Ground at y = 24.
  */
 public class CameraStriderModel extends SinglePartEntityModel<CameraStriderEntity> {
@@ -34,16 +34,11 @@ public class CameraStriderModel extends SinglePartEntityModel<CameraStriderEntit
     public static TexturedModelData getTexturedModelData() {
         ModelData modelData = new ModelData();
         ModelPartData root = modelData.getRoot();
-        ModelPartData body = root.addChild("body", ModelPartBuilder.create()
-                .uv(0, 0).cuboid(-6, -10, -8, 12, 10, 16),              // camera body
-                ModelTransform.pivot(0, HIP_Y, 0));
-        body.addChild("lens", ModelPartBuilder.create().uv(0, 26).cuboid(-3, -8, -14, 6, 6, 6), ModelTransform.NONE);
-        body.addChild("light", ModelPartBuilder.create().uv(32, 26).cuboid(3, -11, -6, 2, 1, 2), ModelTransform.NONE);
-        ModelPartBuilder leg = ModelPartBuilder.create().uv(24, 26).cuboid(-1, 0, -1, 2, 30, 2);
-        root.addChild("left_leg", leg, ModelTransform.pivot(5, HIP_Y, -5));
-        root.addChild("right_leg", leg, ModelTransform.pivot(-5, HIP_Y, -5));
-        root.addChild("back_leg", leg, ModelTransform.pivot(0, HIP_Y, 6));
-        return TexturedModelData.of(modelData, 64, 64);
+        CameraStriderBbModel.addBody(root);
+        CameraStriderBbModel.addLeftLeg(root);
+        CameraStriderBbModel.addRightLeg(root);
+        CameraStriderBbModel.addBackLeg(root);
+        return TexturedModelData.of(modelData, CameraStriderBbModel.TEXTURE_WIDTH, CameraStriderBbModel.TEXTURE_HEIGHT);
     }
 
     @Override

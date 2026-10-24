@@ -1,6 +1,8 @@
 package com.skibiditoilet.client;
 
 import com.skibiditoilet.client.bbmodel.CameramanBbModel;
+import com.skibiditoilet.client.bbmodel.LargeCameramanBbModel;
+import com.skibiditoilet.client.bbmodel.LargeSpeakermanBbModel;
 import com.skibiditoilet.client.bbmodel.SpeakermanBbModel;
 import com.skibiditoilet.client.bbmodel.TvManBbModel;
 import com.skibiditoilet.entity.AllianceEntity;
@@ -35,6 +37,32 @@ public class AllianceModel extends BipedEntityModel<AllianceEntity> {
 
     public static TexturedModelData getTvManModelData() {
         return withHead(TvManBbModel::addHead);       // a CRT TV, its screen set back inside the bezel
+    }
+
+    /** The Large Cameraman: a long black coat and a black camcorder head (blockbench/large_cameraman.bbmodel). */
+    public static TexturedModelData getLargeCameramanModelData() {
+        return fullBody(LargeCameramanBbModel.TEXTURE_WIDTH, LargeCameramanBbModel.TEXTURE_HEIGHT,
+                LargeCameramanBbModel::addHead, LargeCameramanBbModel::addBody, LargeCameramanBbModel::addRightArm,
+                LargeCameramanBbModel::addLeftArm, LargeCameramanBbModel::addRightLeg, LargeCameramanBbModel::addLeftLeg);
+    }
+
+    /** The Large Speakerman: a white shirt and red tie, and a tall speaker head (large_speakerman.bbmodel). */
+    public static TexturedModelData getLargeSpeakermanModelData() {
+        return fullBody(LargeSpeakermanBbModel.TEXTURE_WIDTH, LargeSpeakermanBbModel.TEXTURE_HEIGHT,
+                LargeSpeakermanBbModel::addHead, LargeSpeakermanBbModel::addBody, LargeSpeakermanBbModel::addRightArm,
+                LargeSpeakermanBbModel::addLeftArm, LargeSpeakermanBbModel::addRightLeg, LargeSpeakermanBbModel::addLeftLeg);
+    }
+
+    /** A whole body from a .bbmodel whose groups are the biped parts at the standard pivots. */
+    @SafeVarargs
+    private static TexturedModelData fullBody(int textureWidth, int textureHeight, Consumer<ModelPartData>... parts) {
+        ModelData modelData = new ModelData();
+        ModelPartData root = modelData.getRoot();
+        for (Consumer<ModelPartData> part : parts) {
+            part.accept(root);
+        }
+        root.addChild(EntityModelPartNames.HAT, ModelPartBuilder.create(), ModelTransform.NONE);
+        return TexturedModelData.of(modelData, textureWidth, textureHeight);
     }
 
     private static TexturedModelData withHead(Consumer<ModelPartData> addHead) {
