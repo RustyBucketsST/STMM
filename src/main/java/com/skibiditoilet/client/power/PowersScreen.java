@@ -5,6 +5,7 @@ import com.skibiditoilet.client.character.AllianceButton;
 import com.skibiditoilet.client.character.AllianceUi;
 import com.skibiditoilet.client.character.ClientCharacterState;
 import com.skibiditoilet.power.Form;
+import com.skibiditoilet.power.Gear;
 import com.skibiditoilet.power.Power;
 import com.skibiditoilet.power.PowerData;
 import com.skibiditoilet.power.Tech;
@@ -13,25 +14,28 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Powers menu: your points and three tabs. Powers: your type's powers (unlock them with points) and the tech your
+ * The Powers menu: your points and four tabs. Powers: your type's powers (unlock them with points) and the tech your
  * type builds (spend points to get one, or a replacement for half price). Forms: the bigger forms, bought in order.
- * Titan: the Titan moves that come with the Titan form, and which keys they take.
+ * Titan: the Titan moves that come with the Titan form, and which keys they take. Gear: gear to buy, which shows on
+ * you.
  */
 public class PowersScreen extends Screen {
     private static final int WIDTH = 330;
     private static final int ROW = 32;
     private static final int SECTION = 14;
     private static final int BUTTON_WIDTH = 84;
-    private static final int TAB_WIDTH = 54;
-    private static final int TOP = 13 + 16;
+    private static final int TAB_WIDTH = 70;
+    /** The title, the points line, then the row of tabs. */
+    private static final int TOP = 13 + 16 + 16;
 
     private enum Tab {
-        POWERS, FORMS, TITAN
+        POWERS, FORMS, TITAN, GEAR
     }
 
     /** The tab the menu opens on: the one it was left on. */
@@ -46,7 +50,7 @@ public class PowersScreen extends Screen {
     private int top;
     private int panelHeight;
 
-    private record Row(int y, Text name, Text details, Text description, Power power, Tech tech, Form form) {
+    private record Row(int y, Text name, Text details, Text description, Power power, Tech tech, Form form, Gear gear) {
     }
 
     private record Section(int y, Text label) {
@@ -68,13 +72,14 @@ public class PowersScreen extends Screen {
             case POWERS -> SECTION + this.powers.size() * ROW + (this.techs.isEmpty() ? 0 : SECTION + this.techs.size() * ROW);
             case FORMS -> SECTION + Form.unlockable().length * ROW;
             case TITAN -> SECTION + this.titanKeys.size() * ROW;
+            case GEAR -> SECTION + Gear.values().length * ROW;
         };
         this.panelHeight = TOP + content + 6;
         this.left = (this.width - WIDTH) / 2;
         this.top = Math.max(4, (this.height - this.panelHeight) / 2);
         int tabX = this.left + (WIDTH - Tab.values().length * (TAB_WIDTH + 4) + 4) / 2;
         for (Tab each : Tab.values()) {
-            this.addDrawableChild(new AllianceButton(tabX + each.ordinal() * (TAB_WIDTH + 4), this.top + 14, TAB_WIDTH, 13,
+            this.addDrawableChild(new AllianceButton(tabX + each.ordinal() * (TAB_WIDTH + 4), this.top + 28, TAB_WIDTH, 13,
                     Text.translatable("screen.skibidi.powers.section." + each.name().toLowerCase()), () -> tab == each,
                     () -> {
                         tab = each;
@@ -89,8 +94,35 @@ public class PowersScreen extends Screen {
             }
         } else if (tab == Tab.FORMS) {
             this.addForms(y);
-        } else {
+        } else if (tab == Tab.TITAN) {
             this.addTitanKeys(y);
+        } else {
+            this.addGear(y);
+        }
+    }
+
+    /** Gear to buy, which shows on you in every form. Shoulder gear is your type's own. */
+    private void addGear(int y) {
+        this.sections.add(new Section(y, Text.translatable("screen.skibidi.powers.section.gear")));
+        y += SECTION;
+        String type = ClientCharacterState.self().type().asString();
+        for (Gear gear : Gear.values()) {
+            String key = gear == Gear.SHOULDERS ? gear.translationKey() + "." + type : gear.translationKey();
+            this.rows.add(new Row(y, Text.translatable(key), Text.empty(), Text.translatable(key + ".description"),
+                    null, null, null, gear));
+            this.addDrawableChild(new AllianceButton(this.left + WIDTH - BUTTON_WIDTH - 6, y + 8, BUTTON_WIDTH, 16,
+                    Text.empty(), () -> ClientPowerState.unlock(gear)) {
+                @Override
+                public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+                    PowerData data = ClientPowerState.data();
+                    boolean has = data.has(gear);
+                    this.active = !has && data.points() >= gear.pointCost();
+                    this.setMessage(has ? Text.translatable("screen.skibidi.powers.owned")
+                            : Text.translatable("screen.skibidi.powers.buy", gear.pointCost()));
+                    super.renderButton(context, mouseX, mouseY, delta);
+                }
+            });
+            y += ROW;
         }
     }
 
@@ -104,7 +136,7 @@ public class PowersScreen extends Screen {
             Text details = Text.translatable("screen.skibidi.powers.details", key, power.energyCost(),
                     String.format("%.0f", power.cooldown() / 20.0f));
             this.rows.add(new Row(y, Text.translatable(power.translationKey()), details,
-                    Text.translatable(power.descriptionKey()), power, null, null));
+                    Text.translatable(power.descriptionKey()), power, null, null, null));
             this.addDrawableChild(new AllianceButton(this.left + WIDTH - BUTTON_WIDTH - 6, y + 8, BUTTON_WIDTH, 16,
                     Text.empty(), () -> {
             }) {
@@ -132,7 +164,7 @@ public class PowersScreen extends Screen {
             Text details = Text.translatable("screen.skibidi.powers.details", key, power.energyCost(),
                     String.format("%.0f", power.cooldown() / 20.0f));
             this.rows.add(new Row(y, Text.translatable(power.translationKey()), details,
-                    Text.translatable(power.descriptionKey()), power, null, null));
+                    Text.translatable(power.descriptionKey()), power, null, null, null));
             this.addDrawableChild(new AllianceButton(this.left + WIDTH - BUTTON_WIDTH - 6, y + 8, BUTTON_WIDTH, 16,
                     Text.empty(), () -> ClientPowerState.unlock(power)) {
                 @Override
@@ -156,7 +188,7 @@ public class PowersScreen extends Screen {
         y += SECTION;
         for (Tech tech : this.techs) {
             this.rows.add(new Row(y, tech.item().getName(), Text.empty(), Text.translatable(tech.descriptionKey()),
-                    null, tech, null));
+                    null, tech, null, null));
             this.addDrawableChild(new AllianceButton(this.left + WIDTH - BUTTON_WIDTH - 6, y + 8, BUTTON_WIDTH, 16,
                     Text.empty(), () -> ClientPowerState.build(tech)) {
                 @Override
@@ -186,7 +218,7 @@ public class PowersScreen extends Screen {
                 description = description.copy().append(" ").append(Text.translatable("screen.skibidi.powers.form_needs",
                         Text.translatable(previous.translationKey())));
             }
-            this.rows.add(new Row(y, Text.translatable(form.translationKey()), details, description, null, null, form));
+            this.rows.add(new Row(y, Text.translatable(form.translationKey()), details, description, null, null, form, null));
             this.addDrawableChild(new AllianceButton(this.left + WIDTH - BUTTON_WIDTH - 6, y + 8, BUTTON_WIDTH, 16,
                     Text.empty(), () -> ClientPowerState.unlock(form)) {
                 @Override
@@ -242,12 +274,13 @@ public class PowersScreen extends Screen {
     private void row(DrawContext context, Row row, PowerData data) {
         int x = this.left + 6;
         boolean owned = row.power != null ? (row.power.isTitanMove() ? data.has(Form.TITAN) : data.has(row.power))
-                : row.form != null ? data.has(row.form) : data.hasBuilt(row.tech);
+                : row.form != null ? data.has(row.form) : row.gear != null ? data.has(row.gear) : data.hasBuilt(row.tech);
         context.fill(x, row.y + 2, x + 20, row.y + 22, 0xFF0A121B);
         context.drawBorder(x, row.y + 2, 20, 20, owned ? AllianceUi.BORDER : AllianceUi.BORDER_DIM);
-        if (row.power != null || row.form != null) {
-            context.drawTexture(row.power != null ? PowerHud.icon(row.power) : PowerHud.icon(row.form),
-                    x + 2, row.y + 4, 0, 0, 16, 16, 16, 16);
+        if (row.power != null || row.form != null || row.gear != null) {
+            Identifier icon = row.power != null ? PowerHud.icon(row.power) : row.form != null ? PowerHud.icon(row.form)
+                    : PowerHud.icon(row.gear);
+            context.drawTexture(icon, x + 2, row.y + 4, 0, 0, 16, 16, 16, 16);
             if (!owned) {
                 context.fill(x + 2, row.y + 4, x + 18, row.y + 20, 0x90000000);
             }

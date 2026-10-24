@@ -3,6 +3,7 @@ package com.skibiditoilet.mixin.client;
 import com.skibiditoilet.character.CharacterData;
 import com.skibiditoilet.client.character.ClientCharacterState;
 import com.skibiditoilet.client.character.PlayerAppearance;
+import com.skibiditoilet.client.power.GearRenderer;
 import com.skibiditoilet.client.power.PlayerFormRenderer;
 import com.skibiditoilet.power.Form;
 import com.skibiditoilet.power.FormHolder;
@@ -22,8 +23,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Hides the parts of the player that a character covers, and draws the suit sleeve in first person. A player in a
- * form is drawn by its PlayerFormRenderer instead, with a shadow to match their size, and has no first-person arm.
+ * Hides the parts of the player that a character covers, and draws the suit sleeve (and pauldron) in first person.
+ * A player in a form is drawn by its PlayerFormRenderer instead, with a shadow to match their size, and has no
+ * first-person arm.
  */
 @Mixin(PlayerEntityRenderer.class)
 public abstract class PlayerEntityRendererMixin
@@ -65,6 +67,7 @@ public abstract class PlayerEntityRendererMixin
                                           CallbackInfo ci) {
         boolean rightArm = arm == this.getModel().rightArm;
         PlayerAppearance.renderFirstPersonSuitArm(matrices, vertexConsumers, light, player, arm, rightArm);
+        GearRenderer.renderArm(matrices, vertexConsumers, light, player, arm, rightArm);
     }
 
     @Unique

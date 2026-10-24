@@ -111,6 +111,21 @@ the stronger your form and your **Power** stat.
 | Shoulder Claws | 15 | 5s | One sweep of your shoulder blades through every toilet close in front of you. |
 | Grappling Hook | 15 | 6s | Hooks the toilet you're looking at (30 blocks) and reels it in to you. |
 
+## Gear
+
+Gear is bought once with points in the **Gear** tab of the Powers menu. It shows on your model in every form, as
+yourself, as a Large member and as a Titan, and everyone around can see it.
+
+| Gear | Cost | What it does |
+|---|---|---|
+| Jetpack | 120 | Twin tanks on your back. Hold **jump** in mid-air to fly straight up for 3 seconds; it refuels on the ground (an orange bar over the energy bar shows the fuel). You never take fall damage. |
+| Shoulder gear | 150 | Your type's own: two CCTV cameras (Cameraman), two speakers (Speakerman) or triple blade claws on your back (TV Man). Your powers hit 15% harder. |
+| Armor plates | 100 | Steel plates on your chest and shoulders: 4 more armor. |
+
+- On a Titan, his own shoulder cameras, speaker towers or back claws are your shoulder gear: they only show once you
+  have it. Titan Cameraman and Titan Speakerman already wear a jetpack, and a Titan's chest plates would cover his
+  core, so there the plates are just the shoulder guards.
+
 ## Notes
 
 - Powers only hit toilets and other monsters, never players or the Alliance.
@@ -118,4 +133,4 @@ the stronger your form and your **Power** stat.
 - Unlocks and points are kept per player, through death and logging out. If you change type, your points
   carry over, and powers you unlocked as another type are still unlocked if you switch back.
 - Admin commands: `/skibidi powers points <players> <amount>` gives points, and
-  `/skibidi powers reset <players>` clears points, unlocks and built tech.
+  `/skibidi powers reset <players>` clears points, unlocks (powers, forms and gear) and built tech.

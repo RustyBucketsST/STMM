@@ -12,7 +12,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Keeps the player's form and makes them its size: hitbox, eyes, and how far they can fall unhurt. */
+/**
+ * Keeps the player's form (and, on clients, their gear) and makes them the form's size: hitbox, eyes, and how far
+ * they can fall unhurt.
+ */
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin implements FormHolder {
     @Unique
@@ -20,6 +23,8 @@ public abstract class PlayerEntityMixin implements FormHolder {
     // 0 until set: the Entity constructor asks for the player's size before this class's fields are set up.
     @Unique
     private float skibidi$scale;
+    @Unique
+    private int skibidi$gear;
 
     @Override
     public Form skibidi$getForm() {
@@ -35,6 +40,16 @@ public abstract class PlayerEntityMixin implements FormHolder {
     public void skibidi$setForm(Form form, float scale) {
         this.skibidi$form = form;
         this.skibidi$scale = scale;
+    }
+
+    @Override
+    public int skibidi$getGear() {
+        return this.skibidi$gear;
+    }
+
+    @Override
+    public void skibidi$setGear(int gear) {
+        this.skibidi$gear = gear;
     }
 
     @Inject(method = "getDimensions", at = @At("RETURN"), cancellable = true)

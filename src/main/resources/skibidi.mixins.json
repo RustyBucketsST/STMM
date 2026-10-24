@@ -6,8 +6,9 @@
   "mixins": [
     "LivingEntityMixin",
     "PlayerEntityMixin",
-    "ServerPlayerInteractionManagerMixin",
-    "ServerPlayNetworkHandlerMixin"
+    "ServerPlayNetworkHandlerAccessor",
+    "ServerPlayNetworkHandlerMixin",
+    "ServerPlayerInteractionManagerMixin"
   ],
   "client": [
     "client.CameraMixin",

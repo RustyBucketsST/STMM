@@ -24,7 +24,10 @@ public final class PowerSync {
     public static final Identifier STATE = SkibidiToiletMod.id("power_state");
     /** S2C: entity id, Visible ordinal, ticks. A power others can see on a player: a shield up, a dance. */
     public static final Identifier VISIBLE = SkibidiToiletMod.id("power_visible");
-    /** S2C: entity id, Form ordinal, scale. The form a player is in, for them and everyone who can see them. */
+    /**
+     * S2C: entity id, Form ordinal, scale, Gear mask. The form a player is in and the gear they have, for them and
+     * everyone who can see them.
+     */
     public static final Identifier FORM = SkibidiToiletMod.id("power_form");
     /** C2S: slot. Use the power on that key. */
     public static final Identifier USE = SkibidiToiletMod.id("power_use");
@@ -34,6 +37,8 @@ public final class PowerSync {
     public static final Identifier BUILD = SkibidiToiletMod.id("tech_build");
     /** C2S: whether to turn back. Transform into the next form, or back to normal. */
     public static final Identifier TRANSFORM = SkibidiToiletMod.id("power_transform");
+    /** C2S: whether the jetpack is firing now (the client flies the player; the server shows the flames). */
+    public static final Identifier JETPACK = SkibidiToiletMod.id("gear_jetpack");
 
     /** Powers that show on the player who used them, for everyone around. */
     public enum Visible {
@@ -53,8 +58,11 @@ public final class PowerSync {
             String id = buf.readString();
             server.execute(() -> {
                 Form form = Form.byId(id);
+                Gear gear = Gear.byId(id);
                 if (form != null) {
                     PowerManager.unlock(player, form);
+                } else if (gear != null) {
+                    PowerManager.unlock(player, gear);
                 } else {
                     PowerManager.unlock(player, Power.byId(id));
                 }
@@ -64,9 +72,14 @@ public final class PowerSync {
             boolean back = buf.readBoolean();
             server.execute(() -> PowerManager.transform(player, back));
         });
-        // Players coming into view show the form they're in.
+        ServerPlayNetworking.registerGlobalReceiver(JETPACK, (server, player, handler, buf, sender) -> {
+            boolean firing = buf.readBoolean();
+            server.execute(() -> PowerManager.jetpack(player, firing));
+        });
+        // Players coming into view show the form they're in and their gear.
         EntityTrackingEvents.START_TRACKING.register((entity, viewer) -> {
-            if (entity instanceof ServerPlayerEntity player && FormHolder.form(player) != Form.NORMAL) {
+            if (entity instanceof ServerPlayerEntity player
+                    && (FormHolder.form(player) != Form.NORMAL || Gear.mask(PowerData.of(player)) != 0)) {
                 ServerPlayNetworking.send(viewer, FORM, formPacket(player));
             }
         });
@@ -77,8 +90,12 @@ public final class PowerSync {
     }
 
     public static void set(ServerPlayerEntity player, PowerData data) {
+        boolean gearChanged = Gear.mask(PowerData.of(player)) != Gear.mask(data);
         player.setAttached(ModAttachments.POWERS, data);
         sendData(player);
+        if (gearChanged) {
+            PowerManager.applyGear(player);
+        }
     }
 
     public static void sendData(ServerPlayerEntity player) {
@@ -101,7 +118,7 @@ public final class PowerSync {
         ServerPlayNetworking.send(player, STATE, buf);
     }
 
-    /** Tells the player and everyone who can see them which form they're in. */
+    /** Tells the player and everyone who can see them which form they're in and what gear they have. */
     public static void sendForm(ServerPlayerEntity player) {
         ServerPlayNetworking.send(player, FORM, formPacket(player));
         for (ServerPlayerEntity viewer : PlayerLookup.tracking(player)) {
@@ -114,6 +131,7 @@ public final class PowerSync {
         buf.writeVarInt(player.getId());
         buf.writeEnumConstant(FormHolder.form(player));
         buf.writeFloat(FormHolder.scale(player));
+        buf.writeVarInt(Gear.mask(PowerData.of(player)));
         return buf;
     }
 

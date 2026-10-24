@@ -5,12 +5,14 @@ import com.skibiditoilet.character.CharacterData;
 import com.skibiditoilet.character.Stat;
 import com.skibiditoilet.entity.ability.TitanMoves;
 import com.skibiditoilet.fx.ModFx;
+import com.skibiditoilet.mixin.ServerPlayNetworkHandlerAccessor;
 import com.skibiditoilet.registry.ModAttachments;
 import com.skibiditoilet.registry.ModSounds;
 import com.skibiditoilet.story.StoryData;
 import com.skibiditoilet.story.StorySync;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.entity.EntityDimensions;
@@ -52,6 +54,7 @@ public final class PowerManager {
     private static final UUID FORM_ARMOR = UUID.fromString("4f0c2a6e-2b1d-4d7e-9a51-6d3c8e1f7a03");
     private static final UUID FORM_SPEED = UUID.fromString("4f0c2a6e-2b1d-4d7e-9a51-6d3c8e1f7a04");
     private static final UUID FORM_KNOCKBACK = UUID.fromString("4f0c2a6e-2b1d-4d7e-9a51-6d3c8e1f7a05");
+    private static final UUID GEAR_ARMOR = UUID.fromString("4f0c2a6e-2b1d-4d7e-9a51-6d3c8e1f7a06");
 
     /** What's going on with one player's powers right now. */
     static final class Runtime {
@@ -61,6 +64,8 @@ public final class PowerManager {
         long danceUntil;
         long noFallUntil;
         long jetpackUntil;
+        /** Whether the jetpack gear is firing (the client says so; the server only shows it). */
+        boolean gearJetpack;
         long lastBash;
         long transformReadyAt;
         boolean dirty = true;
@@ -79,10 +84,16 @@ public final class PowerManager {
             moveStoryPoints(player);
             PowerSync.sendData(player);
             RUNTIMES.remove(player.getUuid());
+            applyGear(player);
         });
+        // A respawned player is a new entity: give it its gear again.
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> applyGear(newPlayer));
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (!(entity instanceof ServerPlayerEntity player)) {
                 return true;
+            }
+            if (source.isOf(DamageTypes.FALL) && PowerData.of(player).has(Gear.JETPACK)) {
+                return false;
             }
             Runtime runtime = RUNTIMES.get(player.getUuid());
             if (runtime == null) {
@@ -94,9 +105,9 @@ public final class PowerManager {
             }
             return now >= runtime.shieldUntil || !PowerEffects.shieldBlocks(player, source);
         });
-        // The client makes a new player entity in the new world, which has to be told the form again.
+        // The client makes a new player entity in the new world, which has to be told the form and gear again.
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
-            if (FormHolder.form(player) != Form.NORMAL) {
+            if (FormHolder.form(player) != Form.NORMAL || Gear.mask(PowerData.of(player)) != 0) {
                 PowerSync.sendForm(player);
             }
         });
@@ -122,10 +133,11 @@ public final class PowerManager {
         return BASE_ENERGY + ENERGY_PER_STAT * character.playerClass().startingStat(Stat.ENERGY);
     }
 
-    /** How hard powers hit: 10% more for each point of Power, and more again in a bigger form. */
+    /** How hard powers hit: 10% more for each point of Power, more again in a bigger form and with shoulder gear. */
     public static float powerScale(ServerPlayerEntity player) {
         float base = 1.0f + 0.1f * CharacterData.of(player).playerClass().startingStat(Stat.POWER);
-        return base * (1.0f + FormHolder.form(player).powerBonus());
+        float gear = PowerData.of(player).has(Gear.SHOULDERS) ? Gear.SHOULDER_POWER : 1.0f;
+        return base * (1.0f + FormHolder.form(player).powerBonus()) * gear;
     }
 
     private static Runtime runtime(ServerPlayerEntity player) {
@@ -199,6 +211,31 @@ public final class PowerManager {
         }
         PowerSync.set(player, data.withUnlocked(form));
         player.playSound(ModSounds.MISSION_REWARD, SoundCategory.PLAYERS, 1.0f, 1.2f);
+    }
+
+    static void unlock(ServerPlayerEntity player, Gear gear) {
+        PowerData data = PowerData.of(player);
+        if (!CharacterData.of(player).created() || data.has(gear) || data.points() < gear.pointCost()) {
+            return;
+        }
+        PowerSync.set(player, data.withUnlocked(gear));
+        player.playSound(ModSounds.MISSION_REWARD, SoundCategory.PLAYERS, 1.0f, 1.2f);
+    }
+
+    /**
+     * Gives the player what their gear does that lasts (the plates' armor) and shows it on them to everyone. Called
+     * when they join or respawn and whenever the gear they have changes (PowerSync#set).
+     */
+    static void applyGear(ServerPlayerEntity player) {
+        PowerData data = PowerData.of(player);
+        modifier(player, EntityAttributes.GENERIC_ARMOR, GEAR_ARMOR, data.has(Gear.PLATES) ? Gear.PLATE_ARMOR : 0.0,
+                EntityAttributeModifier.Operation.ADDITION);
+        PowerSync.sendForm(player);
+    }
+
+    /** The client says its jetpack started or stopped firing. */
+    static void jetpack(ServerPlayerEntity player, boolean firing) {
+        runtime(player).gearJetpack = firing && player.isAlive() && PowerData.of(player).has(Gear.JETPACK);
     }
 
     /**
@@ -365,6 +402,11 @@ public final class PowerManager {
             }
             if (now < runtime.jetpackUntil) {
                 TitanMoves.jetpackFlames(player);
+            }
+            if (runtime.gearJetpack) {
+                TitanMoves.jetpackFlames(player);
+                player.fallDistance = 0.0f;
+                ((ServerPlayNetworkHandlerAccessor) player.networkHandler).skibidi$setFloatingTicks(0);
             }
             if (now < runtime.shieldUntil) {
                 PowerEffects.shieldBash(player, runtime, now, powerScale(player));

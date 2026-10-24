@@ -34,8 +34,10 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   Titan 2.0 x1.1) with the matching mob model. Titan 2.0 still uses the 1.0 models (owner chose: build the 2.0
   models from the wiki next). In a Titan form the keys carry **Titan powers** (`Power.onKeys`, shared code in
   `entity/ability/TitanMoves` with the Titan mobs); the type's own powers fill the remaining keys.
-  Planned next (owner chose): buyable **gear that shows on the player's model** in every form and gives a bonus:
-  jetpack, shoulder gear (CCTV cameras / speakers / blade claws by type), armor plates.
+  **Gear** (owner's picks, `power/Gear`): jetpack (hold jump to fly 3 s, no fall damage), shoulder gear (CCTV
+  cameras / speakers / back blade claws by type, powers +15%), armor plates (+4 armor). Bought in the Powers menu's
+  Gear tab, drawn on every form by `client/power/GearRenderer` from `blockbench/gear.bbmodel`; on Titans the model's
+  own shoulder gear parts show only once bought.
 
 ## Open questions / backlog (ask the owner before doing any of these)
 
@@ -97,7 +99,8 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   its .bbmodel by cube name (`bb_boxes`).
   `python3 tools/bbmodel_to_java.py --embed-textures` refreshes the texture copies inside the .bbmodel files.
 - `large_tv_man.bbmodel` (Large TV Man 1.0, from the wiki picture) is only used by players in the Large form;
-  there is no Large TV Man mob.
+  there is no Large TV Man mob. `gear.bbmodel` holds the buyable gear at normal player size (each group is drawn on
+  the matching body/arm part; `GearRenderer.Fit` stretches it onto a Titan).
   Toilet textures are 128x128: head and variant extras in the top half, toilet body in the bottom half.
 - **Titans** are their **1.0 forms** (owner's request), built from the wiki's 1.0 pictures and descriptions:
   `titan_cameraman`, `titan_speakerman` (owner's favourite, check his picture before changing him),

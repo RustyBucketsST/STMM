@@ -1002,6 +1002,61 @@ def large_tv_man():
     return img
 
 
+def gear():
+    # The gear a player can buy (gear.bbmodel): a twin-tank jetpack, shoulder CCTV cameras, shoulder speakers,
+    # back blades, chest plates and pauldrons. Each piece is drawn on whatever model the player has.
+    b = bb_boxes("gear")
+    new_image(64, 12)
+    gunmetal, gunmetal_dark = (70, 72, 80), (48, 50, 56)
+    steel, steel_dark = (150, 154, 162), (112, 116, 124)
+    f = faces(*b["tank_right"])
+    for r in sides(f):
+        gradient(r, gunmetal, gunmetal_dark, 3)
+        x, y, w, h = r
+        rect(x, y + 2, w, 1, (230, 140, 40), 2)            # orange warning band
+    rect(*f["top"], (86, 88, 96), 2)
+    box(*b["pack"], gunmetal_dark, 3)
+    f = faces(*b["nozzle_right"])
+    for r in sides(f):
+        rect(*r, (36, 36, 40), 2)
+    rect(*f["bottom"], (255, 150, 60), 6)                  # hot nozzle
+    f = faces(*b["camera_right"])
+    for r in f.values():
+        gradient(r, (196, 198, 204), (160, 162, 170), 3)
+    x, y, w, h = f["front"]
+    px[x + w - 1, y] = (230, 30, 30, 255)                   # recording light
+    box(*b["camera_lens_right"], (30, 30, 34), 2)
+    x, y, w, h = faces(*b["camera_lens_right"])["front"]
+    rect(x, y, w, h, (70, 150, 220), 6)
+    for name in ("camera_mount_right", "speaker_mount_right"):
+        box(*b[name], (60, 60, 66), 2)
+    f = faces(*b["speaker_right"])
+    for r in f.values():
+        rect(*r, (34, 34, 38), 3)
+    x, y, w, h = f["front"]
+    for i in range(w):
+        for k in range(h):
+            r = math.hypot(i - (w - 1) / 2, k - (h - 1) / 2)
+            px[x + i, y + k] = shade((150, 152, 160) if r < 0.8 else (90, 92, 100) if r < 1.6 else (34, 34, 38), 2)
+    box(*b["blade_mount"], (36, 36, 40), 3)
+    for i in range(3):
+        f = faces(*b[f"blade{i}_right"])
+        for r in f.values():
+            rect(*r, (30, 30, 34), 2)
+        x, y, w, h = f["front"]
+        rect(x, y, w, h, (170, 80, 240), 6)                 # purple edge
+    for name in ("chest_plate", "belly_plate", "pauldron_right"):
+        f = faces(*b[name])
+        for r in f.values():
+            gradient(r, steel, steel_dark, 4)
+        for r in sides(f):
+            x, y, w, h = r
+            if w >= 3 and h >= 3:
+                for cx, cy in ((x, y), (x + w - 1, y), (x, y + h - 1), (x + w - 1, y + h - 1)):
+                    px[cx, cy] = (84, 86, 94, 255)          # rivets in the corners
+    return img
+
+
 GOLD = (212, 175, 55)
 
 
@@ -2056,6 +2111,46 @@ def icon_grappling_hook():
     return img
 
 
+def icon_gear_jetpack():
+    icon_tile(50, (255, 196, 90))
+    rect(4, 2, 3, 8, (78, 80, 88), 3)       # twin tanks with an orange band
+    rect(9, 2, 3, 8, (78, 80, 88), 3)
+    rect(4, 4, 3, 1, (230, 140, 40), 2)
+    rect(9, 4, 3, 1, (230, 140, 40), 2)
+    rect(7, 3, 2, 5, (56, 58, 64), 2)
+    for cx in (5, 10):                     # little flames
+        dot(cx, 10, (255, 230, 120))
+        dot(cx + 1, 10, (255, 230, 120))
+        dot(cx, 11, (255, 140, 50))
+        dot(cx + 1, 12, (255, 140, 50))
+    return img
+
+
+def icon_gear_shoulders():
+    icon_tile(51, (255, 196, 90))
+    rect(3, 9, 10, 4, (112, 114, 124), 3)   # shoulders
+    rect(6, 6, 4, 3, (112, 114, 124), 3)    # neck
+    rect(2, 5, 4, 3, (210, 212, 218), 3)    # a camera on one shoulder...
+    dot(2, 6, (70, 150, 220))
+    rect(11, 4, 3, 4, (24, 24, 28), 2)      # ...a speaker on the other
+    dot(12, 5, (200, 202, 210))
+    dot(12, 6, (150, 152, 160))
+    return img
+
+
+def icon_gear_plates():
+    icon_tile(52, (255, 196, 90))
+    for y in range(3, 13):                 # a chest plate with shoulder guards
+        half = 5 if y < 6 else 4 if y < 10 else 3
+        for x in range(8 - half, 8 + half):
+            dot(x, y, (176, 180, 188) if (x + y) % 5 else (140, 144, 152))
+    rect(2, 3, 3, 3, (150, 154, 162), 3)
+    rect(11, 3, 3, 3, (150, 154, 162), 3)
+    for x, y in ((5, 4), (10, 4), (6, 11), (9, 11)):
+        dot(x, y, (90, 92, 100))           # rivets
+    return img
+
+
 # ---------------------------------------------------------------- player characters
 # Each head/suit is drawn in several passes over the same model: a grey "casing" and "accent" layer that the
 # game dyes with the player's chosen colors, then an undyed "detail" layer. Transparent pixels are skipped.
@@ -2278,6 +2373,7 @@ outputs = {
     "entity/large_cameraman.png": large_cameraman,
     "entity/large_speakerman.png": large_speakerman,
     "entity/large_tv_man.png": large_tv_man,
+    "entity/gear.png": gear,
     "entity/camera_strider.png": camera_strider,
     "entity/titan_cameraman.png": titan_cameraman,
     "entity/titan_cameraman_glow.png": titan_cameraman_glow,
@@ -2327,6 +2423,9 @@ outputs = {
     "gui/power/death_screen.png": icon_death_screen,
     "gui/power/claw_sweep.png": icon_claw_sweep,
     "gui/power/grappling_hook.png": icon_grappling_hook,
+    "gui/power/gear_jetpack.png": icon_gear_jetpack,
+    "gui/power/gear_shoulders.png": icon_gear_shoulders,
+    "gui/power/gear_plates.png": icon_gear_plates,
     "particle/glow.png": soft_glow,
     "particle/ring.png": ring,
     "particle/droplet.png": droplet,

@@ -50,5 +50,8 @@
 	},
 	"camera_strider.bbmodel": {
 		"class": "CameraStriderBbModel"
+	},
+	"gear.bbmodel": {
+		"class": "GearBbModel"
 	}
 }

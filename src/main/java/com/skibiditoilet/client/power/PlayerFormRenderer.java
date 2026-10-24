@@ -6,6 +6,8 @@ import com.skibiditoilet.client.SkibidiToiletClient;
 import com.skibiditoilet.client.TitanModel;
 import com.skibiditoilet.power.Form;
 import com.skibiditoilet.power.FormHolder;
+import com.skibiditoilet.power.Gear;
+import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -30,24 +32,30 @@ import net.minecraft.util.math.RotationAxis;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Draws a player who's in a form as the Alliance mob it's modelled on, at the form's size, in place of the normal
  * player renderer (see PlayerEntityRendererMixin): a Large member, or a Titan with its glowing parts full-bright.
- * Held items are drawn in the model's hands.
+ * Held items are drawn in the model's hands, and the player's gear on the model (GearRenderer). A Titan's shoulder
+ * cameras, speaker towers or claws only show once the player has bought shoulder gear.
  */
 public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlayerEntity, PlayerFormModel> {
     private static final Map<Form, Map<AllianceType, PlayerFormRenderer>> RENDERERS = new EnumMap<>(Form.class);
 
     private final Identifier texture;
     private final float scale;
+    /** A Titan's own shoulder gear, shown only with the shoulder gear bought. */
+    private final List<ModelPart> shoulders;
 
     private PlayerFormRenderer(EntityRendererFactory.Context context, EntityModelLayer layer, String textureName,
-                               float detail, float scale, float handDepth, boolean glow) {
+                               float detail, float scale, float handDepth, boolean glow, GearRenderer.Fit fit,
+                               List<String> shoulderParts) {
         super(context, new PlayerFormModel(context.getPart(layer), detail), 0.5f * scale);
         this.texture = SkibidiToiletMod.id("textures/entity/" + textureName + ".png");
         this.scale = scale;
+        this.shoulders = shoulderParts.stream().map(name -> this.getModel().body.getChild(name)).toList();
         if (glow) {
             RenderLayer glowLayer = RenderLayer.getEyes(SkibidiToiletMod.id("textures/entity/" + textureName + "_glow.png"));
             this.addFeature(new EyesFeatureRenderer<>(this) {
@@ -58,6 +66,7 @@ public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlaye
             });
         }
         this.addFeature(new HandItems(this, context.getHeldItemRenderer(), detail, handDepth));
+        this.addFeature(new GearRenderer.Feature<>(this, fit));
     }
 
     /** Builds a renderer for each form and type; called whenever the player renderers are made. */
@@ -65,10 +74,11 @@ public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlaye
         RENDERERS.clear();
         for (AllianceType type : AllianceType.values()) {
             put(Form.LARGE, type, new PlayerFormRenderer(context, largeLayer(type), "large_" + type.asString(), 1.0f,
-                    Form.LARGE.scale(type), 10.0f, false));
+                    Form.LARGE.scale(type), 10.0f, false, GearRenderer.Fit.NORMAL, List.of()));
             for (Form form : new Form[]{Form.TITAN, Form.TITAN_2}) {
                 put(form, type, new PlayerFormRenderer(context, titanLayer(type), "titan_" + type.asString(),
-                        TitanModel.DETAIL, form.scale(type) / TitanModel.DETAIL, 28.0f, true));
+                        TitanModel.DETAIL, form.scale(type) / TitanModel.DETAIL, 28.0f, true, GearRenderer.Fit.titan(type),
+                        titanShoulders(type)));
             }
         }
     }
@@ -82,6 +92,16 @@ public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlaye
             case CAMERAMAN -> SkibidiToiletClient.LARGE_CAMERAMAN_LAYER;
             case SPEAKERMAN -> SkibidiToiletClient.LARGE_SPEAKERMAN_LAYER;
             case TV_MAN -> SkibidiToiletClient.LARGE_TV_MAN_LAYER;
+        };
+    }
+
+    /** The rotated parts of each Titan's body that are his shoulder gear (see the titan_*.bbmodel files). */
+    private static List<String> titanShoulders(AllianceType type) {
+        return switch (type) {
+            case CAMERAMAN -> List.of("shoulder_cam_right_r", "shoulder_cam_left_r");
+            case SPEAKERMAN -> List.of("tower_right_r", "tower_left_r");
+            case TV_MAN -> List.of("claw0_right_r", "claw0_left_r", "claw1_right_r", "claw1_left_r", "claw2_right_r",
+                    "claw2_left_r");
         };
     }
 
@@ -113,6 +133,10 @@ public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlaye
         boolean rightHanded = player.getMainArm() == Arm.RIGHT;
         model.rightArmPose = rightHanded ? main : off;
         model.leftArmPose = rightHanded ? off : main;
+        boolean shoulders = Gear.SHOULDERS.in(FormHolder.gear(player));
+        for (ModelPart part : this.shoulders) {
+            part.visible = shoulders;
+        }
         super.render(player, yaw, tickDelta, matrices, vertexConsumers, light);
     }
 

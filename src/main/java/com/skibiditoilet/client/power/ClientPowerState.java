@@ -3,6 +3,7 @@ package com.skibiditoilet.client.power;
 import com.skibiditoilet.client.character.ClientCharacterState;
 import com.skibiditoilet.power.Form;
 import com.skibiditoilet.power.FormHolder;
+import com.skibiditoilet.power.Gear;
 import com.skibiditoilet.power.Power;
 import com.skibiditoilet.power.PowerData;
 import com.skibiditoilet.power.PowerSync;
@@ -15,11 +16,13 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -58,6 +61,10 @@ public final class ClientPowerState {
     private static long ticks;
     private static int gained;
     private static long gainedTime = -GAIN_TICKS;
+    /** Ticks of thrust left in the jetpack gear. */
+    private static int jetpackFuel = Gear.JETPACK_FUEL;
+    private static boolean jetpackFiring;
+    private static int airTicks;
     /** Entity id -> the client tick each of its visible powers runs until. */
     private static final Map<Integer, EnumMap<PowerSync.Visible, long[]>> VISIBLE = new HashMap<>();
 
@@ -104,9 +111,11 @@ public final class ClientPowerState {
             int entityId = buf.readVarInt();
             Form form = buf.readEnumConstant(Form.class);
             float scale = buf.readFloat();
+            int gear = buf.readVarInt();
             client.execute(() -> {
                 if (client.world != null && client.world.getEntityById(entityId) instanceof PlayerEntity player) {
                     FormHolder.set(player, form, scale);
+                    ((FormHolder) player).skibidi$setGear(gear);
                 }
             });
         });
@@ -147,6 +156,7 @@ public final class ClientPowerState {
                 }
             }
         }
+        flyJetpack(client);
         while (TRANSFORM_KEY.wasPressed()) {
             if (ready) {
                 PacketByteBuf buf = PacketByteBufs.create();
@@ -161,6 +171,37 @@ public final class ClientPowerState {
         }
     }
 
+    /**
+     * The jetpack gear: holding jump in mid-air thrusts the player up while there's fuel, which comes back on the
+     * ground. The client moves the player; the server is told so it shows the flames (and keeps the flight legal).
+     */
+    private static void flyJetpack(MinecraftClient client) {
+        ClientPlayerEntity player = client.player;
+        boolean firing = false;
+        if (player != null) {
+            if (player.isOnGround() || player.isTouchingWater() || player.hasVehicle() || player.getAbilities().flying) {
+                airTicks = 0;
+                jetpackFuel = Math.min(Gear.JETPACK_FUEL, jetpackFuel + 2);
+            } else {
+                airTicks++;
+            }
+            // A few ticks into the air, so a normal jump still feels like one.
+            firing = data.has(Gear.JETPACK) && airTicks > 4 && jetpackFuel > 0 && client.options.jumpKey.isPressed()
+                    && !player.isSpectator() && client.currentScreen == null;
+            if (firing) {
+                Vec3d velocity = player.getVelocity();
+                player.setVelocity(velocity.x, Math.min(velocity.y + 0.16, 0.42), velocity.z);
+                jetpackFuel--;
+            }
+        }
+        if (firing != jetpackFiring) {
+            jetpackFiring = firing;
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeBoolean(firing);
+            ClientPlayNetworking.send(PowerSync.JETPACK, buf);
+        }
+    }
+
     private static void reset() {
         data = PowerData.DEFAULT;
         hasData = false;
@@ -169,11 +210,18 @@ public final class ClientPowerState {
         cooldowns = new int[0];
         gained = 0;
         gainedTime = -GAIN_TICKS;
+        jetpackFuel = Gear.JETPACK_FUEL;
+        jetpackFiring = false;
         VISIBLE.clear();
     }
 
     public static PowerData data() {
         return data;
+    }
+
+    /** How full the jetpack gear is, from 0 to 1. */
+    static float jetpackFuel() {
+        return jetpackFuel / (float) Gear.JETPACK_FUEL;
     }
 
     static float energy() {
@@ -226,6 +274,10 @@ public final class ClientPowerState {
 
     static void unlock(Form form) {
         send(PowerSync.UNLOCK, form.id());
+    }
+
+    static void unlock(Gear gear) {
+        send(PowerSync.UNLOCK, gear.id());
     }
 
     static KeyBinding transformKey() {

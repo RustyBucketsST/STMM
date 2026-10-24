@@ -6,6 +6,7 @@ import com.skibiditoilet.client.character.AllianceUi;
 import com.skibiditoilet.client.character.ClientCharacterState;
 import com.skibiditoilet.power.Form;
 import com.skibiditoilet.power.FormHolder;
+import com.skibiditoilet.power.Gear;
 import com.skibiditoilet.power.Power;
 import com.skibiditoilet.power.PowerSync;
 import net.minecraft.client.MinecraftClient;
@@ -28,6 +29,7 @@ final class PowerHud {
     private static final int ENERGY = 0xFF46C8FF;
     private static final int ENERGY_LOW = 0xFF2A6E8C;
     private static final int GAIN = 0xFFD34D;
+    private static final int JETPACK_FUEL = 0xFFFF9A3C;
 
     private PowerHud() {
     }
@@ -38,6 +40,10 @@ final class PowerHud {
 
     static Identifier icon(Form form) {
         return SkibidiToiletMod.id("textures/gui/power/" + form.id() + ".png");
+    }
+
+    static Identifier icon(Gear gear) {
+        return SkibidiToiletMod.id("textures/gui/power/" + gear.id() + ".png");
     }
 
     static void render(DrawContext context, float tickDelta) {
@@ -70,6 +76,13 @@ final class PowerHud {
 
         for (int slot = 0; slot < powers.size(); slot++) {
             slot(context, textRenderer, powers.get(slot), slot, x + 4 + slot * (SLOT + GAP), y + 13, energy, tickDelta);
+        }
+
+        // The jetpack's fuel, a thin bar along the panel's top while it's not full.
+        float fuel = ClientPowerState.jetpackFuel();
+        if (fuel < 1.0f && ClientPowerState.data().has(Gear.JETPACK)) {
+            context.fill(barX, y - 3, barX + barWidth, y - 1, 0xA0000000);
+            context.fill(barX, y - 3, barX + Math.round(barWidth * fuel), y - 1, JETPACK_FUEL);
         }
 
         // The form, above the panel's right end, while it drains the bar.
