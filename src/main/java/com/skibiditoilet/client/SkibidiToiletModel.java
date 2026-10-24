@@ -16,10 +16,10 @@ import net.minecraft.util.math.MathHelper;
  */
 public class SkibidiToiletModel extends SinglePartEntityModel<SkibidiToiletEntity> {
     private final ModelPart root;
-    private final ModelPart head;
+    protected final ModelPart head;
     // Where the head rests, which differs between the toilet and the urinal.
-    private final float headPivotY;
-    private final float headPivotZ;
+    protected final float headPivotY;
+    protected final float headPivotZ;
 
     public SkibidiToiletModel(ModelPart root) {
         this.root = root;

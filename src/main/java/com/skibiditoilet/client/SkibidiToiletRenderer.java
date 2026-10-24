@@ -23,7 +23,12 @@ public class SkibidiToiletRenderer extends MobEntityRenderer<SkibidiToiletEntity
 
     public SkibidiToiletRenderer(EntityRendererFactory.Context context, SkibidiToiletModel model,
                                  Function<SkibidiToiletEntity, Identifier> texture, float scale) {
-        super(context, model, 0.5f * scale);
+        this(context, model, texture, scale, 0.5f * scale);
+    }
+
+    private SkibidiToiletRenderer(EntityRendererFactory.Context context, SkibidiToiletModel model,
+                                  Function<SkibidiToiletEntity, Identifier> texture, float scale, float shadowRadius) {
+        super(context, model, shadowRadius);
         this.texture = texture;
         this.scale = scale;
     }
@@ -44,6 +49,18 @@ public class SkibidiToiletRenderer extends MobEntityRenderer<SkibidiToiletEntity
         Identifier alternate = texture(alternateName);
         return context -> new SkibidiToiletRenderer(context, model.apply(context.getPart(layer)),
                 toilet -> useAlternate.test(toilet) ? alternate : texture, scale);
+    }
+
+    /**
+     * A toilet whose model is built at {@code detail} times the usual size for a finer texture (like
+     * GManToiletModel), drawn so that it ends up {@code scale} times a normal toilet.
+     */
+    public static EntityRendererFactory<SkibidiToiletEntity> detailed(EntityModelLayer layer,
+                                                                     Function<ModelPart, SkibidiToiletModel> model,
+                                                                     String textureName, float scale, float detail) {
+        Identifier texture = texture(textureName);
+        return context -> new SkibidiToiletRenderer(context, model.apply(context.getPart(layer)), toilet -> texture,
+                scale / detail, 0.5f * scale);
     }
 
     private static Identifier texture(String name) {

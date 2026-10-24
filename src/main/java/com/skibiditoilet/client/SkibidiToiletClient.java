@@ -37,6 +37,7 @@ public class SkibidiToiletClient implements ClientModInitializer {
     private static final int WATER_TINT_INDEX = 1;
 
     public static final EntityModelLayer SKIBIDI_TOILET_LAYER = layer("skibidi_toilet");
+    public static final EntityModelLayer GMAN_TOILET_LAYER = layer("gman_toilet");
     public static final EntityModelLayer SPIDER_TOILET_LAYER = layer("spider_toilet");
     public static final EntityModelLayer JETPACK_TOILET_LAYER = layer("jetpack_toilet");
     public static final EntityModelLayer SKIBIDI_URINAL_LAYER = layer("skibidi_urinal");
@@ -54,6 +55,7 @@ public class SkibidiToiletClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         EntityModelLayerRegistry.registerModelLayer(SKIBIDI_TOILET_LAYER, SkibidiToiletModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(GMAN_TOILET_LAYER, GManToiletModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(SPIDER_TOILET_LAYER, SpiderToiletModel::getSpiderTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(JETPACK_TOILET_LAYER, SkibidiToiletModel::getJetpackTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(SKIBIDI_URINAL_LAYER, SkibidiToiletModel::getUrinalTexturedModelData);
@@ -78,8 +80,8 @@ public class SkibidiToiletClient implements ClientModInitializer {
                 SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "big_skibidi_toilet", BigSkibidiToiletEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.SCIENTIST_TOILET,
                 SkibidiToiletRenderer.factory(SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "scientist_toilet", 1.0f));
-        EntityRendererRegistry.register(ModEntities.GMAN_TOILET, SkibidiToiletRenderer.factory(
-                SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "gman_toilet", GManToiletEntity.SCALE));
+        EntityRendererRegistry.register(ModEntities.GMAN_TOILET, SkibidiToiletRenderer.detailed(
+                GMAN_TOILET_LAYER, GManToiletModel::new, "gman_toilet", GManToiletEntity.SCALE, GManToiletModel.DETAIL));
         EntityRendererRegistry.register(ModEntities.SKIBIDI_URINAL, SkibidiToiletRenderer.factory(
                 SKIBIDI_URINAL_LAYER, SkibidiToiletModel::new, "skibidi_urinal", 1.0f));
         EntityRendererRegistry.register(ModEntities.MICRO_TOILET, SkibidiToiletRenderer.factory(

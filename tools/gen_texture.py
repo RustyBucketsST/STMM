@@ -108,29 +108,6 @@ def skibidi_head():
     rect(fx + 3, fy + 5, 2, 1, (240, 240, 240), 0)  # teeth
 
 
-GMAN_SKIN = (232, 188, 158)
-GMAN_HAIR = (34, 30, 30)
-
-
-def gman_head():
-    # Head 8x8x8 at (0, 0): slicked-back black hair, angry brows, staring eyes, toothy grin.
-    box(0, 0, 8, 8, 8, GMAN_SKIN)
-    rect(8, 0, 8, 8, GMAN_HAIR)            # top of head
-    rect(0, 8, 32, 1, GMAN_HAIR)           # hairline around all sides
-    rect(0, 9, 8, 2, GMAN_HAIR)            # hair over the ears
-    rect(16, 9, 8, 2, GMAN_HAIR)
-    rect(24, 8, 8, 6, GMAN_HAIR)           # back of head
-    fx, fy = 8, 8
-    for x, y in ((1, 1), (2, 1), (3, 2), (6, 1), (5, 1), (4, 2)):  # brows angled down to the middle
-        px[fx + x, fy + y] = GMAN_HAIR + (255,)
-    for x, pupil in ((1, 2), (6, 5)):      # eyes staring straight at you
-        rect(fx + x, fy + 3, 1, 1, (255, 255, 255), 0)
-        rect(fx + pupil, fy + 3, 1, 1, (20, 20, 20), 0)
-    rect(fx + 3, fy + 4, 2, 1, (205, 160, 130), 0)  # nose shadow
-    rect(fx + 1, fy + 5, 6, 2, (80, 15, 15), 0)     # grin
-    rect(fx + 2, fy + 5, 4, 1, (245, 245, 240), 0)  # teeth
-
-
 GLAZE = (250, 251, 252)       # tops catching the light
 GLAZE_HI = (243, 245, 247)    # sides, upper edge
 GLAZE_LO = (212, 217, 223)    # sides, lower edge
@@ -765,8 +742,8 @@ def commander():
     return img
 
 
-# ---------------------------------------------------------------- titans
-# Titans are modelled at twice the detail (2 texels per pixel). Their UVs are read from the .bbmodel by cube
+# ---------------------------------------------------------------- titans and G-Toilet
+# Titans and G-Toilet are modelled at twice the detail (2 texels per pixel). Their UVs are read from the .bbmodel by cube
 # name, so moving a cube's UV in Blockbench doesn't break the drawing. Glowing parts are drawn twice: on the
 # texture and on a "_glow" texture that the game draws full-bright on top.
 
@@ -971,6 +948,119 @@ def titan_cameraman():
 def titan_cameraman_glow():
     new_image(256, 30, 128)
     titan_cameraman_lights(bb_boxes("titan_cameraman"))
+    return img
+
+
+GMAN_SKIN = (230, 208, 174)
+GMAN_HAIR = (34, 28, 36)
+G_PORCELAIN = (222, 224, 226)
+
+# G-Man's face, 14x16, as in the series: hair receding at the temples, huge furrowed brows over dark eye
+# sockets, pale teal eyes, a big nose, deep smile lines and an enormous crescent grin showing his upper teeth.
+# The brows and nose stand out of the face as their own cubes.
+GMAN_FACE = [
+    "HHHHHHhHHHHHHH",
+    "HHHHHHHHHHHHHH",
+    "ssHHHHHHHHHHss",
+    "ssssssssssssss",
+    "ssssssssssssss",
+    "sbbssssssssbbs",
+    "ssbbbbssbbbbss",
+    "sDDDDDssDDDDDs",
+    "sDWipWssWpiWDs",
+    "ssdDDdssdDDdss",
+    "rmsDdnnnndDsmr",
+    "smmllllllllmms",
+    "sDmmmmmmmmmmDs",
+    "ssmttttttttmss",
+    "sssmllllllmsss",
+    "dssssddddssssd",
+]
+GMAN_COLORS = {
+    "H": GMAN_HAIR, "h": (62, 52, 66), "s": GMAN_SKIN, "d": (202, 178, 144), "D": (150, 124, 96),
+    "r": (230, 196, 166), "b": (40, 32, 30), "W": (214, 232, 226), "i": (110, 190, 180), "p": (36, 60, 60),
+    "n": (130, 86, 66), "l": (156, 84, 72), "t": (236, 232, 216), "m": (58, 14, 14),
+}
+
+
+def pixel_art(x, y, rows, colors, noise=3):
+    for k, row in enumerate(rows):
+        for i, ch in enumerate(row):
+            px[x + i, y + k] = shade(colors[ch], noise if ch in "sdrH" else 1)
+
+
+def gman_hair_side(r, front_at_right):
+    """A side of G-Man's head: slicked hair over the top, down to the nape at the back; skin and jaw below."""
+    x, y, w, h = r
+    rect(x, y, w, h, GMAN_SKIN, 3)
+    for i in range(w):
+        back = (w - 1 - i if front_at_right else i) / (w - 1)       # 1 at the back edge, 0 at the front
+        line = round(5 + 6 * back ** 2)
+        rect(x + i, y, 1, line, GMAN_HAIR, 3)
+        if i % 3 == 1:
+            rect(x + i, y + 1, 1, max(1, line - 3), (54, 46, 58), 2)  # combed streaks
+    rect(x, y + h - 2, w, 2, (200, 166, 130), 3)                    # jaw shadow
+
+
+def gman_toilet():
+    b = bb_boxes("gman_toilet")
+    new_image(256, 8, 128)
+
+    # Head
+    f = faces(*b["head"])
+    pixel_art(*f["front"][:2], GMAN_FACE, GMAN_COLORS)
+    gman_hair_side(f["right"], True)
+    gman_hair_side(f["left"], False)
+    x, y, w, h = f["top"]
+    rect(x, y, w, h, GMAN_HAIR, 3)
+    for i in range(1, w, 3):
+        rect(x + i, y, 1, h, (56, 48, 60), 2)                       # slicked back, front to back
+    x, y, w, h = f["back"]
+    rect(x, y, w, h, GMAN_HAIR, 3)
+    rect(x, y + h - 4, w, 4, (210, 176, 140), 3)                    # nape
+    rect(*f["bottom"], (190, 154, 120), 2)
+    f = faces(*b["brow"])
+    box(*b["brow"], GMAN_SKIN, 3)
+    pixel_art(*f["front"][:2], ["bbssssssssbb", "sbbbbssbbbbs", "ssssbbbbssss"], GMAN_COLORS)
+    rect(*f["top"], GMAN_SKIN, 3)
+    rect(*f["bottom"], (150, 110, 85), 2)                           # shadow over the eyes
+    box(*b["nose_bridge"], (232, 204, 170), 3)
+    f = faces(*b["nose"])
+    box(*b["nose"], (220, 186, 150), 3)
+    x, y, w, h = f["front"]
+    px[x + 1, y + h - 1] = (120, 78, 60, 255)                      # nostrils
+    px[x + 2, y + h - 1] = (120, 78, 60, 255)
+    rect(*f["bottom"], (150, 108, 84), 2)
+    f = faces(*b["ear_right"])
+    box(*b["ear_right"], (214, 178, 142), 3)
+    rect(*f["right"], (190, 150, 118), 0)                           # inner ear
+    f = faces(*b["neck"])
+    for r in sides(f):
+        gradient(r, (176, 140, 110), (214, 180, 146), 3)            # in the shadow of the jaw
+
+    # Toilet: smooth, slightly dull porcelain, darker toward the floor
+    for name, hi, lo in (("rim", (240, 241, 243), (226, 228, 230)), ("bowl", (232, 234, 236), (214, 216, 220)),
+                         ("bowl_lower", (214, 216, 220), (200, 203, 208)),
+                         ("pedestal", (206, 209, 213), (190, 194, 199)), ("base", (196, 199, 204), (184, 188, 193))):
+        for part in (name, name + "_side_right"):
+            f = faces(*b[part])
+            rect(*f["top"], (244, 245, 246), 2)
+            rect(*f["bottom"], (170, 174, 180), 2)
+            for r in sides(f):
+                gradient(r, hi, lo, 2)
+    x, y, w, h = faces(*b["rim"])["top"]                            # the inside of the bowl
+    rect(x + 1, y + 3, w - 2, h - 6, (176, 180, 186), 2)
+    rect(x + 3, y + 5, w - 6, h - 10, (150, 155, 162), 2)
+    rect(x + 5, y + 8, w - 10, h - 16, (128, 134, 142), 2)
+    for name, hi, lo in (("tank_base", (214, 216, 220), (190, 194, 199)), ("tank", G_PORCELAIN, (210, 213, 217)),
+                         ("ledge", (236, 238, 240), (226, 228, 231)), ("tank_cap", (232, 234, 236), (226, 228, 231))):
+        f = faces(*b[name])
+        rect(*f["top"], (240, 241, 243), 2)
+        rect(*f["bottom"], (170, 174, 180), 2)
+        for r in sides(f):
+            gradient(r, hi, lo, 2)
+    box(*b["flush_knob"], (200, 204, 210), 3)
+    rect(*faces(*b["flush_knob"])["top"], (226, 230, 236), 2)
     return img
 
 
@@ -1420,7 +1510,7 @@ out = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().paren
     "src/main/resources/assets/skibidi/textures"
 outputs = {
     "entity/skibidi_toilet.png": lambda: toilet(7, skibidi_head),
-    "entity/gman_toilet.png": lambda: toilet(8, gman_head),
+    "entity/gman_toilet.png": gman_toilet,
     "entity/big_skibidi_toilet.png": lambda: toilet(13, big_head),
     "entity/scientist_toilet.png": lambda: toilet(14, scientist_head),
     "entity/skibidi_urinal.png": urinal,

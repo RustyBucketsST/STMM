@@ -23,5 +23,8 @@
 	},
 	"titan_cameraman.bbmodel": {
 		"class": "TitanCameramanBbModel"
+	},
+	"gman_toilet.bbmodel": {
+		"class": "GManToiletBbModel"
 	}
 }
