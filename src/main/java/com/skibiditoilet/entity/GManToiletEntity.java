@@ -14,14 +14,15 @@ import org.jetbrains.annotations.Nullable;
 
 /** The giant G-Man boss toilet. Fights like a Skibidi Toilet, with a boss bar. */
 public class GManToiletEntity extends SkibidiToiletEntity {
-    public static final float SCALE = 2.5f;
+    /** As tall as a Titan (about 10 blocks), whom he fights as an equal in the series. */
+    public static final float SCALE = 7.5f;
 
     private final ServerBossBar bossBar =
             new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
 
     public GManToiletEntity(EntityType<? extends HostileEntity> type, World world) {
         super(type, world);
-        this.setStepHeight(1.0f);
+        this.setStepHeight(2.5f);
     }
 
     public static DefaultAttributeContainer.Builder createAttributes() {

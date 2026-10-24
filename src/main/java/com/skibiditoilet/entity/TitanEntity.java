@@ -14,7 +14,8 @@ import net.minecraft.world.World;
 
 /** A giant Alliance member. Same brain as the regular ones, much bigger and tougher. */
 public class TitanEntity extends AllianceEntity {
-    public static final float SCALE = 2.5f;
+    /** About 10 blocks tall. */
+    public static final float SCALE = 5.0f;
     /** A Titan takes many small steps for its size; only every so often is one a real stomp. */
     private static final int STOMP_TICKS = 12;
 
@@ -22,7 +23,7 @@ public class TitanEntity extends AllianceEntity {
 
     public TitanEntity(EntityType<? extends PathAwareEntity> type, World world) {
         super(type, world);
-        this.setStepHeight(1.0f);
+        this.setStepHeight(2.5f);
     }
 
     public static DefaultAttributeContainer.Builder createAttributes() {
@@ -39,7 +40,7 @@ public class TitanEntity extends AllianceEntity {
         this.lastStomp = this.age;
         this.playSound(ModSounds.TITAN_STEP, 1.5f, 0.9f + this.random.nextFloat() * 0.2f);
         if (this.getWorld() instanceof ServerWorld world) {
-            ModFx.shockwave(world, this.getPos(), 1.6f, 0.22f);
+            ModFx.shockwave(world, this.getPos(), 3.2f, 0.22f);
         }
     }
 
@@ -47,7 +48,7 @@ public class TitanEntity extends AllianceEntity {
     public boolean tryAttack(Entity target) {
         boolean hit = super.tryAttack(target);
         if (hit && this.getWorld() instanceof ServerWorld world) {
-            ModFx.shockwave(world, target.getPos(), 2.5f, 0.45f);
+            ModFx.shockwave(world, target.getPos(), 5.0f, 0.45f);
         }
         return hit;
     }

@@ -16,6 +16,8 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
 ## Decisions already made
 
 - Friendly fire is on. Toilets spawn naturally in the Overworld only; Alliance mobs spawn naturally.
+- Titans are about 10 blocks tall (`TitanEntity.SCALE` 5) and G-Man Toilet is as tall as a Titan
+  (`GManToiletEntity.SCALE` 7.5, so about 6 blocks wide); both step up 2.5 blocks. The wiki gives no real heights.
 - Titans and G-Man Toilet come only from the story or `/summon` (no spawn eggs). Story-only characters do
   have spawn eggs (for testing).
 - Character creator: 3 types (Cameraman, Speakerman, TV Man), 4 classes (Fighter, Shooter, Tank, Support),
