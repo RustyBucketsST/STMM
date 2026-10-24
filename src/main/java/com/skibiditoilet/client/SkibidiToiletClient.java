@@ -16,7 +16,6 @@ import com.skibiditoilet.entity.GManToiletEntity;
 import com.skibiditoilet.entity.LargeAllianceEntity;
 import com.skibiditoilet.entity.MicroToiletEntity;
 import com.skibiditoilet.entity.SaintToiletEntity;
-import com.skibiditoilet.entity.TitanEntity;
 import com.skibiditoilet.entity.TripleToiletEntity;
 import com.skibiditoilet.registry.ModBlocks;
 import com.skibiditoilet.registry.ModEntities;
@@ -51,6 +50,8 @@ public class SkibidiToiletClient implements ClientModInitializer {
     public static final EntityModelLayer SPEAKERMAN_LAYER = layer("speakerman");
     public static final EntityModelLayer TV_MAN_LAYER = layer("tv_man");
     public static final EntityModelLayer TITAN_CAMERAMAN_LAYER = layer("titan_cameraman");
+    public static final EntityModelLayer TITAN_SPEAKERMAN_LAYER = layer("titan_speakerman");
+    public static final EntityModelLayer TITAN_TV_MAN_LAYER = layer("titan_tv_man");
 
     @Override
     public void onInitializeClient() {
@@ -69,6 +70,8 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(SPEAKERMAN_LAYER, AllianceModel::getSpeakermanModelData);
         EntityModelLayerRegistry.registerModelLayer(TV_MAN_LAYER, AllianceModel::getTvManModelData);
         EntityModelLayerRegistry.registerModelLayer(TITAN_CAMERAMAN_LAYER, TitanModel::getCameramanModelData);
+        EntityModelLayerRegistry.registerModelLayer(TITAN_SPEAKERMAN_LAYER, TitanModel::getSpeakermanModelData);
+        EntityModelLayerRegistry.registerModelLayer(TITAN_TV_MAN_LAYER, TitanModel::getTvManModelData);
 
         EntityRendererRegistry.register(ModEntities.SKIBIDI_TOILET,
                 SkibidiToiletRenderer.factory(SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "skibidi_toilet", 1.0f));
@@ -108,9 +111,9 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.TITAN_CAMERAMAN,
                 AllianceRenderer.titanFactory(TITAN_CAMERAMAN_LAYER, "titan_cameraman"));
         EntityRendererRegistry.register(ModEntities.TITAN_SPEAKERMAN,
-                AllianceRenderer.factory(SPEAKERMAN_LAYER, "speakerman", TitanEntity.SCALE));
+                AllianceRenderer.titanFactory(TITAN_SPEAKERMAN_LAYER, "titan_speakerman"));
         EntityRendererRegistry.register(ModEntities.TITAN_TV_MAN,
-                AllianceRenderer.factory(TV_MAN_LAYER, "tv_man", TitanEntity.SCALE));
+                AllianceRenderer.titanFactory(TITAN_TV_MAN_LAYER, "titan_tv_man"));
         EntityRendererRegistry.register(ModEntities.LARGE_CAMERAMAN,
                 AllianceRenderer.factory(CAMERAMAN_LAYER, "large_cameraman", LargeAllianceEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.LARGE_SPEAKERMAN,

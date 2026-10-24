@@ -1,6 +1,8 @@
 package com.skibiditoilet.client;
 
 import com.skibiditoilet.client.bbmodel.TitanCameramanBbModel;
+import com.skibiditoilet.client.bbmodel.TitanSpeakermanBbModel;
+import com.skibiditoilet.client.bbmodel.TitanTvManBbModel;
 import com.skibiditoilet.entity.AllianceEntity;
 import net.minecraft.client.model.ModelData;
 import net.minecraft.client.model.ModelPart;
@@ -11,6 +13,7 @@ import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * A Titan, modelled in blockbench/titan_*.bbmodel at twice the detail of a normal mob and drawn at half the
@@ -30,18 +33,36 @@ public class TitanModel extends AllianceModel {
         this.parts = List.of(this.head, this.hat, this.body, this.rightArm, this.leftArm, this.rightLeg, this.leftLeg);
     }
 
-    /** A giant in a long coat with a camera cluster for a head, a glowing core and thrusters on its back. */
+    /** Titan Cameraman 1.0: camera head, blue core, black coat, shoulder cameras, riot shield and jetpack. */
     public static TexturedModelData getCameramanModelData() {
+        return build(TitanCameramanBbModel.TEXTURE_WIDTH, TitanCameramanBbModel.TEXTURE_HEIGHT,
+                TitanCameramanBbModel::addHead, TitanCameramanBbModel::addBody, TitanCameramanBbModel::addRightArm,
+                TitanCameramanBbModel::addLeftArm, TitanCameramanBbModel::addRightLeg, TitanCameramanBbModel::addLeftLeg);
+    }
+
+    /** Titan Speakerman 1.0: speaker head, red core, red shirt, speaker towers, jetpack and an arm cannon. */
+    public static TexturedModelData getSpeakermanModelData() {
+        return build(TitanSpeakermanBbModel.TEXTURE_WIDTH, TitanSpeakermanBbModel.TEXTURE_HEIGHT,
+                TitanSpeakermanBbModel::addHead, TitanSpeakermanBbModel::addBody, TitanSpeakermanBbModel::addRightArm,
+                TitanSpeakermanBbModel::addLeftArm, TitanSpeakermanBbModel::addRightLeg, TitanSpeakermanBbModel::addLeftLeg);
+    }
+
+    /** Titan TV Man 1.0: a TV head showing static, purple core, black coat, claws on his back, elbow hooks. */
+    public static TexturedModelData getTvManModelData() {
+        return build(TitanTvManBbModel.TEXTURE_WIDTH, TitanTvManBbModel.TEXTURE_HEIGHT,
+                TitanTvManBbModel::addHead, TitanTvManBbModel::addBody, TitanTvManBbModel::addRightArm,
+                TitanTvManBbModel::addLeftArm, TitanTvManBbModel::addRightLeg, TitanTvManBbModel::addLeftLeg);
+    }
+
+    @SafeVarargs
+    private static TexturedModelData build(int textureWidth, int textureHeight, Consumer<ModelPartData>... parts) {
         ModelData modelData = new ModelData();
         ModelPartData root = modelData.getRoot();
-        TitanCameramanBbModel.addHead(root);
-        TitanCameramanBbModel.addBody(root);
-        TitanCameramanBbModel.addRightArm(root);
-        TitanCameramanBbModel.addLeftArm(root);
-        TitanCameramanBbModel.addRightLeg(root);
-        TitanCameramanBbModel.addLeftLeg(root);
+        for (Consumer<ModelPartData> part : parts) {
+            part.accept(root);
+        }
         root.addChild(EntityModelPartNames.HAT, ModelPartBuilder.create(), ModelTransform.pivot(0, -RAISE, 0));
-        return TexturedModelData.of(modelData, TitanCameramanBbModel.TEXTURE_WIDTH, TitanCameramanBbModel.TEXTURE_HEIGHT);
+        return TexturedModelData.of(modelData, textureWidth, textureHeight);
     }
 
     @Override

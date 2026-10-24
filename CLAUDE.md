@@ -30,8 +30,8 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
 
 ## Open questions / backlog (ask the owner before doing any of these)
 
-- **Blockbench**: the toilet (all its variants), the urinal, the Alliance mob heads, the Titan Cameraman and
-  G-Toilet (his 1.0 form) were remodelled to look like the series and now live in `blockbench/` (see "Models" below). Still
+- **Blockbench**: the toilet (all its variants), the urinal, the Alliance mob heads, the three Titans and
+  G-Toilet (all in their 1.0 forms) were remodelled to look like the series and now live in `blockbench/` (see "Models" below). Still
   hand-written Java: spider legs, Triple side heads, Fast Armored, Camera Strider, player heads
   (`PlayerHeadModels`, which no longer match the new mob heads), suits. Possible next: those, 3D tech items.
   Ask first.
@@ -78,12 +78,12 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   (except Titans and G-Toilet, whose drawing code reads each cube's UV from the .bbmodel by cube name).
   `python3 tools/bbmodel_to_java.py --embed-textures` refreshes the texture copies inside the .bbmodel files.
   Toilet textures are 128x128: head and variant extras in the top half, toilet body in the bottom half.
-- **Titans** (owner is sending reference pictures one faction at a time; Titan Cameraman done, Speakerman and
-  TV Man still use the scaled-up regular model): `titan_*.bbmodel` is built at twice the detail (2 units per
-  pixel) with biped part names and doubled pivots, feet on the ground: head/body (0,-24,0), arms (+-10,-20,0),
-  legs (+-3.8,0,0.2). `TitanModel` converts the biped animation to those units and
-  `AllianceRenderer.titanFactory` draws it at half the Titan scale, plus `textures/entity/titan_*_glow.png`
-  full-bright (core, floodlights, thrusters).
+- **Titans** are their **1.0 forms** (owner's request), built from the wiki's 1.0 pictures and descriptions:
+  `titan_cameraman`, `titan_speakerman` (owner's favourite, check his picture before changing him),
+  `titan_tv_man`. Each `titan_*.bbmodel` is built at twice the detail (2 units per pixel) with biped part
+  names and doubled pivots, feet on the ground: head/body (0,-24,0), arms (+-10,-20,0), legs (+-3.8,0,0.2).
+  `TitanModel` converts the biped animation to those units and `AllianceRenderer.titanFactory` draws it at
+  half the Titan scale, plus `textures/entity/titan_*_glow.png` full-bright (cores, screens, red drivers).
 - **G-Toilet** (`gman_toilet.bbmodel`, from the wiki picture of his 1.0 form): a tall seatless bowl, a tall
   cistern with a ledge and flush knob, and G-Man's head with its own brow and nose cubes. Also built at
   twice the detail; `GManToiletModel` doubles the head's bob/flush offsets and `SkibidiToiletRenderer.detailed`

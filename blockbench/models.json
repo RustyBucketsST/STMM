@@ -26,5 +26,11 @@
 	},
 	"gman_toilet.bbmodel": {
 		"class": "GManToiletBbModel"
+	},
+	"titan_speakerman.bbmodel": {
+		"class": "TitanSpeakermanBbModel"
+	},
+	"titan_tv_man.bbmodel": {
+		"class": "TitanTvManBbModel"
 	}
 }
