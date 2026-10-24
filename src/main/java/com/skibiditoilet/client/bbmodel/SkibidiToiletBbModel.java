@@ -35,8 +35,9 @@ public final class SkibidiToiletBbModel {
                 .uv(0, 96).cuboid(-6, 11, -5, 2, 1, 10)  // seat_right
                 .uv(0, 96).mirrored().cuboid(4, 11, -5, 2, 1, 10)  // seat_left
                 .uv(48, 96).mirrored(false).cuboid(-4, 11, 4, 8, 1, 2)  // seat_back
-                .uv(38, 71).cuboid(-6, 4, 4.5f, 12, 7, 1)  // lid
-                .uv(24, 100).cuboid(-5, 3, 4.5f, 10, 1, 1)  // lid_top
+                .uv(0, 108).cuboid(-6, -1, 4.5f, 12, 12, 1)  // lid
+                .uv(26, 108).cuboid(-5, -2, 4.5f, 10, 1, 1)  // lid_top
+                .uv(48, 108).cuboid(-3.5f, -3, 4.5f, 7, 1, 1)  // lid_crown
                 .uv(0, 64).cuboid(-7, 4, 6, 14, 11, 5)  // tank
                 .uv(38, 64).cuboid(-7.5f, 3, 5.5f, 15, 1, 6)  // tank_lid
                 .uv(122, 80).cuboid(-8, 5, 7, 1, 1, 2),  // handle
@@ -58,9 +59,12 @@ public final class SkibidiToiletBbModel {
     /** Adds group "headphones" from skibidi_toilet.bbmodel. */
     public static ModelPartData addHeadphones(ModelPartData parent) {
         ModelPartData part = parent.addChild("headphones", ModelPartBuilder.create()
-                .uv(32, 0).cuboid(-5, -9, -1, 10, 1, 2)  // band
-                .uv(32, 4).cuboid(-5, -6, -1.5f, 1, 3, 3)  // cup_right
-                .uv(32, 4).cuboid(4, -6, -1.5f, 1, 3, 3),  // cup_left
+                .uv(64, 0).cuboid(-4.5f, -9.5f, -4.5f, 9, 4, 9)  // beanie
+                .uv(32, 0).cuboid(-5, -10.5f, -1, 10, 1, 2)  // band
+                .uv(40, 4).cuboid(-5.5f, -10, -0.5f, 1, 3, 1)  // band_side_right
+                .uv(40, 4).mirrored().cuboid(4.5f, -10, -0.5f, 1, 3, 1)  // band_side_left
+                .uv(32, 4).mirrored(false).cuboid(-5.5f, -7, -1.5f, 1, 4, 3)  // cup_right
+                .uv(32, 4).mirrored().cuboid(4.5f, -7, -1.5f, 1, 4, 3),  // cup_left
                 ModelTransform.NONE);
         return part;
     }
@@ -79,8 +83,8 @@ public final class SkibidiToiletBbModel {
     /** Adds group "hat" from skibidi_toilet.bbmodel. */
     public static ModelPartData addHat(ModelPartData parent) {
         ModelPartData part = parent.addChild("hat", ModelPartBuilder.create()
-                .uv(64, 0).cuboid(-5, -9, -5, 10, 1, 10)  // brim
-                .uv(64, 12).cuboid(-3, -15, -3, 6, 6, 6),  // crown
+                .uv(64, 0).cuboid(-4.5f, -9, -4.5f, 9, 3, 9)  // crown
+                .uv(64, 12).cuboid(-4, -6.5f, -6.5f, 8, 1, 2),  // visor
                 ModelTransform.NONE);
         return part;
     }
@@ -88,10 +92,14 @@ public final class SkibidiToiletBbModel {
     /** Adds group "jetpack" from skibidi_toilet.bbmodel. */
     public static ModelPartData addJetpack(ModelPartData parent) {
         ModelPartData part = parent.addChild("jetpack", ModelPartBuilder.create()
-                .uv(32, 0).cuboid(-5, 4, 11.5f, 4, 10, 3)  // tank_right
-                .uv(32, 0).cuboid(1, 4, 11.5f, 4, 10, 3)  // tank_left
-                .uv(48, 0).cuboid(-4, 14, 12, 2, 2, 2)  // nozzle_right
-                .uv(48, 0).cuboid(2, 14, 12, 2, 2, 2),  // nozzle_left
+                .uv(32, 0).cuboid(-11, 5, 6.5f, 4, 10, 4)  // thruster_right
+                .uv(32, 0).mirrored().cuboid(7, 5, 6.5f, 4, 10, 4)  // thruster_left
+                .uv(48, 0).mirrored(false).cuboid(-10.5f, 15, 7, 3, 2, 3)  // nozzle_right
+                .uv(48, 0).mirrored().cuboid(7.5f, 15, 7, 3, 2, 3)  // nozzle_left
+                .uv(64, 0).mirrored(false).cuboid(-5, 12, -8, 10, 4, 1)  // armor_front
+                .uv(64, 5).cuboid(-7, 12, -5, 1, 3, 8)  // armor_right
+                .uv(64, 5).mirrored().cuboid(6, 12, -5, 1, 3, 8)  // armor_left
+                .uv(88, 0).mirrored(false).cuboid(-9, 4, 6, 2, 3, 4),  // flusher_cover
                 ModelTransform.NONE);
         return part;
     }

@@ -164,16 +164,22 @@ def toilet_body():
     f = porcelain(*TANK_LID)
     x, y, w, h = f["top"]
     rect(x + 1, y + 1, w - 2, 1, (255, 255, 255), 0)      # glossy highlight along the back
-    # Seat lid 12x7x1 at (38, 71), standing up against the tank, with a rim round its underside
-    f = porcelain(38, 71, 12, 7, 1, (248, 249, 251), (226, 230, 235))
+    # Seat lid 12x12x1 at (0, 108), standing open against the tank: an oval with a raised ring round its
+    # underside and four rubber bumpers, rounded off at the top by 10x1x1 (26, 108) and 7x1x1 (48, 108)
+    f = porcelain(0, 108, 12, 12, 1, (248, 249, 251), (226, 230, 235))
     x, y, w, h = f["front"]
-    for i in range(w):
-        px[x + i, y] = shade((232, 235, 239), 2)
     for k in range(h):
-        px[x, y + k] = shade((232, 235, 239), 2)
-        px[x + w - 1, y + k] = shade((232, 235, 239), 2)
-    rect(x + 2, y + 1, 1, 3, (255, 255, 255), 0)          # shine
-    porcelain(24, 100, 10, 1, 1, (248, 249, 251), (240, 242, 245))  # rounded top of the lid 10x1x1
+        for i in range(w):
+            r = math.hypot((i - (w - 1) / 2) / (w / 2), (k - (h - 1) / 2) / (h / 2))
+            if 0.62 < r < 0.86:
+                px[x + i, y + k] = shade((230, 233, 237), 2)     # the ring
+            elif r >= 1.0:
+                px[x + i, y + k] = shade((214, 218, 224), 2)     # the corners curve away
+    for i, k in ((2, 2), (w - 3, 2), (2, h - 3), (w - 3, h - 3)):
+        px[x + i, y + k] = (176, 180, 188, 255)                  # bumpers
+    rect(x + 3, y + 3, 1, 3, (255, 255, 255), 0)                 # shine
+    porcelain(26, 108, 10, 1, 1, (248, 249, 251), (240, 242, 245))
+    porcelain(48, 108, 7, 1, 1, (248, 249, 251), (240, 242, 245))
     # Bowl 12x3x12 at (80, 64): its top is the inside of the bowl, seen through the 8x9 hole in the seat
     f = porcelain(80, 64, 12, 3, 12, (246, 248, 250), (220, 224, 230))
     x, y, w, h = f["top"]
@@ -201,46 +207,67 @@ def toilet_body():
     porcelain(78, 80, 8, 1, 12, (204, 209, 215), (204, 209, 215))
 
 
-BIG_SKIN = (222, 162, 122)
+def head8(skin, hair, face, colors=None, top=True, side_rows=2, back_rows=5):
+    """An 8x8x8 head at (0, 0): skin, hair over the top, sides and back, and an 8x8 pixel-art face, where
+    H is hair, s skin, d shade, D dark lines, b brow, W eye white, p pupil, t teeth, m mouth, l lip."""
+    box(0, 0, 8, 8, 8, skin)
+    if top:
+        rect(8, 0, 8, 8, hair)
+    if side_rows:
+        rect(0, 8, 32, side_rows, hair)
+    if back_rows:
+        rect(24, 8, 8, back_rows, hair)
+    palette = {"H": hair, "s": skin, "d": tuple(round(c * 0.88) for c in skin),
+               "D": tuple(round(c * 0.66) for c in skin), "b": tuple(round(c * 0.8) for c in hair),
+               "W": (240, 240, 236), "p": (30, 30, 30), "t": (240, 238, 228), "m": (80, 18, 18),
+               "l": (200, 90, 90), **(colors or {})}
+    for k, row in enumerate(face):
+        for i, ch in enumerate(row):
+            px[8 + i, 8 + k] = shade(palette[ch], 4 if ch in "sdH" else 1)
 
 
 def big_head():
-    # Head 8x8x8 at (0, 0): bald, furious, screaming.
-    box(0, 0, 8, 8, 8, BIG_SKIN)
-    fx, fy = 8, 8
-    for x, y in ((1, 1), (2, 1), (3, 2), (6, 1), (5, 1), (4, 2)):  # brows angled down to the middle
-        px[fx + x, fy + y] = (60, 40, 30, 255)
-    rect(fx + 1, fy + 3, 2, 2, (255, 255, 255), 0)  # wide eyes
-    rect(fx + 5, fy + 3, 2, 2, (255, 255, 255), 0)
-    px[fx + 2, fy + 3] = (20, 20, 20, 255)
-    px[fx + 5, fy + 3] = (20, 20, 20, 255)
-    rect(fx + 2, fy + 5, 4, 3, (85, 15, 15), 0)     # screaming mouth
-    rect(fx + 2, fy + 5, 4, 1, (245, 245, 240), 0)  # teeth
-
-
-SCIENTIST_SKIN = (236, 200, 170)
-SCIENTIST_HAIR = (225, 225, 230)
-FRAME = (40, 40, 46)
+    # The Giant Skibidi Toilet: short dark hair, raised worried brows, wide staring eyes, a huge toothy grin.
+    head8((214, 170, 130), (52, 38, 30), ["HHHHHHHH", "HssssssH", "sbbssbbs", "sWpssWps",
+                                          "sssdDsss", "sDttttDs", "ssDmmDss", "ssssssss"])
 
 
 def scientist_head():
-    # Head 8x8x8 at (0, 0): wild white hair, thick goggle-like glasses, white mustache.
-    box(0, 0, 8, 8, 8, SCIENTIST_SKIN)
-    rect(8, 0, 8, 8, SCIENTIST_HAIR, 12)   # top of head
-    rect(0, 8, 32, 1, SCIENTIST_HAIR, 12)  # hairline around all sides
-    rect(0, 9, 8, 3, SCIENTIST_HAIR, 12)   # bushy sides
-    rect(16, 9, 8, 3, SCIENTIST_HAIR, 12)
-    rect(24, 8, 8, 6, SCIENTIST_HAIR, 12)  # back of head
-    fx, fy = 8, 8
-    rect(fx, fy + 2, 8, 1, FRAME, 0)       # glasses frame top
-    rect(fx, fy + 4, 8, 1, FRAME, 0)       # frame bottom
-    rect(fx, fy + 3, 8, 1, FRAME, 0)       # bridge and sides...
-    rect(fx + 1, fy + 3, 2, 1, (170, 210, 235), 0)  # ...with a lens over each eye
-    rect(fx + 5, fy + 3, 2, 1, (170, 210, 235), 0)
-    px[fx + 2, fy + 3] = (30, 50, 80, 255)
-    px[fx + 5, fy + 3] = (30, 50, 80, 255)
-    rect(fx + 2, fy + 5, 4, 1, SCIENTIST_HAIR, 0)   # mustache
-    rect(fx + 3, fy + 6, 2, 1, (100, 30, 30), 0)    # mouth
+    # The Chief Scientist: bald, white hair round the sides and back, round glasses, a kindly smile.
+    hair = (236, 236, 240)
+    head8((230, 200, 180), hair, ["ssssssss", "hsddddsh", "sFFssFFs", "FgpFFpgF",
+                                  "sFFddFFs", "sDssssDs", "ssDDDDss", "ssssssss"],
+          {"h": hair, "F": (40, 40, 46), "g": (190, 215, 235)}, top=False, side_rows=0, back_rows=0)
+    rect(0, 9, 8, 4, hair, 6)               # white hair over the ears
+    rect(16, 9, 8, 4, hair, 6)
+    rect(24, 9, 8, 6, hair, 6)              # and round the back
+
+
+def jetpack_head():
+    # Male_07 as the Jetpack Toilet: dark hair, thick brows, staring eyes, a snarl, stubble.
+    head8((198, 152, 118), (30, 26, 24), ["HHHHHHHH", "HHssssHH", "bbbssbbb", "sWpsspWs",
+                                          "sssdDsss", "sdDttDds", "dddmmddd", "dddddddd"],
+          {"d": (150, 120, 96)}, side_rows=3)
+
+
+def flying_head():
+    # The Normal Flying Skibidi Toilet: bald, dark-skinned, scared, eyes darting to the side.
+    head8((120, 86, 66), (120, 86, 66), ["ssssssss", "sdsddsds", "ssbssbss", "spWsspWs",
+                                         "sssdDsss", "ssssssss", "ssdmmdss", "ssssssss"],
+          {"b": (60, 40, 30)}, side_rows=0, back_rows=0)
+
+
+def saint_face(eye_white, pupil):
+    # The Saint: a young man with short dark hair and a wide, toothy grin.
+    head8((176, 128, 92), (40, 28, 22), ["HHHHHHHH", "HssssssH", "sbbssbbs", "sWpssWps",
+                                         "sssdDsss", "DttttttD", "sDmmmmDs", "ssssssss"],
+          {"W": eye_white, "p": pupil})
+
+
+def hat_head():
+    # Male_07 as the Hat Toilet: staring eyes, a mustache and goatee, the tip of his tongue showing.
+    head8((190, 142, 108), (40, 30, 26), ["HHHHHHHH", "HssssssH", "sbbssbbs", "sWpsspWs",
+                                          "sssdDsss", "ssHHHHss", "sssmlsss", "ssHHHHss"], back_rows=4)
 
 
 def spider_legs():
@@ -251,30 +278,46 @@ def spider_legs():
 
 
 def jetpack():
-    # Tank 4x10x3 at (32, 0), used for both tanks
-    box(32, 0, 4, 10, 3, (175, 50, 40), 8)
-    rect(32, 5, 14, 1, (210, 210, 215), 0)  # metal straps
-    rect(32, 10, 14, 1, (210, 210, 215), 0)
-    # Nozzle 2x2x2 at (48, 0)
-    box(48, 0, 2, 2, 2, (60, 60, 66), 4)
+    # Jetpacks 4x10x4 at (32, 0) with nozzles 3x2x3 at (48, 0), front armour 10x4x1 at (64, 0), side armour
+    # 1x3x8 at (64, 5), flusher cover 2x3x4 at (88, 0)
+    f = faces(32, 0, 4, 10, 4)
+    for r in sides(f):
+        gradient(r, (88, 90, 96), (62, 64, 70), 4)
+        x, y, w, h = r
+        for k in (2, 5, 8):
+            rect(x, y + k, w, 1, (46, 48, 52), 0)          # segment bands
+    rect(*f["top"], (100, 104, 110), 3)
+    box(48, 0, 3, 2, 3, (40, 40, 44), 3)
+    rect(*faces(48, 0, 3, 2, 3)["bottom"], (230, 120, 40), 6)
+    box(64, 0, 10, 4, 1, (96, 98, 104), 5)
+    x, y, w, h = faces(64, 0, 10, 4, 1)["front"]
+    for i in (0, w - 1):
+        for k in (0, h - 1):
+            px[x + i, y + k] = (150, 152, 160, 255)         # rivets
+    box(64, 5, 1, 3, 8, (90, 92, 98), 5)
+    box(88, 0, 2, 3, 4, (100, 102, 108), 4)
 
 
-FLYER_HAIR = (214, 176, 92)
+def tint_body(factor):
+    """Darkens the toilet body (the bottom half of a toilet texture) to grey, leaving the neck and ears."""
+    keep = [(108, 96, 16, 10), (118, 80, 4, 3)]
+    for x in range(128):
+        for y in range(64, 128):
+            if any(kx <= x < kx + kw and ky <= y < ky + kh for kx, ky, kw, kh in keep):
+                continue
+            r, g, b, a = px[x, y]
+            if a:
+                px[x, y] = (round(r * factor), round(g * factor), round(b * factor * 1.04), a)
 
 
-def flying_head():
-    # Head 8x8x8 at (0, 0): blond, wide-eyed, grinning ear to ear.
-    box(0, 0, 8, 8, 8, SKIN)
-    rect(8, 0, 8, 8, FLYER_HAIR)           # top of head
-    rect(0, 8, 32, 2, FLYER_HAIR)          # hairline around all sides
-    rect(24, 8, 8, 4, FLYER_HAIR)          # back of head
-    fx, fy = 8, 8
-    for x in (1, 5):
-        rect(fx + x, fy + 2, 2, 1, (150, 115, 50), 0)   # eyebrows
-        px[fx + x, fy + 3] = (255, 255, 255, 255)       # eyes
-        px[fx + x + 1, fy + 3] = (30, 30, 30, 255)
-    rect(fx + 1, fy + 5, 6, 1, (245, 245, 240), 0)  # grin: a full row of teeth...
-    rect(fx + 2, fy + 6, 4, 1, (90, 20, 20), 0)     # ...over an open mouth
+def jetpack_toilet():
+    new_image(128, 7)
+    jetpack_head()
+    skin_extras()
+    toilet_body()
+    tint_body(0.52)                         # an armoured grey toilet
+    jetpack()
+    return img
 
 
 GIANT_SKIN = (214, 160, 118)
@@ -320,11 +363,21 @@ def dj_head():
 
 
 def headphones():
-    # Band 10x1x2 at (32, 0)
-    box(32, 0, 10, 1, 2, (30, 30, 34), 4)
-    # Ear cup 1x3x3 at (32, 4), used for both cups
-    box(32, 4, 1, 3, 3, (48, 48, 54), 4)
-    rect(33, 7, 1, 3, (200, 40, 60), 0)            # red trim on the outside
+    # The DJ's grey beanie 9x4x9 at (64, 0) and pink headphones: band 10x1x2 at (32, 0), band sides 1x3x1 at
+    # (40, 4), cups 1x4x3 at (32, 4)
+    f = faces(64, 0, 9, 4, 9)
+    for r in sides(f):
+        x, y, w, h = r
+        rect(x, y, w, h, (118, 118, 122), 4)
+        for i in range(0, w, 2):
+            rect(x + i, y, 1, h - 1, (100, 100, 104), 2)    # knit ribs
+        rect(x, y + h - 1, w, 1, (134, 134, 138), 3)        # turned-up edge
+    rect(*f["top"], (112, 112, 116), 4)
+    pink = (232, 110, 170)
+    box(32, 0, 10, 1, 2, pink, 4)
+    box(40, 4, 1, 3, 1, pink, 4)
+    box(32, 4, 1, 4, 3, (210, 90, 150), 4)
+    rect(*faces(32, 4, 1, 4, 3)["right"], (40, 40, 44), 2)  # cushion against the head
 
 
 URINAL_HAIR = (60, 40, 28)
@@ -370,27 +423,7 @@ def urinal():
     return img
 
 
-SAINT_SKIN = (238, 204, 176)
-SAINT_HAIR = (236, 236, 240)
 HALO_GOLD = (240, 200, 70)
-
-
-def saint_face(eye_white, pupil):
-    # Head 8x8x8 at (0, 0): an old man with white hair at the sides, a long white beard.
-    box(0, 0, 8, 8, 8, SAINT_SKIN)
-    rect(8, 0, 8, 8, SAINT_SKIN)            # bald on top
-    rect(0, 9, 8, 3, SAINT_HAIR, 6)         # white hair over the ears
-    rect(16, 9, 8, 3, SAINT_HAIR, 6)
-    rect(24, 9, 8, 4, SAINT_HAIR, 6)        # and around the back
-    fx, fy = 8, 8
-    for x in (1, 5):
-        rect(fx + x, fy + 2, 2, 1, SAINT_HAIR, 0)          # bushy white brows
-        rect(fx + x, fy + 3, 2, 1, eye_white, 0)           # eyes
-        px[fx + x + (1 if x == 1 else 0), fy + 3] = pupil + (255,)
-    rect(fx + 1, fy + 5, 6, 3, SAINT_HAIR, 6)              # beard
-    rect(fx + 3, fy + 5, 2, 1, (110, 40, 40), 0)          # mouth, singing
-    for side in (0, 16):                                    # beard carries round the jaw
-        rect(side + 1, 13, 6, 3, SAINT_HAIR, 6)
 
 
 def saint_head():
@@ -433,29 +466,15 @@ def triple():
     return img
 
 
-HAT_SKIN = (228, 180, 132)
-
-
-def hat_head():
-    # Head 8x8x8 at (0, 0): sly smirk, one raised brow.
-    box(0, 0, 8, 8, 8, HAT_SKIN)
-    rect(0, 8, 32, 1, HAIR)
-    rect(24, 8, 8, 4, HAIR)
-    fx, fy = 8, 8
-    rect(fx + 1, fy + 2, 2, 1, HAIR, 0)
-    rect(fx + 5, fy + 1, 2, 1, HAIR, 0)     # raised brow
-    for x in (1, 5):
-        px[fx + x, fy + 3] = (255, 255, 255, 255)
-        px[fx + x + 1, fy + 3] = (30, 30, 30, 255)
-    rect(fx + 3, fy + 6, 3, 1, (110, 40, 40), 0)   # smirk
-    px[fx + 6, fy + 5] = (110, 40, 40, 255)
-
-
-def top_hat():
-    # Brim 10x1x10 at (64, 0), crown 6x6x6 at (64, 12), with a red band round the bottom of the crown
-    box(64, 0, 10, 1, 10, (26, 26, 30), 4)
-    box(64, 12, 6, 6, 6, (30, 30, 34), 4)
-    rect(64, 23, 24, 1, (150, 25, 30), 4)
+def soft_cap():
+    # A grey soldier's soft cap: crown 9x3x9 at (64, 0) with a darker band, visor 8x1x2 at (64, 12)
+    f = faces(64, 0, 9, 3, 9)
+    for r in sides(f):
+        x, y, w, h = r
+        rect(x, y, w, h, (108, 112, 102), 4)
+        rect(x, y + h - 1, w, 1, (82, 86, 78), 3)
+    rect(*f["top"], (114, 118, 108), 4)
+    box(64, 12, 8, 1, 2, (72, 74, 68), 3)
 
 
 def hat_toilet():
@@ -463,7 +482,7 @@ def hat_toilet():
     hat_head()
     skin_extras()
     toilet_body()
-    top_hat()
+    soft_cap()
     return img
 
 
@@ -1804,7 +1823,7 @@ outputs = {
     "entity/giant_flying_skibidi_toilet.png": lambda: toilet(16, giant_flying_head),
     "entity/dj_skibidi_toilet.png": lambda: toilet(17, dj_head, headphones),
     "entity/spider_toilet.png": lambda: toilet(7, skibidi_head, spider_legs),
-    "entity/jetpack_toilet.png": lambda: toilet(7, skibidi_head, jetpack),
+    "entity/jetpack_toilet.png": jetpack_toilet,
     "entity/cameraman.png": lambda: alliance(9, cameraman_head),
     "entity/speakerman.png": lambda: alliance(9, speakerman_head),
     "entity/tv_man.png": lambda: alliance(9, tv_man_head),
