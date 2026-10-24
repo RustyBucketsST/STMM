@@ -59,6 +59,9 @@ public class SkibidiToiletClient implements ClientModInitializer {
     public static final EntityModelLayer TITAN_CAMERAMAN_LAYER = layer("titan_cameraman");
     public static final EntityModelLayer TITAN_SPEAKERMAN_LAYER = layer("titan_speakerman");
     public static final EntityModelLayer TITAN_TV_MAN_LAYER = layer("titan_tv_man");
+    public static final EntityModelLayer TITAN_CAMERAMAN_2_LAYER = layer("titan_cameraman_2");
+    public static final EntityModelLayer TITAN_SPEAKERMAN_2_LAYER = layer("titan_speakerman_2");
+    public static final EntityModelLayer TITAN_TV_MAN_2_LAYER = layer("titan_tv_man_2");
 
     @Override
     public void onInitializeClient() {
@@ -83,6 +86,9 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(TITAN_CAMERAMAN_LAYER, TitanModel::getCameramanModelData);
         EntityModelLayerRegistry.registerModelLayer(TITAN_SPEAKERMAN_LAYER, TitanModel::getSpeakermanModelData);
         EntityModelLayerRegistry.registerModelLayer(TITAN_TV_MAN_LAYER, TitanModel::getTvManModelData);
+        EntityModelLayerRegistry.registerModelLayer(TITAN_CAMERAMAN_2_LAYER, TitanModel::getCameraman2ModelData);
+        EntityModelLayerRegistry.registerModelLayer(TITAN_SPEAKERMAN_2_LAYER, TitanModel::getSpeakerman2ModelData);
+        EntityModelLayerRegistry.registerModelLayer(TITAN_TV_MAN_2_LAYER, TitanModel::getTvMan2ModelData);
 
         EntityRendererRegistry.register(ModEntities.SKIBIDI_TOILET,
                 SkibidiToiletRenderer.factory(SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "skibidi_toilet", 1.0f));

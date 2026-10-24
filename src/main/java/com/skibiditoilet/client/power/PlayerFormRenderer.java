@@ -34,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Draws a player who's in a form as the Alliance mob it's modelled on, at the form's size, in place of the normal
@@ -76,9 +77,10 @@ public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlaye
             put(Form.LARGE, type, new PlayerFormRenderer(context, largeLayer(type), "large_" + type.asString(), 1.0f,
                     Form.LARGE.scale(type), 10.0f, false, GearRenderer.Fit.NORMAL, List.of()));
             for (Form form : new Form[]{Form.TITAN, Form.TITAN_2}) {
-                put(form, type, new PlayerFormRenderer(context, titanLayer(type), "titan_" + type.asString(),
+                String texture = "titan_" + type.asString() + (form == Form.TITAN_2 ? "_2" : "");
+                put(form, type, new PlayerFormRenderer(context, titanLayer(type, form), texture,
                         TitanModel.DETAIL, form.scale(type) / TitanModel.DETAIL, 28.0f, true, GearRenderer.Fit.titan(type),
-                        titanShoulders(type)));
+                        titanShoulders(type, form)));
             }
         }
     }
@@ -96,20 +98,32 @@ public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlaye
     }
 
     /** The rotated parts of each Titan's body that are his shoulder gear (see the titan_*.bbmodel files). */
-    private static List<String> titanShoulders(AllianceType type) {
+    private static List<String> titanShoulders(AllianceType type, Form form) {
+        List<String> claws = List.of("claw0_right_r", "claw0_left_r", "claw1_right_r", "claw1_left_r", "claw2_right_r",
+                "claw2_left_r");
+        if (form == Form.TITAN_2) {
+            return switch (type) {
+                case CAMERAMAN -> List.of("shoulder_cam_right_r", "shoulder_cam_left_r", "shoulder_cam_lens_right_r",
+                        "shoulder_cam_lens_left_r");
+                case SPEAKERMAN -> List.of("tower_right_r", "tower_left_r", "tower_plate_right_r", "tower_plate_left_r");
+                case TV_MAN -> Stream.concat(Stream.of("shoulder_tv_right_r", "shoulder_tv_left_r"),
+                        claws.stream()).toList();
+            };
+        }
         return switch (type) {
             case CAMERAMAN -> List.of("shoulder_cam_right_r", "shoulder_cam_left_r");
             case SPEAKERMAN -> List.of("tower_right_r", "tower_left_r");
-            case TV_MAN -> List.of("claw0_right_r", "claw0_left_r", "claw1_right_r", "claw1_left_r", "claw2_right_r",
-                    "claw2_left_r");
+            case TV_MAN -> claws;
         };
     }
 
-    private static EntityModelLayer titanLayer(AllianceType type) {
+    /** The 1.0 Titans for the Titan form, the 2.0s for Titan 2.0. */
+    private static EntityModelLayer titanLayer(AllianceType type, Form form) {
+        boolean two = form == Form.TITAN_2;
         return switch (type) {
-            case CAMERAMAN -> SkibidiToiletClient.TITAN_CAMERAMAN_LAYER;
-            case SPEAKERMAN -> SkibidiToiletClient.TITAN_SPEAKERMAN_LAYER;
-            case TV_MAN -> SkibidiToiletClient.TITAN_TV_MAN_LAYER;
+            case CAMERAMAN -> two ? SkibidiToiletClient.TITAN_CAMERAMAN_2_LAYER : SkibidiToiletClient.TITAN_CAMERAMAN_LAYER;
+            case SPEAKERMAN -> two ? SkibidiToiletClient.TITAN_SPEAKERMAN_2_LAYER : SkibidiToiletClient.TITAN_SPEAKERMAN_LAYER;
+            case TV_MAN -> two ? SkibidiToiletClient.TITAN_TV_MAN_2_LAYER : SkibidiToiletClient.TITAN_TV_MAN_LAYER;
         };
     }
 

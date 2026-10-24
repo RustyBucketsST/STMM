@@ -83,8 +83,12 @@ need room to grow: if you wouldn't fit where you stand, you can't transform.
 
 - Large: the Large Cameraman (long black coat, camcorder head), Large Speakerman (white shirt, tall speaker
   head) or Large TV Man (big static-filled TV on a pipe, four little TVs on tendrils).
-- Titan: Titan Cameraman, Titan Speakerman or Titan TV Man in their 1.0 forms. Titan 2.0 is a little bigger
-  than Titan; for now it uses the 1.0 Titan models.
+- Titan: Titan Cameraman, Titan Speakerman or Titan TV Man in their 1.0 forms.
+- Titan 2.0: a little bigger, in their upgraded 2.0 forms from the series. Titan Cameraman 2.0 has a cyan lens
+  and core, an antenna and fin, camcorders on his head, a silver winged jetpack, a railgun and a hammer. Titan
+  Speakerman 2.0 wears a helmet over his speakers, red plated shoulder towers, a huge jetpack and plasma cannons
+  on both arms. Titan TV Man 2.0 has a wide flat TV with a crown, TVs on his shoulders and belt, a big purple core
+  and an energy sword on his arm.
 - Your health keeps the same share when you transform or turn back. Titans and Titan 2.0 shrug off knockback.
 - You turn back to normal when you die, log out or go into spectator mode.
 

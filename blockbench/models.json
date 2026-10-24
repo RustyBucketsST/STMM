@@ -33,6 +33,15 @@
 	"titan_tv_man.bbmodel": {
 		"class": "TitanTvManBbModel"
 	},
+	"titan_cameraman_2.bbmodel": {
+		"class": "TitanCameraman2BbModel"
+	},
+	"titan_speakerman_2.bbmodel": {
+		"class": "TitanSpeakerman2BbModel"
+	},
+	"titan_tv_man_2.bbmodel": {
+		"class": "TitanTvMan2BbModel"
+	},
 	"triple_skibidi_toilet.bbmodel": {
 		"class": "TripleSkibidiToiletBbModel"
 	},

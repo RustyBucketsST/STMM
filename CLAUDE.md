@@ -31,8 +31,7 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   items with points. Details: `docs/powers.md`.
 - Player forms (owner's choices): Normal → Large → Titan → Titan 2.0, bought in order in the Powers menu's Forms
   tab, Y steps up (energy cost, then drains; Shift+Y back), **real size** (Large 1.6x, Titans the Titan mob scales,
-  Titan 2.0 x1.1) with the matching mob model. Titan 2.0 still uses the 1.0 models (owner chose: build the 2.0
-  models from the wiki next). In a Titan form the keys carry **Titan powers** (`Power.onKeys`, shared code in
+  Titan 2.0 x1.1) with the matching mob model; Titan 2.0 uses the `titan_*_2` models. In a Titan form the keys carry **Titan powers** (`Power.onKeys`, shared code in
   `entity/ability/TitanMoves` with the Titan mobs); the type's own powers fill the remaining keys.
   **Gear** (owner's picks, `power/Gear`): jetpack (hold jump to fly 3 s, no fall damage), shoulder gear (CCTV
   cameras / speakers / back blade claws by type, powers +15%), armor plates (+4 armor). Bought in the Powers menu's
@@ -108,6 +107,10 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   names and doubled pivots, feet on the ground: head/body (0,-24,0), arms (+-10,-20,0), legs (+-3.8,0,0.2).
   `TitanModel` converts the biped animation to those units and `AllianceRenderer.titanFactory` draws it at
   half the Titan scale, plus `textures/entity/titan_*_glow.png` full-bright (cores, screens, red drivers).
+- **Titan 2.0s** (`titan_cameraman_2`, `titan_speakerman_2`, `titan_tv_man_2`, from the wiki's 2.0 pictures and
+  descriptions) are built the same way, with `_2` textures and glow textures. Only players in the Titan 2.0 form
+  use them (no 2.0 mobs). Their shoulder gear parts (rotated, so separate) are listed in
+  `PlayerFormRenderer.titanShoulders`.
 - **G-Toilet** (`gman_toilet.bbmodel`, from the wiki picture of his 1.0 form): a tall seatless bowl, a tall
   cistern with a ledge and flush knob, and G-Man's head with its own brow and nose cubes. Also built at
   twice the detail; `GManToiletModel` doubles the head's bob/flush offsets and `SkibidiToiletRenderer.detailed`

@@ -1567,6 +1567,273 @@ def titan_tv_man_glow():
     return img
 
 
+# ---- Titan 2.0s (the players' Titan 2.0 form): titan_*_2.bbmodel
+
+def metal_box(r_box, base, noise=4):
+    """A metal part: lighter on top, darker underneath, a highlight along the top edge of each side."""
+    f = faces(*r_box)
+    for r in sides(f):
+        gradient(r, tuple(min(255, c + 10) for c in base), tuple(max(0, c - 14) for c in base), noise)
+        x, y, w, h = r
+        rect(x, y, w, 1, tuple(min(255, c + 26) for c in base), 2)
+    rect(*f["top"], tuple(min(255, c + 18) for c in base), noise)
+    rect(*f["bottom"], tuple(max(0, c - 24) for c in base), 2)
+    return f
+
+
+def titan_cameraman_2_lights(b):
+    """What glows on Titan Cameraman 2.0: the cyan lens and core, the red antenna and fin lights, the railgun muzzle."""
+    x, y, w, h = faces(*b["lens"])["front"]
+    radial(x, y, w, h, 0, 9, lambda r: (230, 252, 255) if r < 1.4 else (120, 230, 255) if r < 2.6 else (40, 180, 240))
+    titan_core_glow(b, (40, 200, 255), (220, 252, 255), (80, 220, 255))
+    for name in ("antenna_light", "fin_light"):
+        for r in faces(*b[name]).values():
+            rect(*r, (255, 60, 50), 0)
+    for r in faces(*b["railgun_muzzle"]).values():
+        rect(*r, (90, 200, 255), 0)
+    x, y, w, h = faces(*b["railgun_barrel"])["front"]
+    rect(x + 1, y + h - 3, w - 2, 2, (110, 210, 255), 0)
+
+
+def titan_cameraman_2():
+    b = bb_boxes("titan_cameraman_2")
+    new_image(256, 60, 128)
+    dark, darker = (52, 54, 60), (34, 36, 40)
+    steel = (150, 154, 162)
+
+    # Head: a dark camera with a big round lens, antenna, fin, angled plates and camcorders either side
+    box(*b["mount"], (40, 40, 44), 3)
+    f = metal_box(b["housing"], dark)
+    x, y, w, h = f["front"]
+    rect(x, y, w, h, darker, 3)
+    box(*b["lens_ring"], (30, 30, 34), 3)
+    x, y, w, h = faces(*b["lens_ring"])["front"]
+    radial(x, y, w, h, 3.2, 9, lambda r: (66, 68, 76))
+    for name in ("antenna", "fin"):
+        box(*b[name], (26, 26, 30), 2)
+    metal_box(b["plate_right"], steel)
+    f = metal_box(b["camcorder_right"], (44, 44, 48))
+    x, y, w, h = f["right"]
+    rect(x + 2, y + 1, w - 4, 2, (90, 92, 100), 2)          # side panel
+    box(*b["camcorder_lens_right"], (24, 24, 28), 2)
+    black_camera_lens(*faces(*b["camcorder_lens_right"])["front"])
+
+    # Body: a black coat over a long vest, the core in its casing with a shield under it, black shoulder cameras,
+    # a silver winged jetpack
+    titan_coat(b, TITAN_COAT, TITAN_COAT_DARK, (40, 40, 44))
+    titan_belt(b)
+    titan_core_ring(b, (40, 42, 48))
+    metal_box(b["core_shield"], steel)
+    for name in ("core_claw_right", "core_claw_bottom"):
+        box(*b[name], (70, 72, 80), 2)
+    f = metal_box(b["jetpack"], (176, 180, 188))
+    x, y, w, h = f["back"]
+    rect(x + 2, y + 3, w - 4, 1, (130, 134, 142), 0)
+    rect(x + 2, y + h - 4, w - 4, 1, (130, 134, 142), 0)
+    for name in ("wing_right", "wing_top_right"):
+        metal_box(b[name], (186, 190, 198))
+    metal_box(b["shoulder_cam_right"], (128, 130, 136))      # grey CCTV cameras, as in the picture
+    box(*b["shoulder_cam_lens_right"], (20, 20, 24), 2)
+    x, y, w, h = faces(*b["shoulder_cam_lens_right"])["front"]
+    black_camera_lens(x + 1, y, h, h)
+
+    titan_arms(b, TITAN_COAT, (36, 36, 40), (30, 30, 34), (28, 28, 32))
+    f = metal_box(b["hammer_head"], (120, 124, 134))
+    x, y, w, h = f["front"]
+    rect(x + w // 2 - 2, y + 1, 4, h - 2, (50, 130, 220), 4)  # blue hexagon in the middle of the head
+    for cx, cy in ((x, y), (x + w - 1, y), (x, y + h - 1), (x + w - 1, y + h - 1)):
+        px[cx, cy] = (70, 72, 80, 255)                       # rivets
+    metal_box(b["hammer_handle"], (150, 154, 162))
+    f = metal_box(b["railgun"], (110, 114, 122))
+    x, y, w, h = f["right"]
+    rect(x + 1, y + 3, w - 2, 1, (30, 30, 30), 0)           # the black and yellow feed cables
+    rect(x + 1, y + 5, w - 2, 1, (220, 190, 40), 0)
+    metal_box(b["railgun_barrel"], (60, 120, 200))
+    titan_legs(b, (34, 34, 38), boots=True)
+    metal_box(b["shin_plate_right"], (120, 124, 134))
+    titan_cameraman_2_lights(b)
+    return img
+
+
+def titan_cameraman_2_glow():
+    new_image(256, 60, 128)
+    titan_cameraman_2_lights(bb_boxes("titan_cameraman_2"))
+    return img
+
+
+def titan_speakerman_2_lights(b):
+    """What glows on Titan Speakerman 2.0: his core, the red drivers in his head and towers, the cannon muzzles."""
+    x, y, w, h = faces(*b["core_glass"])["front"]
+    radial(x, y, w, h, 0, 3.7, lambda r: (255, 60, 50) if r < 2.6 else (210, 70, 74))
+    f = faces(*b["core"])
+    radial(*f["front"], 0, 9, lambda r: (255, 235, 225) if r < 1.0 else (255, 120, 100) if r < 1.9 else (255, 60, 50))
+    for key in ("right", "left", "top", "bottom"):
+        rect(*f[key], (255, 70, 56), 0)
+    x, y, w, h = faces(*b["lower_speaker"])["front"]
+    draw_cone(x + 1, y, 5, red_cone)
+    draw_cone(x + w - 6, y, 5, red_cone)
+    x, y, w, h = faces(*b["center_speaker"])["front"]
+    draw_cone(x + 1, y + 1, 6, red_cone)
+    rect(x, y, w, 1, (255, 70, 60), 0)                       # the top of the main speaker glows
+    x, y, w, h = faces(*b["column_right"])["front"]
+    draw_cone(x, y + 5, 6, red_cone)
+    draw_cone(x, y + 12, 6, red_cone)
+    x, y, w, h = faces(*b["tower_right"])["front"]
+    for top in (4, 13, 22):
+        draw_cone(x + 1, y + top, 7, red_cone)
+    for name in ("cannon_muzzle_right", "cannon_muzzle_left"):
+        x, y, w, h = faces(*b[name])["bottom"]
+        radial(x, y, w, h, 0, 9, lambda r: (255, 140, 100) if r < 1.5 else (240, 50, 30))
+
+
+def titan_speakerman_2():
+    b = bb_boxes("titan_speakerman_2")
+    new_image(256, 61, 128)
+    red, red_dark = (150, 22, 28), (104, 14, 18)
+    steel = (140, 144, 152)
+
+    # Head: the same speakers, under a metal helmet with a frame on top
+    box(*b["mount"], (40, 40, 44), 3)
+    for name in ("lower_speaker", "center_speaker", "back_cabinet", "column_right"):
+        f = faces(*b[name])
+        for r in f.values():
+            rect(*r, SPEAKER_BLACK, 3)
+        x, y, w, h = f["front"]
+        for i in range(w):
+            px[x + i, y] = shade((46, 46, 50), 2)
+        rect(*f["top"], (36, 36, 40), 2)
+    metal_box(b["helmet"], steel)
+    box(*b["frame_right"], (90, 92, 100), 3)
+
+    # Body: a darker red shirt, speakers round the core and under it, red towers plated at the back, a big jetpack
+    for name in ("chest", "waist"):
+        f = faces(*b[name])
+        for r in sides(f):
+            gradient(r, red, red_dark, 3)
+            x, y, w, h = r
+            rect(x + w // 4, y, max(1, w // 6), h, (172, 34, 40), 2)
+        rect(*f["top"], (176, 40, 46), 3)
+    box(*b["collar"], red_dark, 3)
+    titan_belt(b)
+    box(*b["core_ring"], (54, 54, 60), 3)
+    x, y, w, h = faces(*b["core_glass"])["front"]
+    radial(x, y, w, h, 3.7, 9, lambda r: (54, 54, 60))
+    f = faces(*b["core_glass"])
+    for key in ("right", "left", "top", "bottom"):
+        rect(*f[key], (170, 120, 126), 2)
+    for name in ("core_speaker_right", "belly_speaker_mid", "belly_speaker_right"):
+        f = faces(*b[name])
+        box(*b[name], SPEAKER_BLACK, 3)
+        x, y, w, h = f["front"]
+        n = min(w, h) - 1
+        draw_cone(x + (w - n) // 2, y + (h - n) // 2, n, dark_cone)
+    f = metal_box(b["jetpack"], (66, 68, 74))
+    x, y, w, h = f["back"]
+    rect(x + 2, y + 2, w - 4, 1, (44, 44, 48), 0)
+    f = faces(*b["jetpack_turbine_right"])
+    for r in sides(f):
+        gradient(r, (80, 82, 88), (52, 54, 60), 3)
+        x, y, w, h = r
+        for k in (3, h - 5):
+            rect(x, y + k, w, 1, (40, 42, 46), 0)
+    rect(*f["top"], (24, 24, 28), 0)
+    f = faces(*b["tower_right"])
+    for r in f.values():
+        gradient(r, red, red_dark, 3)
+    x, y, w, h = f["front"]
+    for top in (4, 13, 22):
+        draw_cone(x + 1, y + top, 7, dark_cone)
+    metal_box(b["tower_plate_right"], steel)
+
+    titan_arms(b, red, red, red_dark, (30, 30, 34))
+    titan_legs(b, (92, 94, 100))
+    for name in ("cannon_right", "cannon_left"):
+        f = faces(*b[name])
+        for r in sides(f):
+            gradient(r, (44, 44, 48), (28, 28, 32), 3)
+            x, y, w, h = r
+            for k in range(4, h, 6):
+                rect(x, y + k, w, 1, (64, 66, 72), 0)        # armour bands
+        rect(*f["top"], (60, 60, 66), 3)
+    for name in ("cannon_muzzle_right", "cannon_muzzle_left"):
+        box(*b[name], (36, 36, 40), 2)
+    titan_speakerman_2_lights(b)
+    return img
+
+
+def titan_speakerman_2_glow():
+    new_image(256, 61, 128)
+    titan_speakerman_2_lights(bb_boxes("titan_speakerman_2"))
+    return img
+
+
+def titan_tv_man_2_lights(b):
+    """What glows on Titan TV Man 2.0: the static on all his screens, his purple core and tentacle, the sword."""
+    rnd = random.Random(62)
+    for name in ("tv", "side_screen_right", "shoulder_tv_right", "belt_tv"):
+        x, y, w, h = faces(*b[name])["front"]
+        inset = 1 if min(w, h) > 4 else 0
+        crt_static((x + inset, y + inset, w - 2 * inset, h - 2 * inset), rnd)
+    titan_core_glow(b, (170, 70, 255), (250, 220, 255), (200, 110, 255))
+    for r in faces(*b["tentacle"]).values():
+        rect(*r, (170, 80, 240), 4)
+    f = faces(*b["blade"])
+    for key in ("right", "left", "front", "back"):
+        x, y, w, h = f[key]
+        gradient((x, y, w, h), (230, 150, 255), (170, 60, 240), 0)
+
+
+def titan_tv_man_2():
+    b = bb_boxes("titan_tv_man_2")
+    new_image(256, 62, 128)
+    black, black_dark = (28, 28, 32), (20, 20, 24)
+
+    # Head: a thin wide TV with a thin screen at each side, a crown of spikes, turbines at the back, a ring at the neck
+    for name in ("tv", "tv_back", "side_screen_right"):
+        f = faces(*b[name])
+        for r in f.values():
+            rect(*r, (32, 32, 36), 3)
+        rect(*f["top"], (40, 40, 44), 3)
+    for name in ("crown", "crown_spike_mid", "crown_spike_right", "crown_spike_outer_right"):
+        metal_box(b[name], (110, 112, 122))
+    metal_box(b["ring"], (120, 124, 134))
+    f = faces(*b["head_turbine_right"])
+    for r in sides(f):
+        gradient(r, (70, 72, 80), (44, 46, 52), 3)
+    rect(*f["back"], (24, 24, 28), 0)
+
+    # Body: a black coat, the big purple core with claws round it, TVs on his shoulders and belt, claws on his back
+    titan_coat(b, black, black_dark, (16, 16, 20))
+    titan_belt(b)
+    titan_core_ring(b, (60, 56, 70))
+    for name in ("core_claw_right", "core_claw_bottom"):
+        box(*b[name], (150, 152, 160), 3)
+    for name in ("shoulder_tv_right", "belt_tv"):
+        for r in faces(*b[name]).values():
+            rect(*r, (30, 30, 34), 3)
+    box(*b["claw_mount"], (28, 26, 32), 3)
+    for i in range(3):
+        f = faces(*b[f"claw{i}_right"])
+        for r in sides(f):
+            gradient(r, (40, 36, 46), (24, 22, 28), 3)
+        x, y, w, h = f["front"]
+        rect(x + w - 1, y, 1, h, (150, 70, 230), 0)          # purple edge down each blade
+    titan_arms(b, black, black, black_dark, (32, 32, 36))
+    f = metal_box(b["blade_holster"], (70, 72, 80))
+    x, y, w, h = f["right"]
+    for k in range(2, h, 3):
+        px[x + w // 2, y + k] = (200, 40, 40, 255)          # red marks at the straps
+    titan_legs(b, (28, 28, 32), boots=True)
+    titan_tv_man_2_lights(b)
+    return img
+
+
+def titan_tv_man_2_glow():
+    new_image(256, 62, 128)
+    titan_tv_man_2_lights(bb_boxes("titan_tv_man_2"))
+    return img
+
+
 GMAN_SKIN = (230, 208, 174)
 GMAN_HAIR = (34, 28, 36)
 G_PORCELAIN = (222, 224, 226)
@@ -2373,6 +2640,12 @@ outputs = {
     "entity/large_cameraman.png": large_cameraman,
     "entity/large_speakerman.png": large_speakerman,
     "entity/large_tv_man.png": large_tv_man,
+    "entity/titan_cameraman_2.png": titan_cameraman_2,
+    "entity/titan_cameraman_2_glow.png": titan_cameraman_2_glow,
+    "entity/titan_speakerman_2.png": titan_speakerman_2,
+    "entity/titan_speakerman_2_glow.png": titan_speakerman_2_glow,
+    "entity/titan_tv_man_2.png": titan_tv_man_2,
+    "entity/titan_tv_man_2_glow.png": titan_tv_man_2_glow,
     "entity/gear.png": gear,
     "entity/camera_strider.png": camera_strider,
     "entity/titan_cameraman.png": titan_cameraman,
