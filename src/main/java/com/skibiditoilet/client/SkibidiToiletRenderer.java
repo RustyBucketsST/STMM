@@ -15,22 +15,18 @@ import java.util.function.Predicate;
 
 /**
  * Renders every kind of Skibidi Toilet: a toilet model, a texture, and an optional scale. A toilet can
- * also switch to a second texture, like the Saint Toilet when it turns demonic.
+ * also switch to a second texture, like the Saint Toilet when it turns demonic. A model built at a higher detail
+ * (see SkibidiToiletModel) is drawn smaller to match, so {@code scale} is always relative to a normal toilet.
  */
 public class SkibidiToiletRenderer extends MobEntityRenderer<SkibidiToiletEntity, SkibidiToiletModel> {
     private final Function<SkibidiToiletEntity, Identifier> texture;
     private final float scale;
 
-    public SkibidiToiletRenderer(EntityRendererFactory.Context context, SkibidiToiletModel model,
-                                 Function<SkibidiToiletEntity, Identifier> texture, float scale) {
-        this(context, model, texture, scale, 0.5f * scale);
-    }
-
     private SkibidiToiletRenderer(EntityRendererFactory.Context context, SkibidiToiletModel model,
-                                  Function<SkibidiToiletEntity, Identifier> texture, float scale, float shadowRadius) {
-        super(context, model, shadowRadius);
+                                  Function<SkibidiToiletEntity, Identifier> texture, float scale) {
+        super(context, model, 0.5f * scale);
         this.texture = texture;
-        this.scale = scale;
+        this.scale = scale / model.detail();
     }
 
     public static EntityRendererFactory<SkibidiToiletEntity> factory(EntityModelLayer layer,
@@ -49,18 +45,6 @@ public class SkibidiToiletRenderer extends MobEntityRenderer<SkibidiToiletEntity
         Identifier alternate = texture(alternateName);
         return context -> new SkibidiToiletRenderer(context, model.apply(context.getPart(layer)),
                 toilet -> useAlternate.test(toilet) ? alternate : texture, scale);
-    }
-
-    /**
-     * A toilet whose model is built at {@code detail} times the usual size for a finer texture (like
-     * GManToiletModel), drawn so that it ends up {@code scale} times a normal toilet.
-     */
-    public static EntityRendererFactory<SkibidiToiletEntity> detailed(EntityModelLayer layer,
-                                                                     Function<ModelPart, SkibidiToiletModel> model,
-                                                                     String textureName, float scale, float detail) {
-        Identifier texture = texture(textureName);
-        return context -> new SkibidiToiletRenderer(context, model.apply(context.getPart(layer)), toilet -> texture,
-                scale / detail, 0.5f * scale);
     }
 
     private static Identifier texture(String name) {

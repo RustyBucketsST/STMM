@@ -9,8 +9,8 @@ import net.minecraft.client.model.ModelTransform;
  * change the model in Blockbench, then run the script again.
  */
 public final class SkibidiToiletBbModel {
-    public static final int TEXTURE_WIDTH = 128;
-    public static final int TEXTURE_HEIGHT = 128;
+    public static final int TEXTURE_WIDTH = 256;
+    public static final int TEXTURE_HEIGHT = 256;
 
     private SkibidiToiletBbModel() {
     }
@@ -18,8 +18,9 @@ public final class SkibidiToiletBbModel {
     /** Adds group "pedestal" from skibidi_toilet.bbmodel. */
     public static ModelPartData addPedestal(ModelPartData parent) {
         ModelPartData part = parent.addChild("pedestal", ModelPartBuilder.create()
-                .uv(78, 80).cuboid(-4, 23, -4, 8, 1, 12)  // foot
-                .uv(46, 80).cuboid(-3, 18, -3, 6, 5, 10),  // pedestal
+                .uv(0, 62).cuboid(-8, 22, -9, 16, 2, 24)  // foot
+                .uv(140, 0).cuboid(-6, 12, -6, 12, 10, 20)  // pedestal
+                .uv(152, 112).cuboid(-5, 12, -8, 10, 10, 2),  // pedestal_front
                 ModelTransform.NONE);
         return part;
     }
@@ -27,20 +28,26 @@ public final class SkibidiToiletBbModel {
     /** Adds group "toilet" from skibidi_toilet.bbmodel. */
     public static ModelPartData addToilet(ModelPartData parent) {
         ModelPartData part = parent.addChild("toilet", ModelPartBuilder.create()
-                .uv(0, 80).cuboid(-5, 15, -5, 10, 3, 13)  // bowl_base
-                .uv(90, 96).cuboid(-4, 15, -6, 8, 3, 1)  // bowl_base_front
-                .uv(80, 64).cuboid(-6, 12, -6, 12, 3, 12)  // bowl
-                .uv(68, 96).cuboid(-5, 12, -7, 10, 3, 1)  // bowl_front
-                .uv(24, 96).cuboid(-5, 11, -7, 10, 1, 2)  // seat_front
-                .uv(0, 96).cuboid(-6, 11, -5, 2, 1, 10)  // seat_right
-                .uv(0, 96).mirrored().cuboid(4, 11, -5, 2, 1, 10)  // seat_left
-                .uv(48, 96).mirrored(false).cuboid(-4, 11, 4, 8, 1, 2)  // seat_back
-                .uv(0, 108).cuboid(-6, -1, 4.5f, 12, 12, 1)  // lid
-                .uv(26, 108).cuboid(-5, -2, 4.5f, 10, 1, 1)  // lid_top
-                .uv(48, 108).cuboid(-3.5f, -3, 4.5f, 7, 1, 1)  // lid_crown
-                .uv(0, 64).cuboid(-7, 4, 6, 14, 11, 5)  // tank
-                .uv(38, 64).cuboid(-7.5f, 3, 5.5f, 15, 1, 6)  // tank_lid
-                .uv(122, 80).cuboid(-8, 5, 7, 1, 1, 2),  // handle
+                .uv(96, 32).cuboid(-10, 6, -10, 20, 6, 22)  // bowl_base
+                .uv(0, 126).cuboid(-8, 6, -12, 16, 6, 2)  // bowl_base_front
+                .uv(160, 126).cuboid(-5, 6, -13, 10, 6, 1)  // bowl_base_tip
+                .uv(0, 32).cuboid(-12, 0, -12, 24, 6, 24)  // bowl
+                .uv(36, 126).cuboid(-10, 0, -14, 20, 6, 2)  // bowl_front
+                .uv(182, 126).cuboid(-7, 0, -15, 14, 6, 1)  // bowl_tip
+                .uv(0, 134).cuboid(-10, -2, -14, 20, 2, 4)  // seat_front
+                .uv(118, 140).cuboid(-7, -2, -15, 14, 2, 1)  // seat_tip
+                .uv(72, 88).cuboid(-12, -2, -10, 4, 2, 20)  // seat_side_right
+                .uv(72, 88).mirrored().cuboid(8, -2, -10, 4, 2, 20)  // seat_side_left
+                .uv(48, 134).mirrored(false).cuboid(-8, -2, 8, 16, 2, 4)  // seat_back
+                .uv(196, 134).cuboid(-8, -4, 9, 3, 2, 3)  // hinge_right
+                .uv(196, 134).mirrored().cuboid(5, -4, 9, 3, 2, 3)  // hinge_left
+                .uv(80, 62).mirrored(false).cuboid(-12, -26, 9, 24, 24, 2)  // lid
+                .uv(208, 134).cuboid(-10, -28, 9, 20, 2, 2)  // lid_top
+                .uv(0, 140).cuboid(-7, -30, 9, 14, 2, 2)  // lid_crown
+                .uv(0, 0).cuboid(-14, -16, 12, 28, 22, 10)  // tank
+                .uv(0, 112).cuboid(-15, -18, 11, 30, 2, 12)  // tank_lid
+                .uv(88, 134).cuboid(-16, -14, 14, 2, 2, 4)  // handle
+                .uv(32, 140).cuboid(-17, -13.5f, 12, 1, 1, 3),  // handle_lever
                 ModelTransform.NONE);
         return part;
     }
@@ -48,23 +55,24 @@ public final class SkibidiToiletBbModel {
     /** Adds group "head" from skibidi_toilet.bbmodel. */
     public static ModelPartData addHead(ModelPartData parent) {
         ModelPartData part = parent.addChild("head", ModelPartBuilder.create()
-                .uv(0, 0).cuboid(-4, -8, -4, 8, 8, 8)  // head
-                .uv(108, 96).cuboid(-2, 0, -2, 4, 6, 4)  // neck
-                .uv(118, 80).cuboid(-5, -5, -1, 1, 2, 1)  // ear_right
-                .uv(118, 80).mirrored().cuboid(4, -5, -1, 1, 2, 1),  // ear_left
-                ModelTransform.pivot(0, 10, -0.5f));
+                .uv(76, 0).cuboid(-8, -16, -8, 16, 16, 16)  // head
+                .uv(156, 88).cuboid(-4, 0, -4, 8, 12, 8)  // neck
+                .uv(40, 140).cuboid(-1, -9, -9, 2, 3, 1)  // nose
+                .uv(100, 134).cuboid(-10, -10, -2, 2, 4, 2)  // ear_right
+                .uv(100, 134).mirrored().cuboid(8, -10, -2, 2, 4, 2),  // ear_left
+                ModelTransform.pivot(0, -4, -1));
         return part;
     }
 
     /** Adds group "headphones" from skibidi_toilet.bbmodel. */
     public static ModelPartData addHeadphones(ModelPartData parent) {
         ModelPartData part = parent.addChild("headphones", ModelPartBuilder.create()
-                .uv(64, 0).cuboid(-4.5f, -9.5f, -4.5f, 9, 4, 9)  // beanie
-                .uv(32, 0).cuboid(-5, -10.5f, -1, 10, 1, 2)  // band
-                .uv(40, 4).cuboid(-5.5f, -10, -0.5f, 1, 3, 1)  // band_side_right
-                .uv(40, 4).mirrored().cuboid(4.5f, -10, -0.5f, 1, 3, 1)  // band_side_left
-                .uv(32, 4).mirrored(false).cuboid(-5.5f, -7, -1.5f, 1, 4, 3)  // cup_right
-                .uv(32, 4).mirrored().cuboid(4.5f, -7, -1.5f, 1, 4, 3),  // cup_left
+                .uv(132, 62).cuboid(-9, -19, -9, 18, 8, 18)  // beanie
+                .uv(108, 134).cuboid(-10, -21, -2, 20, 2, 4)  // band
+                .uv(80, 126).cuboid(-11, -20, -1, 2, 6, 2)  // band_side_right
+                .uv(80, 126).mirrored().cuboid(9, -20, -1, 2, 6, 2)  // band_side_left
+                .uv(84, 112).mirrored(false).cuboid(-11, -14, -3, 2, 8, 6)  // cup_right
+                .uv(84, 112).mirrored().cuboid(9, -14, -3, 2, 8, 6),  // cup_left
                 ModelTransform.NONE);
         return part;
     }
@@ -72,10 +80,10 @@ public final class SkibidiToiletBbModel {
     /** Adds group "halo" from skibidi_toilet.bbmodel. */
     public static ModelPartData addHalo(ModelPartData parent) {
         ModelPartData part = parent.addChild("halo", ModelPartBuilder.create()
-                .uv(32, 0).cuboid(-4, -11, -4, 8, 1, 1)  // halo_front
-                .uv(32, 0).cuboid(-4, -11, 3, 8, 1, 1)  // halo_back
-                .uv(32, 4).cuboid(-4, -11, -3, 1, 1, 6)  // halo_right
-                .uv(32, 4).cuboid(3, -11, -3, 1, 1, 6),  // halo_left
+                .uv(46, 140).cuboid(-8, -22, -8, 16, 2, 2)  // halo_front
+                .uv(82, 140).cuboid(-8, -22, 6, 16, 2, 2)  // halo_back
+                .uv(100, 112).cuboid(-8, -22, -6, 2, 2, 12)  // halo_side_right
+                .uv(100, 112).mirrored().cuboid(6, -22, -6, 2, 2, 12),  // halo_side_left
                 ModelTransform.NONE);
         return part;
     }
@@ -83,8 +91,8 @@ public final class SkibidiToiletBbModel {
     /** Adds group "hat" from skibidi_toilet.bbmodel. */
     public static ModelPartData addHat(ModelPartData parent) {
         ModelPartData part = parent.addChild("hat", ModelPartBuilder.create()
-                .uv(64, 0).cuboid(-4.5f, -9, -4.5f, 9, 3, 9)  // crown
-                .uv(64, 12).cuboid(-4, -6.5f, -6.5f, 8, 1, 2),  // visor
+                .uv(0, 88).cuboid(-9, -18, -9, 18, 6, 18)  // crown
+                .uv(156, 134).cuboid(-8, -13, -13, 16, 2, 4),  // visor
                 ModelTransform.NONE);
         return part;
     }
@@ -92,14 +100,14 @@ public final class SkibidiToiletBbModel {
     /** Adds group "jetpack" from skibidi_toilet.bbmodel. */
     public static ModelPartData addJetpack(ModelPartData parent) {
         ModelPartData part = parent.addChild("jetpack", ModelPartBuilder.create()
-                .uv(32, 0).cuboid(-11, 5, 6.5f, 4, 10, 4)  // thruster_right
-                .uv(32, 0).mirrored().cuboid(7, 5, 6.5f, 4, 10, 4)  // thruster_left
-                .uv(48, 0).mirrored(false).cuboid(-10.5f, 15, 7, 3, 2, 3)  // nozzle_right
-                .uv(48, 0).mirrored().cuboid(7.5f, 15, 7, 3, 2, 3)  // nozzle_left
-                .uv(64, 0).mirrored(false).cuboid(-5, 12, -8, 10, 4, 1)  // armor_front
-                .uv(64, 5).cuboid(-7, 12, -5, 1, 3, 8)  // armor_right
-                .uv(64, 5).mirrored().cuboid(6, 12, -5, 1, 3, 8)  // armor_left
-                .uv(88, 0).mirrored(false).cuboid(-9, 4, 6, 2, 3, 4),  // flusher_cover
+                .uv(180, 32).cuboid(-22, -14, 13, 8, 20, 8)  // thruster_right
+                .uv(180, 32).mirrored().cuboid(14, -14, 13, 8, 20, 8)  // thruster_left
+                .uv(176, 112).mirrored(false).cuboid(-21, 6, 14, 6, 4, 6)  // nozzle_right
+                .uv(176, 112).mirrored().cuboid(15, 6, 14, 6, 4, 6)  // nozzle_left
+                .uv(200, 112).mirrored(false).cuboid(-10, 0, -16, 20, 8, 2)  // armor_front
+                .uv(120, 88).cuboid(-14, 0, -10, 2, 6, 16)  // armor_side_right
+                .uv(120, 88).mirrored().cuboid(12, 0, -10, 2, 6, 16)  // armor_side_left
+                .uv(128, 112).mirrored(false).cuboid(-18, -16, 12, 4, 6, 8),  // flusher_cover
                 ModelTransform.NONE);
         return part;
     }
