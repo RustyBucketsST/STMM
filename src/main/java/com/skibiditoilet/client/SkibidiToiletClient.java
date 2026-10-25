@@ -124,9 +124,9 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.FAST_ARMORED_TOILET, ScaledMobRenderer.factory(
                 FAST_ARMORED_TOILET_LAYER, FastArmoredToiletModel::new, "fast_armored_skibidi_toilet", FastArmoredToiletEntity.SCALE));
 
-        EntityRendererRegistry.register(ModEntities.CAMERAMAN, AllianceRenderer.factory(CAMERAMAN_LAYER, "cameraman", 1.0f));
-        EntityRendererRegistry.register(ModEntities.SPEAKERMAN, AllianceRenderer.factory(SPEAKERMAN_LAYER, "speakerman", 1.0f));
-        EntityRendererRegistry.register(ModEntities.TV_MAN, AllianceRenderer.factory(TV_MAN_LAYER, "tv_man", 1.0f));
+        EntityRendererRegistry.register(ModEntities.CAMERAMAN, AllianceRenderer.factory(CAMERAMAN_LAYER, "cameraman", 1.0f, AllianceModel.DETAILED));
+        EntityRendererRegistry.register(ModEntities.SPEAKERMAN, AllianceRenderer.factory(SPEAKERMAN_LAYER, "speakerman", 1.0f, AllianceModel.DETAILED));
+        EntityRendererRegistry.register(ModEntities.TV_MAN, AllianceRenderer.factory(TV_MAN_LAYER, "tv_man", 1.0f, AllianceModel.DETAILED));
         EntityRendererRegistry.register(ModEntities.TITAN_CAMERAMAN,
                 AllianceRenderer.titanFactory(TITAN_CAMERAMAN_LAYER, "titan_cameraman", TitanEntity.CAMERAMAN_SCALE));
         EntityRendererRegistry.register(ModEntities.TITAN_SPEAKERMAN,
@@ -134,12 +134,12 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.TITAN_TV_MAN,
                 AllianceRenderer.titanFactory(TITAN_TV_MAN_LAYER, "titan_tv_man", TitanEntity.TV_MAN_SCALE));
         EntityRendererRegistry.register(ModEntities.LARGE_CAMERAMAN,
-                AllianceRenderer.factory(LARGE_CAMERAMAN_LAYER, "large_cameraman", LargeAllianceEntity.SCALE));
+                AllianceRenderer.factory(LARGE_CAMERAMAN_LAYER, "large_cameraman", LargeAllianceEntity.SCALE, 1.0f));
         EntityRendererRegistry.register(ModEntities.LARGE_SPEAKERMAN,
-                AllianceRenderer.factory(LARGE_SPEAKERMAN_LAYER, "large_speakerman", LargeAllianceEntity.SCALE));
+                AllianceRenderer.factory(LARGE_SPEAKERMAN_LAYER, "large_speakerman", LargeAllianceEntity.SCALE, 1.0f));
         EntityRendererRegistry.register(ModEntities.CAMERA_STRIDER, ScaledMobRenderer.factory(
                 CAMERA_STRIDER_LAYER, CameraStriderModel::new, "camera_strider", CameraStriderEntity.SCALE));
-        EntityRendererRegistry.register(ModEntities.COMMANDER, AllianceRenderer.factory(CAMERAMAN_LAYER, "commander", 1.0f));
+        EntityRendererRegistry.register(ModEntities.COMMANDER, AllianceRenderer.factory(CAMERAMAN_LAYER, "commander", 1.0f, AllianceModel.DETAILED));
 
         EntityRendererRegistry.register(ModEntities.SEAT, EmptyEntityRenderer::new);
 

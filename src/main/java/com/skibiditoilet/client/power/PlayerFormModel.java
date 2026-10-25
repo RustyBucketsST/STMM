@@ -1,6 +1,6 @@
 package com.skibiditoilet.client.power;
 
-import com.skibiditoilet.client.TitanModel;
+import com.skibiditoilet.client.AllianceModel;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * A player in a form, drawn with the model of the Alliance mob the form is (a Large member's or a Titan's) and
  * animated like a player. Titan models are built at twice the detail; their pivots are converted around the biped
- * animation as in TitanModel.
+ * animation as in AllianceModel.
  */
 public class PlayerFormModel extends BipedEntityModel<AbstractClientPlayerEntity> {
     private final float detail;
@@ -31,11 +31,11 @@ public class PlayerFormModel extends BipedEntityModel<AbstractClientPlayerEntity
     public void setAngles(AbstractClientPlayerEntity player, float limbAngle, float limbDistance,
                           float animationProgress, float headYaw, float headPitch) {
         if (this.detail != 1.0f) {
-            TitanModel.toStandard(this.parts, this.detail);
+            AllianceModel.toStandard(this.parts, this.detail);
         }
         super.setAngles(player, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
         if (this.detail != 1.0f) {
-            TitanModel.fromStandard(this.parts, this.detail);
+            AllianceModel.fromStandard(this.parts, this.detail);
         }
     }
 }

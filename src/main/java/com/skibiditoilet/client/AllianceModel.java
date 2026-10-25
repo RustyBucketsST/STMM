@@ -7,7 +7,6 @@ import com.skibiditoilet.client.bbmodel.LargeTvManBbModel;
 import com.skibiditoilet.client.bbmodel.SpeakermanBbModel;
 import com.skibiditoilet.client.bbmodel.TvManBbModel;
 import com.skibiditoilet.entity.AllianceEntity;
-import net.minecraft.client.model.Dilation;
 import net.minecraft.client.model.ModelData;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelPartBuilder;
@@ -17,27 +16,51 @@ import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * A guy in a suit (the standard biped body, textured in rows 16-32 of the 64x64 skin) with a camera,
- * speaker or TV for a head, modelled in blockbench/cameraman.bbmodel etc. (textured in the rest of the skin).
+ * An Alliance member: a biped modelled in blockbench/*.bbmodel. Most are built at twice the detail of a normal mob
+ * ({@link #DETAILED}), so their textures are finer, and drawn at half the size. They keep the biped parts and
+ * animation: the biped code sets the standard pivots (head at y 0, legs at y 12, ...), so they're converted to the
+ * model's units, in which every pivot is scaled up and the feet still stand at y = 24.
  */
 public class AllianceModel extends BipedEntityModel<AllianceEntity> {
+    /** Model units per pixel of the detailed models. */
+    public static final float DETAILED = 2.0f;
+
+    private final float detail;
+    private final List<ModelPart> parts;
+
     public AllianceModel(ModelPart root) {
+        this(root, 1.0f);
+    }
+
+    public AllianceModel(ModelPart root, float detail) {
         super(root);
+        this.detail = detail;
+        this.parts = List.of(this.head, this.hat, this.body, this.rightArm, this.leftArm, this.rightLeg, this.leftLeg);
     }
 
+    /** Cameraman 1.0 (blockbench/cameraman.bbmodel, detailed): a white CCTV camera with a sun shield, a black suit. */
     public static TexturedModelData getCameramanModelData() {
-        return withHead(CameramanBbModel::addHead);   // a CCTV camera under a sun hood
+        return detailed(CameramanBbModel.TEXTURE_WIDTH, CameramanBbModel.TEXTURE_HEIGHT,
+                CameramanBbModel::addHead, CameramanBbModel::addBody, CameramanBbModel::addRightArm,
+                CameramanBbModel::addLeftArm, CameramanBbModel::addRightLeg, CameramanBbModel::addLeftLeg);
     }
 
+    /** Speakerman 1.0 (speakerman.bbmodel, detailed): a grey speaker cabinet with a big woofer, a black suit. */
     public static TexturedModelData getSpeakermanModelData() {
-        return withHead(SpeakermanBbModel::addHead);  // a speaker cabinet with a woofer and tweeter
+        return detailed(SpeakermanBbModel.TEXTURE_WIDTH, SpeakermanBbModel.TEXTURE_HEIGHT,
+                SpeakermanBbModel::addHead, SpeakermanBbModel::addBody, SpeakermanBbModel::addRightArm,
+                SpeakermanBbModel::addLeftArm, SpeakermanBbModel::addRightLeg, SpeakermanBbModel::addLeftLeg);
     }
 
+    /** TV Man 1.0 (tv_man.bbmodel, detailed): a hooded CRT TV full of static, a grey double-breasted overcoat. */
     public static TexturedModelData getTvManModelData() {
-        return withHead(TvManBbModel::addHead);       // a CRT TV, its screen set back inside the bezel
+        return detailed(TvManBbModel.TEXTURE_WIDTH, TvManBbModel.TEXTURE_HEIGHT,
+                TvManBbModel::addHead, TvManBbModel::addBody, TvManBbModel::addRightArm,
+                TvManBbModel::addLeftArm, TvManBbModel::addRightLeg, TvManBbModel::addLeftLeg);
     }
 
     /** The Large Cameraman: a long black coat and a black camcorder head (blockbench/large_cameraman.bbmodel). */
@@ -76,11 +99,48 @@ public class AllianceModel extends BipedEntityModel<AllianceEntity> {
         return TexturedModelData.of(modelData, textureWidth, textureHeight);
     }
 
-    private static TexturedModelData withHead(Consumer<ModelPartData> addHead) {
-        ModelData modelData = BipedEntityModel.getModelData(Dilation.NONE, 0.0f);
+    /** A whole body from a detailed .bbmodel whose groups are the biped parts at doubled pivots, feet on the ground. */
+    @SafeVarargs
+    protected static TexturedModelData detailed(int textureWidth, int textureHeight, Consumer<ModelPartData>... parts) {
+        ModelData modelData = new ModelData();
         ModelPartData root = modelData.getRoot();
-        addHead.accept(root);
-        root.addChild(EntityModelPartNames.HAT, ModelPartBuilder.create(), ModelTransform.NONE);
-        return TexturedModelData.of(modelData, 64, 64);
+        for (Consumer<ModelPartData> part : parts) {
+            part.accept(root);
+        }
+        root.addChild(EntityModelPartNames.HAT, ModelPartBuilder.create(), ModelTransform.pivot(0, -raise(DETAILED), 0));
+        return TexturedModelData.of(modelData, textureWidth, textureHeight);
+    }
+
+    /** How far up the detailed models' pivots move, so that their feet stay on the ground. */
+    private static float raise(float detail) {
+        return 24.0f * (detail - 1.0f);
+    }
+
+    @Override
+    public void setAngles(AllianceEntity entity, float limbAngle, float limbDistance,
+                          float animationProgress, float headYaw, float headPitch) {
+        if (this.detail == 1.0f) {
+            super.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+            return;
+        }
+        toStandard(this.parts, this.detail);
+        super.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+        fromStandard(this.parts, this.detail);
+    }
+
+    /** Moves the pivots of a model built at {@code detail} units per pixel to the standard biped units... */
+    public static void toStandard(List<ModelPart> parts, float detail) {
+        float raise = raise(detail);
+        for (ModelPart part : parts) {
+            part.setPivot(part.pivotX / detail, (part.pivotY + raise) / detail, part.pivotZ / detail);
+        }
+    }
+
+    /** ...and back, once the biped animation has set them. */
+    public static void fromStandard(List<ModelPart> parts, float detail) {
+        float raise = raise(detail);
+        for (ModelPart part : parts) {
+            part.setPivot(part.pivotX * detail, part.pivotY * detail - raise, part.pivotZ * detail);
+        }
     }
 }
