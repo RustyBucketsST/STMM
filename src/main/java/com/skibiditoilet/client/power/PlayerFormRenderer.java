@@ -80,8 +80,9 @@ public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlaye
                     GearRenderer.Fit.DETAILED, List.of()));
             for (Form form : new Form[]{Form.TITAN, Form.TITAN_2}) {
                 String texture = "titan_" + type.asString() + (form == Form.TITAN_2 ? "_2" : "");
-                put(form, type, new PlayerFormRenderer(context, titanLayer(type, form), texture,
-                        TitanModel.DETAIL, form.scale(type) / TitanModel.DETAIL, 28.0f, true, GearRenderer.Fit.titan(type),
+                float detail = form == Form.TITAN_2 ? TitanModel.DETAIL_2 : TitanModel.DETAIL;
+                put(form, type, new PlayerFormRenderer(context, titanLayer(type, form), texture, detail,
+                        form.scale(type) / detail, 14.0f * detail, true, GearRenderer.Fit.titan(type, detail),
                         titanShoulders(type, form)));
             }
         }
@@ -101,22 +102,26 @@ public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlaye
 
     /** The rotated parts of each Titan's body that are his shoulder gear (see the titan_*.bbmodel files). */
     private static List<String> titanShoulders(AllianceType type, Form form) {
-        List<String> claws = List.of("claw0_right_r", "claw0_left_r", "claw1_right_r", "claw1_left_r", "claw2_right_r",
-                "claw2_left_r");
         if (form == Form.TITAN_2) {
             return switch (type) {
-                case CAMERAMAN -> List.of("shoulder_cam_right_r", "shoulder_cam_left_r", "shoulder_cam_lens_right_r",
-                        "shoulder_cam_lens_left_r");
-                case SPEAKERMAN -> List.of("tower_right_r", "tower_left_r", "tower_plate_right_r", "tower_plate_left_r");
-                case TV_MAN -> Stream.concat(Stream.of("shoulder_tv_right_r", "shoulder_tv_left_r"),
-                        claws.stream()).toList();
+                case CAMERAMAN -> bothSides("shoulder_cam", "shoulder_cam_lens");
+                case SPEAKERMAN -> bothSides("tower", "tower_plate");
+                case TV_MAN -> bothSides("shoulder_tv", "claw0", "claw1", "claw2");
             };
         }
         return switch (type) {
-            case CAMERAMAN -> List.of("shoulder_cam_right_r", "shoulder_cam_left_r");
-            case SPEAKERMAN -> List.of("tower_right_r", "tower_left_r");
-            case TV_MAN -> claws;
+            case CAMERAMAN -> bothSides("shoulder_cam", "shoulder_cam_hood", "shoulder_cam_lens", "shoulder_cam_mount");
+            case SPEAKERMAN -> bothSides("tower", "tower_cap", "tower_driver_wide", "tower_driver_mid", "tower_driver_tall",
+                    "tower_driver_mid_wide", "tower_driver_mid_mid", "tower_driver_mid_tall", "tower_driver_low_wide",
+                    "tower_driver_low_mid", "tower_driver_low_tall");
+            case TV_MAN -> bothSides("claw0", "claw0_tip", "claw0_edge", "claw1", "claw1_tip", "claw1_edge", "claw2",
+                    "claw2_tip", "claw2_edge");
         };
+    }
+
+    /** The parts made from the rotated cubes NAME_right and NAME_left of each name. */
+    private static List<String> bothSides(String... names) {
+        return Stream.of(names).flatMap(name -> Stream.of(name + "_right_r", name + "_left_r")).toList();
     }
 
     /** The 1.0 Titans for the Titan form, the 2.0s for Titan 2.0. */

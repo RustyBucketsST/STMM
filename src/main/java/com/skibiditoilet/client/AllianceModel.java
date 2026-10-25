@@ -21,18 +21,25 @@ import java.util.function.Consumer;
 
 /**
  * An Alliance member: a biped modelled in blockbench/*.bbmodel at twice the detail of a normal mob ({@link #DETAILED}),
- * so its texture is finer, and drawn at half the size. They keep the biped parts and
- * animation: the biped code sets the standard pivots (head at y 0, legs at y 12, ...), so they're converted to the
- * model's units, in which every pivot is scaled up and the feet still stand at y = 24.
+ * so its texture is finer, and drawn at half the size (the 1.0 Titans at four times, see TitanModel). They keep the
+ * biped parts and animation: the biped code sets the standard pivots (head at y 0, legs at y 12, ...), so they're
+ * converted to the model's units, in which every pivot is scaled up and the feet still stand at y = 24.
  */
 public class AllianceModel extends BipedEntityModel<AllianceEntity> {
     /** Model units per pixel of the detailed models. */
     public static final float DETAILED = 2.0f;
 
+    private final float detail;
     private final List<ModelPart> parts;
 
     public AllianceModel(ModelPart root) {
+        this(root, DETAILED);
+    }
+
+    /** A model built at {@code detail} units per pixel. */
+    protected AllianceModel(ModelPart root, float detail) {
         super(root);
+        this.detail = detail;
         this.parts = List.of(this.head, this.hat, this.body, this.rightArm, this.leftArm, this.rightLeg, this.leftLeg);
     }
 
@@ -87,12 +94,19 @@ public class AllianceModel extends BipedEntityModel<AllianceEntity> {
     /** A whole body from a detailed .bbmodel whose groups are the biped parts at doubled pivots, feet on the ground. */
     @SafeVarargs
     protected static TexturedModelData detailed(int textureWidth, int textureHeight, Consumer<ModelPartData>... parts) {
+        return detailedAt(DETAILED, textureWidth, textureHeight, parts);
+    }
+
+    /** The same for a .bbmodel built at {@code detail} units per pixel, its pivots scaled up as much. */
+    @SafeVarargs
+    protected static TexturedModelData detailedAt(float detail, int textureWidth, int textureHeight,
+                                                  Consumer<ModelPartData>... parts) {
         ModelData modelData = new ModelData();
         ModelPartData root = modelData.getRoot();
         for (Consumer<ModelPartData> part : parts) {
             part.accept(root);
         }
-        root.addChild(EntityModelPartNames.HAT, ModelPartBuilder.create(), ModelTransform.pivot(0, -raise(DETAILED), 0));
+        root.addChild(EntityModelPartNames.HAT, ModelPartBuilder.create(), ModelTransform.pivot(0, -raise(detail), 0));
         return TexturedModelData.of(modelData, textureWidth, textureHeight);
     }
 
@@ -104,9 +118,9 @@ public class AllianceModel extends BipedEntityModel<AllianceEntity> {
     @Override
     public void setAngles(AllianceEntity entity, float limbAngle, float limbDistance,
                           float animationProgress, float headYaw, float headPitch) {
-        toStandard(this.parts, DETAILED);
+        toStandard(this.parts, this.detail);
         super.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
-        fromStandard(this.parts, DETAILED);
+        fromStandard(this.parts, this.detail);
     }
 
     /** Moves the pivots of a model built at {@code detail} units per pixel to the standard biped units... */

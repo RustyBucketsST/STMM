@@ -1504,7 +1504,6 @@ def bb_boxes(model):
 
 TITAN_COAT = (44, 44, 48)
 TITAN_COAT_DARK = (32, 32, 36)
-TITAN_SHIRT = (26, 26, 30)
 
 
 def camo(r, base, spots, noise=3):
@@ -1641,105 +1640,550 @@ def black_camera_lens(x, y, w, h):
     px[x + w // 2 - 1, y + h // 2 - 1] = (150, 190, 240, 255)
 
 
-# ---- Titan Cameraman 1.0
+# ---- The 1.0 Titans at four model units per pixel (author_titan4: titan_cameraman.bbmodel etc.)
+
+def lighter(c, n):
+    return tuple(max(0, min(255, v + n)) for v in c[:3])
+
+
+def cloth(r, top, bottom, noise=3, weave=6):
+    """Woven cloth: a top-to-bottom gradient with a faint diagonal weave."""
+    x, y, w, h = r
+    gradient(r, top, bottom, noise)
+    for i in range(w):
+        for k in range(h):
+            if (i + 2 * k) % weave == 0:
+                p = px[x + i, y + k]
+                px[x + i, y + k] = (max(0, p[0] - 4), max(0, p[1] - 4), max(0, p[2] - 4), 255)
+
+
+def folds(r, color, count, length=0.5):
+    """A few soft vertical creases hanging down a face."""
+    x, y, w, h = r
+    for _ in range(count):
+        i = random.randrange(1, max(2, w - 1))
+        k0 = random.randrange(0, max(1, h // 2))
+        for k in range(k0, min(h, k0 + int(h * length))):
+            px[x + i, y + k] = shade(color, 2)
+
+
+def stitch(x, y, n, color, dx=1, dy=0):
+    """A dashed seam of n pixels."""
+    for j in range(0, n, 2):
+        px[x + j * dx, y + j * dy] = shade(color, 2)
+
+
+def frame(r, color, inset=0):
+    """A one-pixel outline round a face (or inset into it)."""
+    x, y, w, h = r
+    rect(x + inset, y + inset, w - 2 * inset, 1, color, 2)
+    rect(x + inset, y + h - 1 - inset, w - 2 * inset, 1, color, 2)
+    rect(x + inset, y + inset, 1, h - 2 * inset, color, 2)
+    rect(x + w - 1 - inset, y + inset, 1, h - 2 * inset, color, 2)
+
+
+def bolt(x, y, color=(150, 154, 162)):
+    px[x, y] = color + (255,)
+    px[x + 1, y + 1] = lighter(color, -60) + (255,)
+
+
+def round_face(x, y, w, h, color_at):
+    """Calls color_at(r, i, k) for every pixel of a w x h face, r measured from the centre in pixels; None skips."""
+    for i in range(w):
+        for k in range(h):
+            c = color_at(math.hypot(i - (w - 1) / 2, k - (h - 1) / 2), i, k)
+            if c:
+                px[x + i, y + k] = shade(c, 2)
+
+
+def disc_front(b, name, color_at):
+    """Draws a round thing across the front faces of a disc (author_titan4.disc: `name`_wide, _mid and _tall) as
+    one, color_at(r) giving each pixel's colour by its distance from the middle; the edges get the outermost one."""
+    parts = [b[f"{name}_{p}"] for p in ("wide", "mid", "tall")]
+    n = parts[0][2]                                          # the wide box's width is the disc's diameter
+    edge = color_at(n / 2)
+    for u, v, w, h, d in parts:
+        f = faces(u, v, w, h, d)
+        if edge:
+            for key in ("right", "left", "top", "bottom", "back"):
+                rect(*f[key], edge, 2)
+        x, y = f["front"][:2]
+        for i in range(w):
+            for k in range(h):
+                c = color_at(math.hypot(i - (w - 1) / 2, k - (h - 1) / 2))
+                if c:
+                    px[x + i, y + k] = shade(c, 2)
+
+
+def titan4_gloves(b, glove):
+    """Big gloves: a palm with a seam and a strap, a thumb, and four fingers with knuckles and joints."""
+    dark, light = lighter(glove, -18), lighter(glove, 14)
+    f = faces(*b["palm_right"])
+    for r in sides(f):
+        cloth(r, light, glove, 3, 5)
+    rect(*f["top"], dark, 2)
+    rect(*f["bottom"], glove, 2)
+    x, y, w, h = f["right"]                                   # the back of the hand
+    rect(x, y + 3, w, 2, dark, 2)                            # wrist strap
+    bolt(x + w // 2, y + 3, (120, 122, 110))
+    for i in range(2, w - 1, 4):
+        rect(x + i, y + h - 3, 2, 2, light, 2)               # knuckles
+    x, y, w, h = f["left"]                                    # the palm
+    rect(x + 2, y + 2, w - 4, h - 4, lighter(glove, -8), 2)
+    stitch(x + 2, y + 2, w - 4, dark)
+    f = faces(*b["thumb_right"])
+    for r in f.values():
+        cloth(r, light, glove, 3, 5)
+    x, y, w, h = f["front"]
+    rect(x, y + h // 2, w, 1, dark, 1)                       # joint
+    for i in range(4):
+        f = faces(*b[f"finger{i}_right"])
+        for r in f.values():
+            cloth(r, light, glove, 3, 5)
+        for key in ("right", "left", "front", "back"):
+            x, y, w, h = f[key]
+            rect(x, y + h // 3, w, 1, dark, 1)               # finger joints
+            rect(x, y + 2 * h // 3, w, 1, dark, 1)
+        rect(*f["bottom"], lighter(glove, -10), 2)
+
+
+def titan4_legs(b, trouser, shoe, boots=False, boot=(24, 24, 28)):
+    """Trousers with a crease and a seam, shoes with laces, a shiny toe cap, sole and heel; or tall boots."""
+    dark = lighter(trouser, -12)
+    for name in ("thigh_right", "shin_right"):
+        f = faces(*b[name])
+        for r in sides(f):
+            cloth(r, trouser, lighter(trouser, -6), 3, 7)
+        x, y, w, h = f["front"]
+        rect(x + w // 2, y, 1, h, dark, 1)                   # crease
+        for key in ("right", "left"):
+            x, y, w, h = f[key]
+            stitch(x + w // 2, y, h, dark, 0, 1)             # side seam
+        rect(*f["top"], trouser, 2)
+    x, y, w, h = faces(*b["shin_right"])["front"]
+    for k in (2, 5):
+        rect(x + 2, y + k, w - 4, 1, dark, 1)                # where the trousers bunch at the knee
+    if boots:
+        f = faces(*b["boot_right"])
+        for r in sides(f):
+            gradient(r, lighter(boot, 10), boot, 3)
+            x, y, w, h = r
+            rect(x, y + h - 3, w, 1, lighter(boot, -10), 1)
+            for k in range(4, h - 5, 4):                     # buckled straps up the shaft
+                rect(x, y + k, w, 1, lighter(boot, -12), 1)
+        x, y, w, h = f["front"]
+        for k in range(3, h - 4, 3):
+            rect(x + w // 2 - 2, y + k, 4, 1, (120, 120, 128), 1)   # laces
+        f = faces(*b["boot_top_right"])
+        for r in f.values():
+            rect(*r, lighter(boot, 14), 2)
+    f = faces(*b["shoe_right"])
+    for r in sides(f):
+        gradient(r, lighter(shoe, 14), shoe, 2)
+    x, y, w, h = f["top"]
+    rect(x, y, w, h, lighter(shoe, 8), 2)
+    for k in range(h - 12, h - 2, 2):
+        rect(x + w // 2 - 3, y + k, 6, 1, (70, 70, 76), 1)   # laces
+    f = faces(*b["toe_right"])
+    for r in f.values():
+        rect(*r, lighter(shoe, 10), 2)
+    x, y, w, h = f["top"]
+    rect(x + 2, y, w - 4, 1, lighter(shoe, 40), 1)           # polish on the toe cap
+    for name in ("sole_right", "heel_right"):
+        f = faces(*b[name])
+        for r in f.values():
+            rect(*r, (12, 12, 14), 1)
+        for r in sides(f):
+            rect(r[0], r[1], r[2], 1, (40, 40, 44), 1)       # the welt
+
+
+def titan4_coat(b, coat, shirt, sleeve=None, cuff=None):
+    """An open trench coat over a shirt: the shirt with its buttons shows between the coat panels; panels with
+    buttonholes and stitched edges, lapels, a standing collar, a long skirt with a back vent and pocket flaps,
+    shoulders with seams, sleeves (a colour, or a function drawing a face) and turned-back cuffs."""
+    dark, light = lighter(coat, -10), lighter(coat, 10)
+    for name in ("chest", "chest_low", "waist"):
+        f = faces(*b[name])
+        for r in sides(f):
+            cloth(r, light, coat, 3)
+        rect(*f["top"], light, 3)
+        x, y, w, h = f["front"]
+        cloth(f["front"], lighter(shirt, 6), shirt, 2, 5)    # the shirt between the panels
+        for k in range(3, h, 6):
+            rect(x + w // 2, y + k, 1, 1, lighter(shirt, 40), 0)   # buttons
+        folds(f["front"], lighter(shirt, -6), 3)
+        x, y, w, h = f["back"]
+        rect(x + w // 2, y, 1, h, dark, 1)                   # centre back seam
+    f = faces(*b["belt"])
+    for r in f.values():
+        rect(*r, (34, 26, 22), 2)
+    for r in sides(f):
+        x, y, w, h = r
+        stitch(x, y + 1, w, (58, 46, 38))
+        stitch(x + 1, y + h - 2, w - 1, (58, 46, 38))
+    f = faces(*b["buckle"])
+    box(*b["buckle"], (176, 180, 188), 4)
+    x, y, w, h = f["front"]
+    rect(x + 1, y + 1, w - 2, h - 2, (34, 26, 22), 1)        # the strap through the frame
+    rect(x + w // 2, y + 1, 1, h - 2, (200, 204, 212), 1)    # the prong
+    f = faces(*b["coat_panel_right"])
+    for r in f.values():
+        cloth(r, light, coat, 3)
+    x, y, w, h = f["front"]
+    stitch(x + 1, y + 1, h - 2, dark, 0, 1)
+    stitch(x + w - 2, y + 1, h - 2, dark, 0, 1)
+    for k in range(20, h - 4, 7):
+        rect(x + w - 4, y + k, 2, 1, lighter(coat, -18), 0)  # buttonholes
+    folds(f["front"], dark, 2)
+    f = faces(*b["lapel_right"])
+    for r in f.values():
+        rect(*r, lighter(coat, 16), 2)
+    x, y, w, h = f["front"]
+    for k in range(h):
+        px[x + min(w - 1, k // 6), y + k] = shade(lighter(coat, 30), 1)   # the edge catching the light
+    for name in ("collar", "collar_side_right"):
+        f = faces(*b[name])
+        for r in f.values():
+            cloth(r, lighter(coat, 14), light, 2)
+        for r in sides(f):
+            rect(r[0], r[1] + 2, r[2], 1, dark, 1)           # where the collar folds over
+    for name in ("coat_back", "coat_side_right", "coat_front_right"):
+        f = faces(*b[name])
+        for r in sides(f):
+            cloth(r, coat, lighter(coat, -6), 3)
+            x, y, w, h = r
+            rect(x, y + h - 2, w, 2, dark, 1)                # hem
+            stitch(x, y + h - 4, w, dark)
+            folds(r, dark, max(1, w // 6), 0.8)
+        rect(*f["bottom"], dark, 2)
+    x, y, w, h = faces(*b["coat_back"])["back"]
+    rect(x + w // 2, y + h // 3, 1, h - h // 3, lighter(coat, -20), 0)   # back vent
+    x, y, w, h = faces(*b["coat_front_right"])["front"]
+    stitch(x + w - 2, y, h - 3, dark, 0, 1)
+    f = faces(*b["pocket_right"])
+    for r in f.values():
+        rect(*r, light, 2)
+    x, y, w, h = f["front"]
+    rect(x, y + h - 1, w, 1, dark, 1)
+    f = faces(*b["shoulder_right"])
+    for r in sides(f):
+        cloth(r, lighter(coat, 14), light, 3)
+        x, y, w, h = r
+        rect(x, y + h - 2, w, 1, dark, 1)                    # shoulder seam
+    rect(*f["top"], lighter(coat, 16), 3)
+    x, y, w, h = f["top"]
+    rect(x + 2, y + h // 2, w - 4, 2, lighter(coat, 24), 2)  # epaulette
+    bolt(x + w - 4, y + h // 2, (90, 90, 96))
+    f = faces(*b["sleeve_right"])
+    for r in sides(f):
+        if sleeve:
+            sleeve(r)
+        else:
+            cloth(r, light, coat, 3)
+        x, y, w, h = r
+        rect(x + 2, y + h // 2, w - 4, 1, dark, 1)           # creases at the elbow
+        rect(x + 4, y + h // 2 + 3, w - 8, 1, dark, 1)
+    rect(*f["top"], light, 2)
+    f = faces(*b["cuff_right"])
+    for r in sides(f):
+        cloth(r, cuff or lighter(coat, 12), cuff or coat, 2)
+        x, y, w, h = r
+        rect(x, y, w, 1, lighter(coat, 24), 1)
+    x, y, w, h = f["right"]
+    bolt(x + w // 2 - 3, y + h // 2, (60, 60, 66))
+    bolt(x + w // 2 + 2, y + h // 2, (60, 60, 66))
+    rect(*f["bottom"], dark, 2)
+
+
+def titan4_shirt(b, shirt_fn, shirt, cuff_button=(236, 236, 230)):
+    """A shirt and no coat: the shirt all round the body (drawn by shirt_fn on each face), a standing collar with
+    points, a button placket, sleeves with elbow creases and buttoned cuffs."""
+    dark = lighter(shirt, -40)
+    for name in ("chest", "chest_low", "waist", "shoulder_right", "sleeve_right"):
+        f = faces(*b[name])
+        for r in sides(f):
+            shirt_fn(r)
+        rect(*f["top"], lighter(shirt, 10), 3)
+    for name in ("chest", "waist"):
+        f = faces(*b[name])
+        folds(f["front"], dark, 4)
+        x, y, w, h = f["back"]
+        rect(x + 2, y + 4, w - 4, 1, dark, 1)               # yoke
+        folds(f["back"], dark, 3)
+    f = faces(*b["shoulder_right"])
+    for r in sides(f):
+        rect(r[0], r[1] + r[3] - 2, r[2], 1, dark, 1)       # shoulder seam
+    f = faces(*b["sleeve_right"])
+    for r in sides(f):
+        x, y, w, h = r
+        rect(x + 2, y + h // 2, w - 4, 1, dark, 1)
+        rect(x + 4, y + h // 2 + 3, w - 8, 1, dark, 1)
+    for name in ("shirt_collar", "collar_point_right"):
+        f = faces(*b[name])
+        for r in f.values():
+            shirt_fn(r)
+        for r in sides(f):
+            rect(r[0], r[1] + r[3] - 1, r[2], 1, dark, 1)
+    f = faces(*b["placket"])
+    for r in f.values():
+        shirt_fn(r)
+    x, y, w, h = f["front"]
+    for k in range(3, h - 2, 6):
+        rect(x + 1, y + k, 2, 2, cuff_button, 1)             # buttons
+    rect(x, y, 1, h, dark, 1)
+    f = faces(*b["belt"])
+    for r in f.values():
+        rect(*r, (20, 20, 22), 2)
+    for r in sides(f):
+        stitch(r[0], r[1] + 1, r[2], (46, 46, 50))
+        stitch(r[0] + 1, r[1] + r[3] - 2, r[2] - 1, (46, 46, 50))
+    f = faces(*b["buckle"])
+    box(*b["buckle"], (176, 180, 188), 4)
+    x, y, w, h = f["front"]
+    rect(x + 1, y + 1, w - 2, h - 2, (20, 20, 22), 1)
+    rect(x + w // 2, y + 1, 1, h - 2, (200, 204, 212), 1)
+    f = faces(*b["cuff_right"])
+    for r in sides(f):
+        shirt_fn(r)
+        rect(r[0], r[1], r[2], 1, dark, 1)
+    x, y, w, h = f["right"]
+    rect(x + w // 2 - 1, y + h // 2, 2, 2, cuff_button, 1)   # cuff buttons
+    rect(x + w // 2 + 3, y + h // 2, 2, 2, cuff_button, 1)
+
+
+# ---- Titan Cameraman 1.0 at four units per pixel
+
+TC_COAT = (40, 40, 44)
+TC_SHIRT = (28, 28, 32)
+TC_GLOVE = (76, 78, 64)
+TC_BLUE, TC_BLUE_HI = (60, 190, 255), (200, 248, 255)
+CCTV_GREY, CCTV_GREY_DARK = (200, 204, 211), (156, 161, 169)
+
 
 def titan_cameraman_lights(b):
-    """What glows on the Titan Cameraman: his core, the LCD flip screens, the turbine exhausts, a recording light."""
-    titan_core_glow(b, (40, 170, 255), (190, 245, 255), (60, 190, 255))
-    x, y, w, h = faces(*b["flip_screen_right"])["front"]
-    for k in range(1, h - 1):
-        rect(x + 1, y + k, w - 2, 1, (130 - 8 * k, 160 - 8 * k, 180 - 6 * k), 0)
-    px[x + 1, y + 1] = (200, 220, 235, 255)
-    x, y, w, h = faces(*b["turbine_right"])["bottom"]
-    radial(x, y, w, h, 0, 9, lambda r: (90, 210, 255) if r < 1.4 else (40, 140, 240))
-    x, y, w, h = faces(*b["housing"])["front"]
-    px[x + w - 1, y] = (255, 40, 30, 255)                   # red recording light
-    x, y, w, h = faces(*b["shoulder_cam_right"])["front"]
-    px[x + w - 2, y + 1] = (255, 40, 30, 255)
+    """What glows on the Titan Cameraman: his core, the LCD flip screens, the turbine exhausts, recording lights."""
+    def core(r):
+        if r < 1.6:
+            return TC_BLUE_HI
+        if r < 4:
+            return (130, 225, 255)
+        return TC_BLUE
+    disc_front(b, "core_glass", core)
+    x, y, w, h = faces(*b["core_center"])["front"]
+    rect(x, y, w, h, TC_BLUE_HI, 3)
+    for key in ("right", "left", "top", "bottom"):
+        rect(*faces(*b["core_center"])[key], TC_BLUE, 2)
+    x, y, w, h = faces(*b["flip_screen_face_right"])["front"]
+    for k in range(h):
+        for i in range(w):
+            v = 150 - 6 * k
+            px[x + i, y + k] = ((v - 30) if (i % 3 == 0 or k % 3 == 0) else v - 10, v + 10, v + 30, 255)
+    px[x + 1, y + 1] = (220, 236, 250, 255)
+    x, y, w, h = faces(*b["turbine_nozzle_right"])["bottom"]
+    round_face(x, y, w, h, lambda r, i, k: (150, 230, 255) if r < 1.6 else (70, 170, 250) if r < 3.4 else None)
+    x, y, w, h = faces(*b["front_frame"])["front"]
+    rect(x + w - 3, y + 1, 2, 2, (255, 40, 30), 0)          # red recording light
+    x, y, w, h = faces(*b["shoulder_cam_lens_right"])["front"]
+    rect(x + w - 2, y, 2, 2, (255, 40, 30), 0)
+    x, y, w, h = faces(*b["side_cam_right"])["front"]
+    px[x + w - 2, y + 1] = (255, 60, 40, 255)
 
 
 def titan_cameraman():
     b = bb_boxes("titan_cameraman")
-    new_image(256, 30, 128)
+    new_image(512, 30)
 
-    # Head: a CCTV camera like the regular Cameramen's, light grey with a dark front plate, under a sun hood,
-    # with a 35mm camera on each side and two LCD flip screens on top
-    box(*b["mount"], (56, 58, 64), 3)
+    # Head: a light grey CCTV housing with ribs down its sides, a dark front frame round a big silver-ringed lens,
+    # a sun hood with a raised ridge, 35mm cameras on arms at the sides, two LCD flip screens on hinges and two
+    # antennas on top, a vented back cap and a cable down to the neck
+    box(*b["neck"], (46, 48, 54), 3)
+    x, y, w, h = faces(*b["neck"])["front"]
+    for k in range(1, h, 2):
+        rect(x, y + k, w, 1, (36, 38, 42), 1)               # a ribbed hose for a neck
+    f = faces(*b["neck_plate"])
+    box(*b["neck_plate"], (70, 72, 78), 3)
+    x, y, w, h = f["top"]
+    for i, k in ((1, 1), (w - 2, 1), (1, h - 2), (w - 2, h - 2)):
+        bolt(x + i - 1, y + k - 1)
     f = faces(*b["housing"])
-    rect(*f["top"], (196, 200, 207), 3)
-    rect(*f["bottom"], (128, 132, 140), 3)
     for r in sides(f):
-        gradient(r, (190, 194, 201), (150, 155, 163), 3)
+        gradient(r, CCTV_GREY, CCTV_GREY_DARK, 2)
+    rect(*f["top"], lighter(CCTV_GREY, 8), 2)
+    rect(*f["bottom"], (120, 124, 132), 2)
     for key in ("right", "left"):
         x, y, w, h = f[key]
-        rect(x, y + 2, w, 1, (140, 145, 152), 2)            # seam
+        rect(x + 2, y + 3, w - 4, 1, (172, 176, 184), 1)     # seams
+        rect(x + 2, y + h - 4, w - 4, 1, (172, 176, 184), 1)
+        for i in range(4, 12, 2):
+            rect(x + i, y + 6, 1, 6, (120, 124, 132), 0)     # vents toward the back
+        rect(x + w - 10, y + 6, 6, 4, (226, 196, 60), 2)     # a yellow warning label
+        rect(x + w - 8, y + 7, 2, 2, (30, 30, 30), 0)
+    f = faces(*b["housing_rib_right"])
+    for r in f.values():
+        rect(*r, (180, 184, 192), 2)
+    f = faces(*b["front_frame"])
+    for r in f.values():
+        rect(*r, (44, 46, 52), 2)
+    frame(f["front"], (70, 72, 80))
     x, y, w, h = f["front"]
-    rect(x, y, w, h, CAMERA_DARK, 3)
-    x, y, w, h = f["back"]
-    rect(x + 1, y + 1, w - 2, h - 2, (160, 165, 172), 2)    # back cover
+    for i, k in ((1, 1), (w - 3, 1), (1, h - 3), (w - 3, h - 3)):
+        bolt(x + i, y + k, (120, 124, 132))
+    disc_front(b, "lens", lambda r: (34, 34, 40) if r < 5.4 else (190, 196, 206) if r < 6.6 else (130, 136, 146))
+    disc_front(b, "lens_glass", lambda r: (60, 70, 90) if r > 4.2 else GLASS if r > 2.2 else (14, 24, 52))
+    x, y, w, h = faces(*b["lens_glass_mid"])["front"]
+    rect(x + 2, y + 1, 2, 1, (170, 200, 240), 0)            # glint
+    f = faces(*b["lens_core"])
+    box(*b["lens_core"], (24, 26, 32), 2)
+    x, y, w, h = f["front"]
+    rect(x + 1, y + 1, 2, 2, (40, 70, 130), 1)
     f = faces(*b["hood"])
-    rect(*f["top"], (206, 210, 216), 3)
-    x, y, w, h = f["top"]
-    rect(x + w // 2 - 1, y, 2, h, (214, 218, 224), 2)       # raised ridge down the middle
-    rect(*f["bottom"], (70, 72, 78), 3)                     # shadow under the hood
+    rect(*f["top"], lighter(CCTV_GREY, 14), 2)
+    rect(*f["bottom"], (70, 72, 78), 2)                       # shadow under the hood
     for r in sides(f):
-        rect(*r, (164, 168, 176), 2)
-    box(*b["hood_side_right"], (164, 168, 176), 3)
-    box(*b["lens"], (34, 34, 38), 3)
-    black_camera_lens(*faces(*b["lens"])["front"])
-    box(*b["cable"], (24, 24, 28), 2)
-    u, v, w, h, d = b["antenna"]
-    box(u, v, w, h, d, (52, 52, 56), 3)
-    rect(*faces(u, v, w, h, d)["top"], (160, 160, 166), 0)
+        gradient(r, lighter(CCTV_GREY, 4), CCTV_GREY_DARK, 2)
+    x, y, w, h = f["front"]
+    rect(x, y + h - 1, w, 1, (140, 144, 152), 1)
+    box(*b["hood_side_right"], CCTV_GREY_DARK, 3)
+    box(*b["hood_ridge"], lighter(CCTV_GREY, 20), 2)
+    box(*b["side_cam_arm_right"], (60, 62, 68), 3)
     f = faces(*b["side_cam_right"])
-    box(*b["side_cam_right"], (58, 60, 64), 3)
-    rect(*f["top"], (150, 152, 158), 3)                     # silver top plate of a 35mm camera
+    for r in sides(f):
+        gradient(r, (64, 66, 72), (44, 46, 50), 2)
+    x, y, w, h = f["right"]
+    rect(x + 3, y + 3, w - 6, h - 6, (52, 54, 58), 2)       # the 35mm camera's leatherette panel
+    for k in range(4, h - 3, 2):
+        rect(x + 3, y + k, w - 6, 1, (46, 48, 52), 0)
+    f = faces(*b["side_cam_top_right"])
+    for r in f.values():
+        rect(*r, (176, 180, 188), 3)                         # silver top plate
+    box(*b["side_cam_dial_right"], (200, 204, 212), 3)
+    f = faces(*b["side_cam_lens_right"])
     box(*b["side_cam_lens_right"], (26, 26, 30), 2)
-    black_camera_lens(*faces(*b["side_cam_lens_right"])["front"])
-    box(*b["flip_screen_right"], (44, 44, 48), 3)
-    rect(*faces(*b["flip_screen_right"])["front"], (40, 40, 44), 2)
+    for r in sides(f):
+        rect(r[0], r[1] + 2, r[2], 1, (80, 82, 88), 0)       # focus ring
+    black_camera_lens(*f["front"])
+    box(*b["screen_hinge_right"], (60, 62, 68), 3)
+    f = faces(*b["flip_screen_right"])
+    for r in f.values():
+        rect(*r, (34, 34, 38), 2)
+    frame(f["front"], (60, 60, 66))
+    f = faces(*b["flip_screen_face_right"])
+    box(*b["flip_screen_face_right"], (40, 40, 44), 2)
+    titan_lcd = (92, 118, 138)
+    x, y, w, h = f["front"]
+    for k in range(h):
+        for i in range(w):
+            c = lighter(titan_lcd, -4 * k)
+            px[x + i, y + k] = shade(lighter(c, -26) if (i % 3 == 0 or k % 3 == 0) else c, 2)
+    box(*b["antenna_base"], (60, 62, 68), 3)
+    for name in ("antenna", "antenna_side"):
+        f = faces(*b[name])
+        box(*b[name], (36, 36, 40), 3)
+        for r in sides(f):
+            for k in range(3, r[3], 5):
+                rect(r[0], r[1] + k, r[2], 1, (60, 62, 68), 0)   # segments
+    box(*b["antenna_tip"], (200, 204, 212), 3)
+    f = faces(*b["back_cap"])
+    for r in f.values():
+        rect(*r, (176, 180, 188), 2)
+    x, y, w, h = f["back"]
+    for k in range(2, h - 2, 2):
+        rect(x + 3, y + k, w - 6, 1, (136, 140, 148), 0)    # vents
+    for name in ("cable", "cable_drop"):
+        f = faces(*b[name])
+        box(*b[name], (24, 24, 28), 2)
+        for r in sides(f):
+            for k in range(1, r[3], 3):
+                rect(r[0], r[1] + k, r[2], 1, (40, 40, 44), 0)
 
-    # Body: a black trench coat over a dark shirt, the blue core, a riot shield and jetpack on his back,
-    # black camera heads on his shoulders
-    titan_coat(b, TITAN_COAT, TITAN_COAT_DARK, TITAN_SHIRT)
-    titan_belt(b)
-    titan_core_ring(b)
+    # Body: a black trench coat over a dark shirt, worn mottled sleeves, olive gloves
+    titan4_coat(b, TC_COAT, TC_SHIRT,
+                sleeve=lambda r: camo(r, (46, 46, 46), [(36, 38, 36), (64, 62, 56), (40, 42, 46)]))
+    titan4_gloves(b, TC_GLOVE)
+    titan4_legs(b, (34, 34, 38), (20, 20, 22))
+
+    # The core on his left chest: a ribbed steel ring round blue glass, lit by the glow texture
+    disc_front(b, "core_ring", lambda r: (150, 156, 168) if r > 7.4 else (96, 102, 112) if r > 6.4 else (60, 64, 72))
+    x, y, w, h = faces(*b["core_ring_mid"])["front"]
+    for i, k in ((0, 0), (w - 2, 0), (0, h - 2), (w - 2, h - 2)):
+        bolt(x + i, y + k)
+    disc_front(b, "core_glass", lambda r: (60, 160, 230) if r < 5 else (40, 110, 180))
+    box(*b["core_center"], (150, 230, 255), 2)
+
+    # The riot shield on his back, the jetpack over it, its turbines
     f = faces(*b["shield"])
-    box(*b["shield"], (62, 64, 70), 3)
+    for r in f.values():
+        rect(*r, (60, 62, 68), 3)
     x, y, w, h = f["back"]
-    rect(x, y, w, h, (90, 92, 98), 2)                       # rim
-    rect(x + 1, y + 1, w - 2, h - 2, (64, 66, 72), 3)
-    rect(x + 3, y + 3, w - 6, 6, (40, 44, 52), 2)           # viewing window
-    rect(x + 4, y + 4, 3, 1, (90, 100, 116), 0)
+    rect(x, y, w, h, (70, 72, 78), 3)
+    frame((x, y, w, h), (96, 98, 106))
+    frame((x, y, w, h), (50, 52, 58), 2)
+    rect(x + 6, y + 6, w - 12, 10, (34, 40, 50), 2)          # viewing window
+    rect(x + 7, y + 7, 8, 1, (90, 104, 124), 0)
+    for i in range(3, w - 2, 6):
+        for k in (3, h - 4):
+            bolt(x + i, y + k, (120, 124, 132))
+    x0 = x + w // 2
+    for k in range(h // 2, h - 6):                           # the round emblem below the jetpack
+        for i in range(-10, 11):
+            r = math.hypot(i, k - (h - 18))
+            if 7 < r < 9 or (r < 9 and abs(i) < 1) or (r < 9 and abs(k - (h - 18)) < 1):
+                px[x0 + i, y + k] = shade((40, 42, 48), 1)
+    box(*b["shield_rim"], (90, 92, 100), 3)
+    box(*b["shield_handle"], (40, 40, 44), 2)
     f = faces(*b["jetpack"])
-    box(*b["jetpack"], (50, 52, 56), 3)
+    for r in sides(f):
+        gradient(r, (64, 66, 72), (44, 46, 50), 2)
     x, y, w, h = f["back"]
-    rect(x + 1, y + h // 2, w - 2, 1, (38, 40, 44), 0)
+    frame((x + 2, y + 2, w - 4, h - 4), (36, 38, 42))
+    for k in range(6, h - 6, 3):
+        rect(x + 5, y + k, w - 10, 1, (36, 38, 42), 0)       # cooling fins
+    rect(x + w // 2 - 3, y + 3, 6, 2, (200, 60, 50), 1)      # red warning strip
+    rect(*f["top"], (70, 72, 78), 2)
+    box(*b["jetpack_top"], (80, 82, 88), 3)
     f = faces(*b["turbine_right"])
     for r in sides(f):
-        gradient(r, (84, 86, 92), (62, 64, 70), 3)
+        gradient(r, (150, 154, 162), (104, 108, 116), 3)
         x, y, w, h = r
-        for k in (2, h - 4):
-            rect(x, y + k, w, 1, (46, 48, 52), 0)           # bands
-    rect(*f["top"], (100, 104, 110), 3)
-    rect(*f["bottom"], (36, 36, 40), 2)
+        for k in (3, 4, h - 6, h - 5):
+            rect(x, y + k, w, 1, (80, 84, 92), 0)           # bands
+        rect(x, y + h // 2, w, 2, (190, 50, 44), 1)          # a red stripe round the middle
+    rect(*f["top"], (170, 174, 182), 3)
+    box(*b["turbine_cap_right"], (120, 124, 132), 3)
+    f = faces(*b["turbine_nozzle_right"])
+    box(*b["turbine_nozzle_right"], (40, 40, 44), 3)
+    for r in sides(f):
+        for i in range(0, r[2], 2):
+            rect(r[0] + i, r[1], 1, r[3], (30, 30, 34), 0)   # nozzle petals
+    x, y, w, h = f["bottom"]
+    round_face(x, y, w, h, lambda r, i, k: (40, 140, 220) if r < 3.4 else None)
+
+    # Black CCTV cameras behind his shoulders
     f = faces(*b["shoulder_cam_right"])
     for r in sides(f):
-        gradient(r, (40, 40, 44), (26, 26, 30), 3)
-    rect(*f["top"], (48, 48, 52), 3)
-    rect(*f["bottom"], (22, 22, 26), 2)
-    x, y, w, h = f["front"]
-    black_camera_lens(x + 1, y + 2, w - 2, w - 2)
+        gradient(r, (44, 44, 48), (26, 26, 30), 2)
+        x, y, w, h = r
+        rect(x + 2, y + 6, w - 4, 1, (56, 56, 62), 1)         # seams
+        rect(x + 2, y + h - 6, w - 4, 1, (56, 56, 62), 1)
+    rect(*f["top"], (52, 52, 56), 2)
+    x, y, w, h = f["back"]
+    for k in range(10, 22, 2):
+        rect(x + 3, y + k, w - 6, 1, (20, 20, 24), 0)        # vents
+    f = faces(*b["shoulder_cam_hood_right"])
+    for r in f.values():
+        rect(*r, (56, 56, 60), 2)
+    rect(*f["top"], (66, 66, 70), 2)
+    f = faces(*b["shoulder_cam_lens_right"])
+    box(*b["shoulder_cam_lens_right"], (20, 20, 24), 2)
+    black_camera_lens(*f["front"])
+    box(*b["shoulder_cam_mount_right"], (60, 62, 68), 3)
 
-    titan_arms(b, TITAN_COAT, lambda r: camo(r, (48, 48, 46), [(36, 38, 36), (62, 60, 54), (40, 42, 46)]),
-               (38, 38, 42), (74, 74, 78))
-    titan_legs(b)
     titan_cameraman_lights(b)
     return img
 
 
 def titan_cameraman_glow():
-    new_image(256, 30, 128)
+    new_image(512, 30)
     titan_cameraman_lights(bb_boxes("titan_cameraman"))
     return img
 
@@ -1770,26 +2214,12 @@ def draw_cone(x, y, n, cone):
                 px[x + i, y + k] = c + (255,)
 
 
-def white_cone(i, k, n):
-    """A white driver with a dark dust cap, like the ones on his shoulder towers."""
-    r = math.hypot(i - (n - 1) / 2, k - (n - 1) / 2)
-    if r > n / 2:
-        return None
-    if r > n / 2 - 0.5:
-        return (70, 70, 74)
-    return (40, 40, 44) if r < 0.8 else (236, 236, 232)
-
-
 def dark_cone(i, k, n):
     """A black driver on a black speaker: only the rings catch the light."""
     r = math.hypot(i - (n - 1) / 2, k - (n - 1) / 2)
     if r > n / 2:
         return None
     return (64, 64, 70) if r > n / 2 - 0.9 or r < n / 6 + 0.3 else (36, 36, 40)
-
-
-def tweeter(x, y):
-    px[x, y] = (150, 152, 160, 255)
 
 
 def glossy_red(r):
@@ -1803,184 +2233,383 @@ def glossy_red(r):
         rect(px_row, y, 1, h, (206, 40, 44), 2)
 
 
-def titan_speakerman_lights(b):
-    """What glows on the Titan Speakerman: the red core in its glass dome, the red drivers in his head, the
-    cannon muzzle."""
-    x, y, w, h = faces(*b["core_glass"])["front"]
-    radial(x, y, w, h, 0, 3.7, lambda r: (255, 60, 50) if r < 2.6 else (210, 70, 74))
-    f = faces(*b["core"])
-    radial(*f["front"], 0, 9, lambda r: (255, 235, 225) if r < 1.0 else (255, 120, 100) if r < 1.9 else (255, 60, 50))
-    for key in ("right", "left", "top", "bottom"):
-        rect(*f[key], (255, 70, 56), 0)
+def red_driver(r, n):
+    """A driver n across lit red from inside: black surround, a dark rim, the glowing cone, a bright dust cap."""
+    if r > n / 2 - 0.3:
+        return (30, 18, 20)
+    if r > n / 2 - 1.3:
+        return (110, 20, 24)
+    if r < 1.6:
+        return (255, 150, 140)
+    return (236, 40 + int(r * 6), 40 + int(r * 4))
+
+
+def white_driver(r, n):
+    """A white driver with a grey surround and a dark dust cap, like the ones on his shoulder towers."""
+    if r > n / 2 - 0.3:
+        return (40, 40, 44)
+    if r > n / 2 - 1.4:
+        return (96, 96, 102)
+    if r < 1.6:
+        return (34, 34, 38)
+    return (238 - int(r * 3), 238 - int(r * 3), 232 - int(r * 3))
+
+
+def black_driver(r, n):
+    """A black driver on a black speaker: only the rings catch the light."""
+    if r > n / 2 - 1 or abs(r - n / 4) < 0.5 or r < n * 0.12:
+        return (70, 70, 76)
+    return (34, 34, 38)
+
+
+def speaker_box(b, name, black=SPEAKER_BLACK, grille=False):
+    """A black speaker cabinet with a bevelled front edge, screws in the corners and (optionally) grille cloth."""
+    f = faces(*b[name])
+    for r in sides(f):
+        gradient(r, lighter(black, 8), black, 2)
+    rect(*f["top"], lighter(black, 12), 2)
+    rect(*f["bottom"], lighter(black, -6), 2)
     x, y, w, h = f["front"]
-    px[x + 1, y + 1] = (255, 240, 240, 255)                  # glint on the glass
-    x, y, w, h = faces(*b["lower_speaker"])["front"]
-    draw_cone(x + 1, y, 5, red_cone)
-    draw_cone(x + w - 6, y, 5, red_cone)
-    x, y, w, h = faces(*b["center_speaker"])["front"]
-    draw_cone(x + 1, y + 1, 6, red_cone)
-    x, y, w, h = faces(*b["column_right"])["front"]
-    draw_cone(x, y + 5, 6, red_cone)
-    draw_cone(x, y + 12, 6, red_cone)
+    if grille:
+        for i in range(1, w - 1):
+            for k in range(1, h - 1):
+                if (i + k) % 2 == 0:
+                    px[x + i, y + k] = shade(lighter(black, -8), 1)
+    frame(f["front"], lighter(black, 22))
+    for i, k in ((1, 1), (w - 2, 1), (1, h - 2), (w - 2, h - 2)):
+        px[x + i, y + k] = (90, 90, 96, 255)
+    for key in ("right", "left"):
+        x, y, w, h = f[key]
+        rect(x, y, w, 1, lighter(black, 18), 1)             # the edge catching the light
+
+
+def titan_speakerman_lights(b):
+    """What glows on the Titan Speakerman: his red drivers, the core, the cannon's coil and muzzle."""
+    for name, n in (("lower_woofer", 9), ("center_woofer", 13), ("column_woofer", 9), ("column_woofer_low", 9)):
+        parts = [b[f"{name}_{p}" + ("" if name.startswith("center") else "_right")] for p in ("wide", "mid", "tall")]
+        for u, v, w, h, d in parts:
+            x, y = faces(u, v, w, h, d)["front"][:2]
+            for i in range(w):
+                for k in range(h):
+                    rr = math.hypot(i - (w - 1) / 2, k - (h - 1) / 2)
+                    if rr < n / 2 - 1.3:
+                        px[x + i, y + k] = shade(red_driver(rr, n), 2)
+    disc_front(b, "center_cone", lambda r: (255, 150, 140) if r < 1.5 else (250, 70, 64))
+    x, y, w, h = faces(*b["core_light"])["front"]
+    round_face(x, y, w, h, lambda r, i, k: (255, 200, 190) if r < 1.2 else (255, 70, 60))
+    for key in ("right", "left", "top", "bottom"):
+        rect(*faces(*b["core_light"])[key], (230, 50, 44), 2)
+    disc_front(b, "core_dome", lambda r: (255, 90, 80) if r < 3.4 else None)
+    disc_front(b, "core_glass", lambda r: (200, 40, 40) if r < 4.4 else None)
+    x, y, w, h = faces(*b["cannon_coil"])["front"]
+    for k in range(h):
+        rect(x, y + k, w, 1, (255, 60, 50) if k % 3 else (255, 160, 140), 1)
     x, y, w, h = faces(*b["cannon_muzzle"])["bottom"]
-    radial(x, y, w, h, 0, 9, lambda r: (255, 120, 90) if r < 1.2 else (220, 40, 30))
+    round_face(x, y, w, h, lambda r, i, k: (255, 120, 100) if r < 2 else (230, 40, 36) if r < 4 else None)
+    x, y, w, h = faces(*b["cannon_cell"])["right"]
+    rect(x + 1, y + 2, w - 2, 2, (255, 60, 50), 1)
+    for name in ("jetpack_nozzle_right",):
+        x, y, w, h = faces(*b[name])["bottom"]
+        round_face(x, y, w, h, lambda r, i, k: (255, 120, 70) if r < 2.6 else None)
 
 
 def titan_speakerman():
     b = bb_boxes("titan_speakerman")
-    new_image(256, 31, 128)
+    new_image(512, 31)
 
-    # Head: a cluster of black speakers. Bevelled front edges; the red drivers are drawn as lights.
-    box(*b["mount"], (40, 40, 44), 3)
-    for name in ("lower_speaker", "center_speaker", "back_cabinet", "column_right"):
+    # Head: black speakers with bevelled edges and corner screws, red-lit woofers, silver tweeters
+    box(*b["neck"], (30, 30, 34), 3)
+    x, y, w, h = faces(*b["neck"])["front"]
+    for k in range(1, h, 2):
+        rect(x, y + k, w, 1, (22, 22, 26), 1)
+    for name in ("lower_speaker", "center_speaker", "column_right"):
+        speaker_box(b, name)
+    speaker_box(b, "back_cabinet", grille=True)
+    for name in ("lower_trim", "back_cabinet_top", "column_cap_right"):
         f = faces(*b[name])
         for r in f.values():
-            rect(*r, SPEAKER_BLACK, 3)
-        x, y, w, h = f["front"]
-        for i in range(w):
-            px[x + i, y] = shade((46, 46, 50), 2)
-            px[x + i, y + h - 1] = shade((18, 18, 20), 1)
-        rect(*f["top"], (36, 36, 40), 2)
-    x, y, w, h = faces(*b["lower_speaker"])["front"]
-    tweeter(x + w // 2, y + 2)
-    tweeter(x + w // 2 - 1, y + 2)
-    x, y, w, h = faces(*b["center_speaker"])["front"]
-    tweeter(x + w // 2, y + 9)
-    tweeter(x + w // 2 - 1, y + 9)
-    x, y, w, h = faces(*b["column_right"])["front"]
-    tweeter(x + w // 2, y + 2)
-    for k in range(19, h - 1, 2):
-        px[x + w // 2, y + k] = (52, 52, 56, 255)           # port holes down the column
-
-    # Body: a glossy red dress shirt, the domed core between two tall black speakers, a black jetpack and two
-    # big speaker towers leaning out from the shoulders
-    for name in ("chest", "waist"):
+            rect(*r, (44, 44, 48), 2)
+        rect(*f["top"], (54, 54, 58), 2)
+    x, y, w, h = faces(*b["back_cabinet"])["back"]
+    rect(x + 4, y + 4, w - 8, 6, (16, 16, 18), 1)            # bass port
+    rect(x + w // 2 - 4, y + h - 8, 8, 4, (60, 60, 66), 2)   # terminal plate
+    px[x + w // 2 - 2, y + h - 6] = (200, 40, 40, 255)
+    px[x + w // 2 + 1, y + h - 6] = (14, 14, 14, 255)
+    for name, n in (("lower_woofer", 9), ("column_woofer", 9), ("column_woofer_low", 9)):
+        for p in ("wide", "mid", "tall"):
+            u, v, w, h, d = b[f"{name}_{p}_right"]
+            f = faces(u, v, w, h, d)
+            for key in ("right", "left", "top", "bottom"):
+                rect(*f[key], (40, 20, 22), 1)
+            x, y = f["front"][:2]
+            for i in range(w):
+                for k in range(h):
+                    px[x + i, y + k] = shade(red_driver(math.hypot(i - (w - 1) / 2, k - (h - 1) / 2), n), 2)
+    disc_front(b, "center_woofer", lambda r: red_driver(r, 13))
+    disc_front(b, "center_cone", lambda r: (255, 150, 140) if r < 1.5 else (250, 70, 64))
+    for name in ("lower_tweeter", "center_tweeter", "column_tweeter_right"):
         f = faces(*b[name])
-        for r in sides(f):
-            glossy_red(r)
-        rect(*f["top"], TSM_RED_HI, 3)
-        rect(*f["bottom"], TSM_RED_DARK, 2)
-    box(*b["collar"], TSM_RED_DARK, 3)
-    titan_belt(b)
-    box(*b["core_ring"], (54, 54, 60), 3)
-    x, y, w, h = faces(*b["core_glass"])["front"]
-    radial(x, y, w, h, 3.7, 9, lambda r: (54, 54, 60))       # the housing shows round the dome's corners
-    f = faces(*b["core_glass"])
-    for key in ("right", "left", "top", "bottom"):
-        rect(*f[key], (170, 120, 126), 2)                    # the dome's glass seen from the side
-    f = faces(*b["chest_speaker_right"])
-    box(*b["chest_speaker_right"], SPEAKER_BLACK, 3)
-    x, y, w, h = f["front"]
-    draw_cone(x, y + 1, 5, dark_cone)
-    draw_cone(x, y + 6, 5, dark_cone)
+        box(*b[name], (40, 40, 44), 2)
+        x, y, w, h = f["front"]
+        round_face(x, y, w, h, lambda r, i, k: (200, 202, 210) if r < 1.2 else (150, 152, 160))
+
+    # Body: a glossy red shirt, black gloves, trousers and shoes
+    titan4_shirt(b, glossy_red, TSM_RED)
+    titan4_gloves(b, (32, 32, 36))
+    titan4_legs(b, (30, 30, 34), (18, 18, 20))
+
+    # The glass-domed core between two black chest speakers
+    disc_front(b, "core_ring", lambda r: (170, 174, 182) if r > 8.6 else (120, 124, 132) if r > 7.4 else (90, 94, 102))
+    x, y, w, h = faces(*b["core_ring_mid"])["front"]
+    for i, k in ((0, 0), (w - 2, 0), (0, h - 2), (w - 2, h - 2)):
+        bolt(x + i, y + k)
+    disc_front(b, "core_glass", lambda r: (200, 206, 214) if r > 6.4 else (150, 60, 62) if r > 4.4 else (190, 40, 40))
+    disc_front(b, "core_dome", lambda r: (230, 120, 116) if r < 2 else (210, 60, 58))
+    x, y, w, h = faces(*b["core_dome_mid"])["front"]
+    rect(x + 1, y + 1, 2, 1, (255, 230, 226), 0)            # the glass catching the light
+    box(*b["core_light"], (255, 90, 80), 2)
+    speaker_box(b, "chest_speaker_right")
+    for name in ("chest_driver", "chest_driver_low"):
+        for p in ("wide", "mid", "tall"):
+            u, v, w, h, d = b[f"{name}_{p}_right"]
+            f = faces(u, v, w, h, d)
+            for key in ("right", "left", "top", "bottom"):
+                rect(*f[key], (50, 50, 56), 1)
+            x, y = f["front"][:2]
+            for i in range(w):
+                for k in range(h):
+                    px[x + i, y + k] = shade(black_driver(math.hypot(i - (w - 1) / 2, k - (h - 1) / 2), 7), 1)
+
+    # The black jetpack and its turbines
     f = faces(*b["jetpack"])
-    box(*b["jetpack"], (30, 30, 34), 3)
+    for r in sides(f):
+        gradient(r, (40, 40, 44), (26, 26, 30), 2)
+    rect(*f["top"], (46, 46, 50), 2)
+    f = faces(*b["jetpack_panel"])
+    for r in f.values():
+        rect(*r, (34, 34, 38), 2)
     x, y, w, h = f["back"]
-    rect(x + 2, y + 2, w - 4, 1, (44, 44, 48), 0)
-    rect(x + 2, y + h - 3, w - 4, 1, (44, 44, 48), 0)
+    frame((x, y, w, h), (56, 56, 62))
+    for k in range(4, h - 3, 3):
+        rect(x + 3, y + k, w - 6, 1, (22, 22, 26), 0)        # vents
+    rect(x + w // 2 - 3, y + 1, 6, 2, (200, 40, 40), 1)
     f = faces(*b["jetpack_turbine_right"])
     for r in sides(f):
-        gradient(r, (52, 52, 58), (34, 34, 38), 3)
-    rect(*f["top"], (24, 24, 28), 0)                         # intake
-    f = faces(*b["tower_right"])
-    for r in f.values():
-        rect(*r, SPEAKER_BLACK, 3)
-    x, y, w, h = f["front"]
-    for i in range(w):
-        px[x + i, y] = shade((46, 46, 50), 2)
-    tweeter(x + w // 2, y + 2)
-    for top in (4, 13, 22):                                  # three white drivers down the tower
-        draw_cone(x + 1, y + top, 7, white_cone)
-    for k in range(4, h - 1, 3):
-        px[x + w - 1, y + k] = (60, 60, 66, 255)             # screw holes along the edge
+        gradient(r, (70, 72, 78), (46, 48, 54), 3)
+        x, y, w, h = r
+        for k in (3, h - 4):
+            rect(x, y + k, w, 1, (36, 38, 42), 0)
+        rect(x, y + h // 2, w, 1, (180, 36, 36), 1)
+    rect(*f["top"], (86, 88, 94), 3)
+    f = faces(*b["jetpack_nozzle_right"])
+    box(*b["jetpack_nozzle_right"], (30, 30, 34), 3)
+    x, y, w, h = f["bottom"]
+    round_face(x, y, w, h, lambda r, i, k: (120, 50, 30) if r < 3 else None)
 
-    titan_arms(b, TSM_RED, glossy_red, TSM_RED_DARK, (30, 30, 34))
-    x, y, w, h = faces(*b["cuff_right"])["front"]
-    px[x + 1, y + 1] = (230, 220, 210, 255)                  # cuff button
-    titan_legs(b, (30, 30, 34))
+    # The speaker towers leaning out from his shoulders, with white drivers and little tweeters
+    speaker_box(b, "tower_right")
+    x, y, w, h = faces(*b["tower_right"])["front"]
+    for k in (8, 23, 38, 53):
+        rect(x + w // 2 - 1, y + k, 2, 2, (220, 220, 216), 1)   # tweeters between the drivers
+    f = faces(*b["tower_cap_right"])
+    for r in f.values():
+        rect(*r, (46, 46, 50), 2)
+    for name in ("tower_driver", "tower_driver_mid", "tower_driver_low"):
+        for p in ("wide", "mid", "tall"):
+            u, v, w, h, d = b[f"{name}_{p}_right"]
+            f = faces(u, v, w, h, d)
+            for key in ("right", "left", "top", "bottom"):
+                rect(*f[key], (60, 60, 66), 1)
+            x, y = f["front"][:2]
+            for i in range(w):
+                for k in range(h):
+                    px[x + i, y + k] = shade(white_driver(math.hypot(i - (w - 1) / 2, k - (h - 1) / 2), 13), 2)
+
+    # The plasma cannon on his left arm
     f = faces(*b["cannon"])
     for r in sides(f):
-        gradient(r, (86, 88, 96), (60, 62, 68), 3)
+        gradient(r, (84, 86, 94), (58, 60, 66), 3)
         x, y, w, h = r
-        for k in range(4, h, 6):
-            rect(x, y + k, w, 1, (44, 46, 50), 0)            # cooling rings
+        for k in range(4, h - 2, 8):
+            rect(x, y + k, w, 1, (44, 46, 52), 0)            # panel lines
     rect(*f["top"], (96, 98, 106), 3)
-    box(*b["cannon_muzzle"], (40, 40, 44), 2)
+    for name in ("cannon_ring0", "cannon_ring1", "cannon_ring2"):
+        f = faces(*b[name])
+        for r in f.values():
+            rect(*r, (46, 48, 54), 2)
+        for r in sides(f):
+            rect(r[0], r[1], r[2], 1, (100, 102, 110), 1)
+    f = faces(*b["cannon_muzzle"])
+    box(*b["cannon_muzzle"], (36, 36, 40), 3)
+    x, y, w, h = f["bottom"]
+    round_face(x, y, w, h, lambda r, i, k: (150, 30, 28) if r < 4 else (24, 24, 26))
+    box(*b["cannon_coil"], (40, 40, 44), 2)
+    x, y, w, h = faces(*b["cannon_coil"])["front"]
+    for k in range(h):
+        rect(x, y + k, w, 1, (200, 40, 36) if k % 3 else (230, 120, 110), 1)
+    f = faces(*b["cannon_cell"])
+    box(*b["cannon_cell"], (60, 62, 68), 3)
+    x, y, w, h = f["right"]
+    rect(x + 1, y + 2, w - 2, 2, (200, 40, 36), 1)
+
     titan_speakerman_lights(b)
     return img
 
 
 def titan_speakerman_glow():
-    new_image(256, 31, 128)
+    new_image(512, 31)
     titan_speakerman_lights(bb_boxes("titan_speakerman"))
     return img
 
 
 # ---- Titan TV Man 1.0
 
+TTV_PURPLE, TTV_PURPLE_HI = (178, 84, 255), (236, 196, 255)
+
+
 def titan_tv_man_lights(b):
-    """What glows on the Titan TV Man: the static on his screen, his purple core, the accents on his claws."""
+    """What glows on the Titan TV Man: the static on his screen, his purple core, the edges of his claws."""
     x, y, w, h = faces(*b["tv"])["front"]
     rnd = random.Random(44)
-    for i in range(w):
-        for k in range(h):
-            v = rnd.randint(150, 250) * (0.9 if k % 2 else 1.0)
+    for i in range(4, w - 4):                                # the screen, inside the bezel cubes
+        for k in range(3, h - 5):
+            centre = 1 - 0.25 * (abs(i - w / 2) / w + abs(k - h / 2) / h)
+            v = rnd.randint(150, 252) * centre * (0.9 if k % 2 else 1.0)
             px[x + i, y + k] = (int(v), int(v), min(255, int(v * 1.04)), 255)
-    titan_core_glow(b, (170, 70, 255), (240, 200, 255), (190, 100, 255))
+    disc_front(b, "core_glass", lambda r: TTV_PURPLE_HI if r < 2.4 else (210, 140, 255) if r < 4.4 else TTV_PURPLE)
+    x, y, w, h = faces(*b["core_light"])["front"]
+    rect(x, y, w, h, (250, 230, 255), 2)
+    for key in ("right", "left", "top", "bottom"):
+        rect(*faces(*b["core_light"])[key], TTV_PURPLE_HI, 2)
     for i in range(3):
-        f = faces(*b[f"claw{i}_right"])
+        f = faces(*b[f"claw{i}_edge_right"])
+        for r in f.values():
+            rect(*r, TTV_PURPLE, 3)
+        rect(*f["front"], (210, 150, 255), 3)
+        f = faces(*b[f"claw{i}_tip_right"])
         x, y, w, h = f["front"]
-        rect(x + w - 1, y, 1, h, (180, 80, 255), 0)         # purple edge down each blade
-        rect(*f["top"], (200, 110, 255), 0)
+        rect(x + w - 1, y, 1, h, TTV_PURPLE, 2)
+    for name in ("core_clamp_top", "core_clamp_bottom", "core_clamp_side_right"):
+        x, y, w, h = faces(*b[name])["front"]
+        rect(x + w // 2, y + 1, 1, h - 2, TTV_PURPLE, 1)     # purple lines on the clamps
 
 
 def titan_tv_man():
     b = bb_boxes("titan_tv_man")
-    new_image(256, 32, 128)
-    black, black_dark = (30, 30, 34), (22, 22, 26)
+    new_image(512, 32)
+    black = (30, 30, 34)
 
-    # Head: a giant black TV, its screen set back inside the bezel
-    box(*b["mount"], (40, 40, 44), 3)
-    for name in ("tv", "tv_back"):
-        for r in faces(*b[name]).values():
-            rect(*r, (34, 34, 38), 3)
-    x, y, w, h = faces(*b["tv"])["top"]
-    for i in range(2, w - 2, 2):
-        rect(x + i, y + 1, 1, h - 2, (24, 24, 28), 0)       # vents
-    x, y, w, h = faces(*b["tv_back"])["back"]
-    for k in range(1, h - 1, 2):
-        rect(x + 1, y + k, w - 2, 1, (24, 24, 28), 0)
+    # Head: a giant black TV with a thick bezel, the screen set back inside it, side panels and a stepped back
+    box(*b["neck"], (36, 36, 40), 3)
+    x, y, w, h = faces(*b["neck"])["front"]
+    for k in range(1, h, 2):
+        rect(x, y + k, w, 1, (26, 26, 30), 1)
+    box(*b["neck_bracket"], (50, 50, 56), 3)
+    f = faces(*b["tv"])
+    for r in sides(f):
+        gradient(r, (40, 40, 44), (28, 28, 32), 2)
+    rect(*f["top"], (42, 42, 46), 2)
+    rect(*f["bottom"], (24, 24, 28), 2)
+    x, y, w, h = f["front"]
+    rect(x + 3, y + 2, w - 6, h - 4, (14, 14, 16), 0)        # the screen's dark surround (lit by the glow)
+    for key in ("right", "left"):
+        x, y, w, h = f[key]
+        for k in range(4, h - 4, 3):
+            rect(x + 2, y + k, w - 4, 1, (22, 22, 26), 0)    # ventilation slots
+    f = faces(*b["tv_back"])
+    for r in f.values():
+        gradient(r, (32, 32, 36), (24, 24, 28), 2)
+    x, y, w, h = f["back"]
+    frame(f["back"], (42, 42, 48), 1)
+    for k in range(4, h - 3, 2):
+        rect(x + 4, y + k, w - 8, 1, (18, 18, 20), 0)
+    f = faces(*b["tv_back_box"])
+    box(*b["tv_back_box"], (36, 36, 40), 2)
+    x, y, w, h = f["back"]
+    rect(x + 3, y + 3, 8, 4, (176, 176, 168), 1)             # rating label
+    for i in range(13, w - 2, 3):
+        rect(x + i, y + h - 5, 2, 2, (14, 14, 16), 0)        # ports
     for name in ("bezel_top", "bezel_bottom", "bezel_side_right"):
         f = faces(*b[name])
-        box(*b[name], (40, 40, 44), 3)
-        rect(*f["front"], (52, 52, 58), 3)
+        for r in f.values():
+            rect(*r, (44, 44, 50), 2)
+        rect(*f["front"], (50, 50, 56), 2)
+        rect(*f["top"], (58, 58, 64), 2)
     x, y, w, h = faces(*b["bezel_bottom"])["front"]
-    px[x + w - 3, y + 1] = (60, 220, 90, 255)               # power light
+    rect(x + w // 2 - 4, y + 1, 8, 2, (150, 152, 160), 2)    # brand plate
+    rect(x + w - 6, y + 2, 2, 1, (60, 220, 90), 0)           # power light
+    for i in range(4, 14, 3):
+        rect(x + i, y + 2, 2, 2, (30, 30, 34), 0)            # buttons
+    x, y, w, h = faces(*b["bezel_top"])["bottom"]
+    rect(x, y, w, h, (20, 20, 24), 0)                        # shadow over the screen
+    f = faces(*b["side_panel_right"])
+    for r in f.values():
+        rect(*r, (38, 38, 42), 2)
+    x, y, w, h = f["right"]
+    for k in range(2, h - 2, 2):
+        rect(x + 2, y + k, w - 4, 1, (24, 24, 28), 0)        # speaker grille
+    box(*b["tv_top_vent"], (24, 24, 28), 1)
 
-    # Body: a black trench coat, the purple core, triple-bladed claws on his back
-    titan_coat(b, black, black_dark, (18, 18, 22))
-    titan_belt(b)
-    titan_core_ring(b, (54, 50, 62))
-    box(*b["claw_mount"], (28, 26, 32), 3)
+    # Body: a black trench coat over a black shirt, black gloves, tall boots
+    titan4_coat(b, black, (18, 18, 22))
+    titan4_gloves(b, (34, 34, 38))
+    titan4_legs(b, (30, 30, 34), (18, 18, 20), boots=True)
+
+    # The purple core in a dark ring, held by four clamps
+    disc_front(b, "core_ring", lambda r: (84, 78, 96) if r > 8.4 else (60, 56, 70) if r > 7.4 else (40, 36, 48))
+    x, y, w, h = faces(*b["core_ring_mid"])["front"]
+    for i, k in ((0, 0), (w - 2, 0), (0, h - 2), (w - 2, h - 2)):
+        bolt(x + i, y + k, (110, 104, 122))
+    disc_front(b, "core_glass", lambda r: (150, 70, 230))
+    box(*b["core_light"], (230, 200, 255), 2)
+    for name in ("core_clamp_top", "core_clamp_bottom", "core_clamp_side_right"):
+        f = faces(*b[name])
+        for r in f.values():
+            gradient(r, (70, 66, 80), (46, 42, 54), 2)
+
+    # The claws on his back: black blades with glowing purple edges, on a riveted mount
+    f = faces(*b["claw_mount"])
+    for r in f.values():
+        gradient(r, (34, 32, 40), (24, 22, 28), 2)
+    f = faces(*b["claw_mount_plate"])
+    for r in f.values():
+        rect(*r, (40, 38, 46), 2)
+    x, y, w, h = f["back"]
+    for i in range(2, w - 1, 6):
+        for k in (1, h - 3):
+            bolt(x + i, y + k, (100, 96, 110))
     for i in range(3):
         f = faces(*b[f"claw{i}_right"])
         for r in sides(f):
-            gradient(r, (40, 36, 46), (24, 22, 28), 3)
+            gradient(r, (46, 42, 52), (24, 22, 28), 3)
+            x, y, w, h = r
+            rect(x + w // 2, y + 2, 1, h - 4, (60, 56, 68), 1)   # the blade's ridge
         rect(*f["top"], (60, 56, 66), 2)
+        f = faces(*b[f"claw{i}_tip_right"])
+        for r in f.values():
+            gradient(r, (58, 54, 64), (36, 32, 42), 2)
+        box(*b[f"claw{i}_edge_right"], (120, 60, 190), 3)
 
-    titan_arms(b, black, black, black_dark, (34, 34, 38))
+    # Grappling hooks on his elbows
     for name in ("hook_right", "hook_left"):
         f = faces(*b[name])
-        box(*b[name], (140, 144, 152), 4)
+        for r in sides(f):
+            gradient(r, (156, 160, 168), (112, 116, 124), 3)
         x, y, w, h = f["back"]
-        rect(x + 1, y + h - 2, w - 2, 1, (90, 94, 102), 0)  # the hook's curve
-    titan_legs(b, (30, 30, 34), boots=True)
+        rect(x + 1, y + 2, w - 2, 1, (90, 94, 102), 0)
+        rect(x + w // 2, y + 4, 1, h - 5, (60, 62, 68), 0)   # the cable slot
+    for name in ("hook_claw_right", "hook_claw_left"):
+        f = faces(*b[name])
+        box(*b[name], (130, 134, 142), 3)
+        x, y, w, h = f["bottom"]
+        rect(x + 1, y + 1, w - 2, h - 2, (70, 72, 78), 0)    # the hook's points
+
     titan_tv_man_lights(b)
     return img
 
 
 def titan_tv_man_glow():
-    new_image(256, 32, 128)
+    new_image(512, 32)
     titan_tv_man_lights(bb_boxes("titan_tv_man"))
     return img
 

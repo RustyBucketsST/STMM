@@ -48,10 +48,14 @@ public final class GearRenderer {
         /** A Large member: a suited body built at twice the detail, a little broader and deeper than a biped's. */
         public static final Fit DETAILED = new Fit(2.15f, 2.0f, 2.3f, 2.25f, 2.0f, 2.25f, 0.0f, true, true, true);
 
-        /** A Titan: his own shoulder gear shows instead, and plates on his chest would hide his core. */
-        public static Fit titan(AllianceType type) {
+        /**
+         * A Titan built at {@code detail} units per pixel: his own shoulder gear shows instead, and plates on his chest
+         * would hide his core.
+         */
+        public static Fit titan(AllianceType type, float detail) {
             boolean jetpack = type == AllianceType.TV_MAN;
-            return new Fit(2.75f, 2.0f, 3.0f, 2.5f, 2.0f, 2.5f, 5.0f, jetpack, false, false);
+            float k = detail / 2.0f;
+            return new Fit(2.75f * k, 2.0f * k, 3.0f * k, 2.5f * k, 2.0f * k, 2.5f * k, 5.0f, jetpack, false, false);
         }
     }
 
