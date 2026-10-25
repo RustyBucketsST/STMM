@@ -41,7 +41,9 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
 ## Open questions / backlog (ask the owner before doing any of these)
 
 - **Blockbench**: every mob except the Spider Toilet's legs was remodelled from the wiki's pictures to look like
-  the series (1.0 forms) and lives in `blockbench/` (see "Models" below). Still hand-written Java: spider legs,
+  the series (1.0 forms) and lives in `blockbench/` (see "Models" below). The Alliance and toilets were then
+  reworked at twice the detail, using 3D fan models on Sketchfab as references (only looked at in the viewer,
+  nothing downloaded or copied); the Titans and G-Toilet already matched them. Still hand-written Java: spider legs,
   player heads (`PlayerHeadModels`, which no longer match the new mob heads), suits. Possible next: those, 3D
   tech items. Ask first.
 - Never answered: Alliance vs toilet balance.
@@ -90,33 +92,38 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
 - `blockbench/models.json` maps each file to its class. Groups listed under "separate" (variant extras:
   headphones, halo, hat, jetpack; and the pedestal, which the spider toilet leaves out) get their own
   `add...` method instead of being added with their parent; they are hidden in Blockbench by default.
-  Groups/cubes with Export switched off are reference only (the suit in the Alliance files).
+  Groups/cubes with Export switched off are reference only (`spider_leg` in the toilet file reserves the UV of the
+  hand-written spider legs, `SpiderToiletModel.LEG_U/LEG_V`).
 - Java relies on the part name "head" (toilet/urinal animation and accessories attach to it; Alliance heads
   replace the biped head). The toilet model is a little wider/taller than its 0.8x1.3 hitbox.
-- Textures still come from `gen_texture.py`. For the toilet, urinal and regular Alliance heads a UV moved in
-  Blockbench must be moved in the drawing code too; every other model's drawing code reads each cube's UV from
-  its .bbmodel by cube name (`bb_boxes`).
+- Textures still come from `gen_texture.py`; every model's drawing code reads each cube's UV from its .bbmodel by
+  cube name (`bb_boxes`), so moving a UV in Blockbench needs no change there (renaming a cube does).
   `python3 tools/bbmodel_to_java.py --embed-textures` refreshes the texture copies inside the .bbmodel files.
 - `large_tv_man.bbmodel` (Large TV Man 1.0, from the wiki picture) is only used by players in the Large form;
   there is no Large TV Man mob. `gear.bbmodel` holds the buyable gear at normal player size (each group is drawn on
-  the matching body/arm part; `GearRenderer.Fit` stretches it onto a Titan).
-  Toilet textures are 128x128: head and variant extras in the top half, toilet body in the bottom half.
+  the matching body/arm part; `GearRenderer.Fit` stretches it onto a Large member or a Titan).
+- **Every mob model but the Camera Strider is built at twice the detail** (2 units per pixel, feet on the ground at
+  y = 24) and drawn at half size, so textures are twice as fine. Alliance members use biped part names with doubled pivots: head/body
+  (0,-24,0), arms (+-10,-20,0), legs (+-3.8,0,0.2); `AllianceModel` (`DETAILED`) converts the biped animation to
+  those units (`toStandard`/`fromStandard`, also used by `PlayerFormModel`). The regular and Large Alliance wear a
+  suit jacket, overcoat (TV Man, Large Cameraman) or just shirt and tie (Large Speakerman) with gloves and shoes,
+  drawn by `suited_body`/`shirt_body` in gen_texture.py. Toilets (`SkibidiToiletModel.DETAILED`: the renderer
+  halves the scale and the head's bob/flush offsets are doubled) have 16-pixel heads with a nose cube and 16x16
+  pixel-art faces (`head16` in gen_texture.py, one face per variant).
 - **Titans** are their **1.0 forms** (owner's request), built from the wiki's 1.0 pictures and descriptions:
   `titan_cameraman`, `titan_speakerman` (owner's favourite, check his picture before changing him),
-  `titan_tv_man`. Each `titan_*.bbmodel` is built at twice the detail (2 units per pixel) with biped part
-  names and doubled pivots, feet on the ground: head/body (0,-24,0), arms (+-10,-20,0), legs (+-3.8,0,0.2).
-  `TitanModel` converts the biped animation to those units and `AllianceRenderer.titanFactory` draws it at
-  half the Titan scale, plus `textures/entity/titan_*_glow.png` full-bright (cores, screens, red drivers).
+  `titan_tv_man`. `TitanModel` is an `AllianceModel`; `AllianceRenderer.titanFactory` draws it at half the Titan
+  scale, plus `textures/entity/titan_*_glow.png` full-bright (cores, screens, red drivers).
 - **Titan 2.0s** (`titan_cameraman_2`, `titan_speakerman_2`, `titan_tv_man_2`, from the wiki's 2.0 pictures and
   descriptions) are built the same way, with `_2` textures and glow textures. Only players in the Titan 2.0 form
   use them (no 2.0 mobs). Their shoulder gear parts (rotated, so separate) are listed in
   `PlayerFormRenderer.titanShoulders`.
 - **G-Toilet** (`gman_toilet.bbmodel`, from the wiki picture of his 1.0 form): a tall seatless bowl, a tall
-  cistern with a ledge and flush knob, and G-Man's head with its own brow and nose cubes. Also built at
-  twice the detail; `GManToiletModel` doubles the head's bob/flush offsets and `SkibidiToiletRenderer.detailed`
-  draws it at half the G-Man scale. The Giant Flying Toilet uses the same tall toilet with its own face
-  (`infra_toilet` in gen_texture.py). The wiki API (`skibidi-toilet.fandom.com/api.php?action=parse&page=...`)
-  works with curl when the normal pages are blocked.
+  cistern with a ledge and flush knob, and G-Man's head with its own brow and nose cubes. The Giant Flying
+  Toilet uses the same tall toilet with its own face (`infra_toilet` in gen_texture.py). The wiki API
+  (`skibidi-toilet.fandom.com/api.php?action=parse&page=...`) works with curl when the normal pages are blocked.
+  Sketchfab's embed viewer (`sketchfab.com/models/<uid>/embed`) works in the container's Chromium with
+  `--use-angle=swiftshader-webgl --enable-unsafe-swiftshader`; drag the mouse to turn the model for screenshots.
 
 ## Generated assets
 
