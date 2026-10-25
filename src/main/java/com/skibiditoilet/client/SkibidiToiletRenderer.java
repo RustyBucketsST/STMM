@@ -15,8 +15,8 @@ import java.util.function.Predicate;
 
 /**
  * Renders every kind of Skibidi Toilet: a toilet model, a texture, and an optional scale. A toilet can
- * also switch to a second texture, like the Saint Toilet when it turns demonic. A model built at a higher detail
- * (see SkibidiToiletModel) is drawn smaller to match, so {@code scale} is always relative to a normal toilet.
+ * also switch to a second texture, like the Saint Toilet when it turns demonic. Toilet models are built at twice the
+ * detail (see SkibidiToiletModel), so they're drawn at half the given scale.
  */
 public class SkibidiToiletRenderer extends MobEntityRenderer<SkibidiToiletEntity, SkibidiToiletModel> {
     private final Function<SkibidiToiletEntity, Identifier> texture;
@@ -26,7 +26,7 @@ public class SkibidiToiletRenderer extends MobEntityRenderer<SkibidiToiletEntity
                                   Function<SkibidiToiletEntity, Identifier> texture, float scale) {
         super(context, model, 0.5f * scale);
         this.texture = texture;
-        this.scale = scale / model.detail();
+        this.scale = scale / SkibidiToiletModel.DETAILED;
     }
 
     public static EntityRendererFactory<SkibidiToiletEntity> factory(EntityModelLayer layer,

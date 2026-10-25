@@ -11,6 +11,7 @@ import net.minecraft.util.math.MathHelper;
 /**
  * The Fast Armored Toilet as in the series (blockbench/fast_armored_skibidi_toilet.bbmodel): a steel prison
  * toilet with a helmeted head and a gigantic rocket plate behind it. It shakes while it revs up and charges.
+ * Modelled at twice the detail like the other toilets (see SkibidiToiletModel).
  */
 public class FastArmoredToiletModel extends SinglePartEntityModel<FastArmoredToiletEntity> {
     private final ModelPart root;
@@ -37,8 +38,8 @@ public class FastArmoredToiletModel extends SinglePartEntityModel<FastArmoredToi
     public void setAngles(FastArmoredToiletEntity entity, float limbAngle, float limbDistance,
                           float animationProgress, float headYaw, float headPitch) {
         if (entity.isCharging()) {
-            this.shell.pivotX = MathHelper.sin(animationProgress * 2.7f) * 0.4f;
-            this.shell.pivotY = MathHelper.cos(animationProgress * 3.1f) * 0.3f;
+            this.shell.pivotX = MathHelper.sin(animationProgress * 2.7f) * 0.4f * SkibidiToiletModel.DETAILED;
+            this.shell.pivotY = MathHelper.cos(animationProgress * 3.1f) * 0.3f * SkibidiToiletModel.DETAILED;
         } else {
             this.shell.pivotX = 0.0f;
             this.shell.pivotY = 0.0f;

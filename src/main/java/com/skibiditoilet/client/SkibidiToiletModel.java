@@ -11,9 +11,9 @@ import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.util.math.MathHelper;
 
 /**
- * A toilet facing -Z (the mob's front) with a head popping out of the bowl, the ground at y = 24. Most toilets are
+ * A toilet facing -Z (the mob's front) with a head popping out of the bowl, the ground at y = 24. Toilets are
  * modelled at twice the detail of a normal mob ({@link #DETAILED} units per pixel, for finer textures) and drawn at
- * that fraction of their size, so the head's bob and flush, which are measured in normal pixels, are scaled to match.
+ * half their size, so the head's bob and flush, which are measured in normal pixels, are doubled to match.
  */
 public class SkibidiToiletModel extends SinglePartEntityModel<SkibidiToiletEntity> {
     /** Model units per pixel of the detailed toilets. */
@@ -24,28 +24,12 @@ public class SkibidiToiletModel extends SinglePartEntityModel<SkibidiToiletEntit
     // Where the head rests, which differs between the toilet and the urinal.
     protected final float headPivotY;
     protected final float headPivotZ;
-    private final float detail;
 
     public SkibidiToiletModel(ModelPart root) {
-        this(root, 1.0f);
-    }
-
-    public SkibidiToiletModel(ModelPart root, float detail) {
         this.root = root;
         this.head = root.getChild("head");
         this.headPivotY = this.head.pivotY;
         this.headPivotZ = this.head.pivotZ;
-        this.detail = detail;
-    }
-
-    /** A toilet built at {@link #DETAILED} units per pixel, like the one in skibidi_toilet.bbmodel. */
-    public static SkibidiToiletModel detailed(ModelPart root) {
-        return new SkibidiToiletModel(root, DETAILED);
-    }
-
-    /** Model units per pixel. */
-    public float detail() {
-        return this.detail;
     }
 
     public static TexturedModelData getTexturedModelData() {
@@ -139,8 +123,8 @@ public class SkibidiToiletModel extends SinglePartEntityModel<SkibidiToiletEntit
         head.yaw += flush * flush * 20.0f;
         head.xScale = 1.0f - 0.25f * flush;
         head.zScale = 1.0f - 0.25f * flush;
-        head.pivotY = this.headPivotY + (head.pivotY - this.headPivotY) * this.detail;
-        head.pivotZ = this.headPivotZ + (head.pivotZ - this.headPivotZ) * this.detail;
+        head.pivotY = this.headPivotY + (head.pivotY - this.headPivotY) * DETAILED;
+        head.pivotZ = this.headPivotZ + (head.pivotZ - this.headPivotZ) * DETAILED;
     }
 
     /** 0 while alive, rising to 1 as a dying toilet's head goes down the bowl. */

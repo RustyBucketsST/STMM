@@ -18,14 +18,17 @@ public final class SkibidiUrinalBbModel {
     /** Adds group "urinal" from skibidi_urinal.bbmodel. */
     public static ModelPartData addUrinal(ModelPartData parent) {
         ModelPartData part = parent.addChild("urinal", ModelPartBuilder.create()
-                .uv(0, 64).cuboid(-5, 3, 3, 10, 21, 3)  // shell
-                .uv(0, 88).cuboid(-4, 2, 3, 8, 1, 3)  // shell_top
-                .uv(26, 64).cuboid(-5, 7, 0, 1, 17, 3)  // wing_right
-                .uv(26, 64).mirrored().cuboid(4, 7, 0, 1, 17, 3)  // wing_left
-                .uv(34, 64).mirrored(false).cuboid(-4, 12, -4, 8, 5, 7)  // bowl
-                .uv(34, 76).cuboid(-3, 17, -2, 6, 3, 5)  // bowl_lower
-                .uv(80, 64).cuboid(-1, -2, 4, 2, 5, 2)  // pipe
-                .uv(88, 64).cuboid(-1.5f, -1, 3.5f, 3, 2, 3),  // valve
+                .uv(0, 0).cuboid(-10, -18, 6, 20, 42, 6)  // shell
+                .uv(30, 98).cuboid(-8, -20, 6, 16, 2, 6)  // shell_top
+                .uv(52, 0).cuboid(-10, -10, 0, 2, 34, 6)  // wing_right
+                .uv(52, 0).mirrored().cuboid(8, -10, 0, 2, 34, 6)  // wing_left
+                .uv(64, 48).mirrored(false).cuboid(-8, 0, -8, 16, 10, 14)  // bowl
+                .uv(0, 98).cuboid(-7, 1, -9, 14, 8, 1)  // bowl_front
+                .uv(32, 80).cuboid(-6, 10, -4, 12, 6, 10)  // bowl_lower
+                .uv(88, 98).cuboid(-2, 16, -5, 4, 2, 1)  // drain
+                .uv(76, 80).cuboid(-2, -28, 8, 4, 10, 4)  // pipe
+                .uv(92, 80).cuboid(-3, -26, 7, 6, 4, 6)  // valve
+                .uv(98, 98).cuboid(-1, -25, 6, 2, 2, 1),  // flush_button
                 ModelTransform.NONE);
         return part;
     }
@@ -33,11 +36,12 @@ public final class SkibidiUrinalBbModel {
     /** Adds group "head" from skibidi_urinal.bbmodel. */
     public static ModelPartData addHead(ModelPartData parent) {
         ModelPartData part = parent.addChild("head", ModelPartBuilder.create()
-                .uv(0, 0).cuboid(-4, -8, -4, 8, 8, 8)  // head
-                .uv(108, 96).cuboid(-2, 0, -2, 4, 5, 4)  // neck
-                .uv(118, 80).cuboid(-5, -5, -1, 1, 2, 1)  // ear_right
-                .uv(118, 80).mirrored().cuboid(4, -5, -1, 1, 2, 1),  // ear_left
-                ModelTransform.pivot(0, 12, -1));
+                .uv(0, 48).cuboid(-8, -16, -8, 16, 16, 16)  // head
+                .uv(0, 80).cuboid(-4, 0, -4, 8, 10, 8)  // neck
+                .uv(82, 98).cuboid(-1, -9, -9, 2, 3, 1)  // nose
+                .uv(74, 98).cuboid(-10, -10, -2, 2, 4, 2)  // ear_right
+                .uv(74, 98).mirrored().cuboid(8, -10, -2, 2, 4, 2),  // ear_left
+                ModelTransform.pivot(0, 0, -2));
         return part;
     }
 }

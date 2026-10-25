@@ -10,8 +10,8 @@ import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.util.math.MathHelper;
 
 /**
- * The Triple Skibidi Toilet as in the series (blockbench/triple_skibidi_toilet.bbmodel): two toilets joined
- * side by side on a platform, each with a head, and a third toilet behind them whose horned head ("head")
+ * The Triple Skibidi Toilet as in the series (blockbench/triple_skibidi_toilet.bbmodel, detailed): two toilets
+ * joined side by side on a platform, each with a head, and a third toilet behind them whose horned head ("head")
  * rises above the others. The front heads disappear as they get flushed: the left one first, then the right.
  */
 public class TripleToiletModel extends SkibidiToiletModel {
@@ -56,6 +56,6 @@ public class TripleToiletModel extends SkibidiToiletModel {
         head.yaw = headYaw * MathHelper.RADIANS_PER_DEGREE + flush * flush * 20.0f;
         head.pitch = headPitch * MathHelper.RADIANS_PER_DEGREE;
         head.roll = MathHelper.sin(progress * 0.2f) * 0.15f;
-        head.pivotY = this.sideY - bob * (1.5f + limbDistance * 2.0f) + flush * 8.5f;
+        head.pivotY = this.sideY + (flush * 8.5f - bob * (1.5f + limbDistance * 2.0f)) * DETAILED;
     }
 }

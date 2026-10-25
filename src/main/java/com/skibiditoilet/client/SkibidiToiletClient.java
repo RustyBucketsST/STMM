@@ -91,37 +91,38 @@ public class SkibidiToiletClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(TITAN_TV_MAN_2_LAYER, TitanModel::getTvMan2ModelData);
 
         EntityRendererRegistry.register(ModEntities.SKIBIDI_TOILET,
-                SkibidiToiletRenderer.factory(SKIBIDI_TOILET_LAYER, SkibidiToiletModel::detailed, "skibidi_toilet", 1.0f));
+                SkibidiToiletRenderer.factory(SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "skibidi_toilet", 1.0f));
         EntityRendererRegistry.register(ModEntities.SPIDER_TOILET,
                 SkibidiToiletRenderer.factory(SPIDER_TOILET_LAYER, SpiderToiletModel::new, "spider_toilet", 1.0f));
         EntityRendererRegistry.register(ModEntities.JETPACK_TOILET,
-                SkibidiToiletRenderer.factory(JETPACK_TOILET_LAYER, SkibidiToiletModel::detailed, "jetpack_toilet", 1.0f));
+                SkibidiToiletRenderer.factory(JETPACK_TOILET_LAYER, SkibidiToiletModel::new, "jetpack_toilet", 1.0f));
         EntityRendererRegistry.register(ModEntities.BIG_SKIBIDI_TOILET, SkibidiToiletRenderer.factory(
-                SKIBIDI_TOILET_LAYER, SkibidiToiletModel::detailed, "big_skibidi_toilet", BigSkibidiToiletEntity.SCALE));
+                SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "big_skibidi_toilet", BigSkibidiToiletEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.SCIENTIST_TOILET,
-                SkibidiToiletRenderer.factory(SKIBIDI_TOILET_LAYER, SkibidiToiletModel::detailed, "scientist_toilet", 1.0f));
+                SkibidiToiletRenderer.factory(SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "scientist_toilet", 1.0f));
         EntityRendererRegistry.register(ModEntities.GMAN_TOILET, SkibidiToiletRenderer.factory(
                 GMAN_TOILET_LAYER, GManToiletModel::new, "gman_toilet", GManToiletEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.SKIBIDI_URINAL, SkibidiToiletRenderer.factory(
                 SKIBIDI_URINAL_LAYER, SkibidiToiletModel::new, "skibidi_urinal", 1.0f));
         EntityRendererRegistry.register(ModEntities.MICRO_TOILET, SkibidiToiletRenderer.factory(
-                SKIBIDI_TOILET_LAYER, SkibidiToiletModel::detailed, "skibidi_toilet", MicroToiletEntity.SCALE));
+                SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "skibidi_toilet", MicroToiletEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.FLYING_TOILET, SkibidiToiletRenderer.factory(
-                SKIBIDI_TOILET_LAYER, SkibidiToiletModel::detailed, "flying_skibidi_toilet", 1.0f));
+                SKIBIDI_TOILET_LAYER, SkibidiToiletModel::new, "flying_skibidi_toilet", 1.0f));
         // In the series the Giant Flying Toilet has the same tall toilet as G-Toilet.
         EntityRendererRegistry.register(ModEntities.GIANT_FLYING_TOILET, SkibidiToiletRenderer.factory(
                 GMAN_TOILET_LAYER, GManToiletModel::new, "giant_flying_skibidi_toilet", GiantFlyingToiletEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.DJ_TOILET, SkibidiToiletRenderer.factory(
-                DJ_TOILET_LAYER, SkibidiToiletModel::detailed, "dj_skibidi_toilet", 1.0f));
+                DJ_TOILET_LAYER, SkibidiToiletModel::new, "dj_skibidi_toilet", 1.0f));
         EntityRendererRegistry.register(ModEntities.SAINT_TOILET, SkibidiToiletRenderer.factory(
-                SAINT_TOILET_LAYER, SkibidiToiletModel::detailed, "saint_skibidi_toilet", "saint_skibidi_toilet_demonic",
+                SAINT_TOILET_LAYER, SkibidiToiletModel::new, "saint_skibidi_toilet", "saint_skibidi_toilet_demonic",
                 toilet -> toilet instanceof SaintToiletEntity saint && saint.isDemonic(), 1.0f));
         EntityRendererRegistry.register(ModEntities.TRIPLE_TOILET, SkibidiToiletRenderer.factory(
                 TRIPLE_TOILET_LAYER, TripleToiletModel::new, "triple_skibidi_toilet", TripleToiletEntity.SCALE));
         EntityRendererRegistry.register(ModEntities.HAT_TOILET, SkibidiToiletRenderer.factory(
-                HAT_TOILET_LAYER, SkibidiToiletModel::detailed, "hat_skibidi_toilet", 1.0f));
+                HAT_TOILET_LAYER, SkibidiToiletModel::new, "hat_skibidi_toilet", 1.0f));
         EntityRendererRegistry.register(ModEntities.FAST_ARMORED_TOILET, ScaledMobRenderer.factory(
-                FAST_ARMORED_TOILET_LAYER, FastArmoredToiletModel::new, "fast_armored_skibidi_toilet", FastArmoredToiletEntity.SCALE));
+                FAST_ARMORED_TOILET_LAYER, FastArmoredToiletModel::new, "fast_armored_skibidi_toilet", FastArmoredToiletEntity.SCALE,
+                SkibidiToiletModel.DETAILED));
 
         EntityRendererRegistry.register(ModEntities.CAMERAMAN, AllianceRenderer.factory(CAMERAMAN_LAYER, "cameraman", 1.0f));
         EntityRendererRegistry.register(ModEntities.SPEAKERMAN, AllianceRenderer.factory(SPEAKERMAN_LAYER, "speakerman", 1.0f));

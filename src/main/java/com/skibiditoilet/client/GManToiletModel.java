@@ -7,11 +7,11 @@ import net.minecraft.client.model.TexturedModelData;
 
 /**
  * G-Toilet as in the series (blockbench/gman_toilet.bbmodel): G-Man's head in a tall, plain toilet with no seat
- * or lid and a tall cistern, modelled at twice the detail of a normal mob like the other toilets.
+ * or lid and a tall cistern.
  */
 public class GManToiletModel extends SkibidiToiletModel {
     public GManToiletModel(ModelPart root) {
-        super(root, DETAILED);
+        super(root);
     }
 
     public static TexturedModelData getTexturedModelData() {

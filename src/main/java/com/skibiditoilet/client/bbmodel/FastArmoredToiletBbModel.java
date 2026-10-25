@@ -9,8 +9,8 @@ import net.minecraft.client.model.ModelTransform;
  * change the model in Blockbench, then run the script again.
  */
 public final class FastArmoredToiletBbModel {
-    public static final int TEXTURE_WIDTH = 128;
-    public static final int TEXTURE_HEIGHT = 64;
+    public static final int TEXTURE_WIDTH = 256;
+    public static final int TEXTURE_HEIGHT = 128;
 
     private FastArmoredToiletBbModel() {
     }
@@ -18,22 +18,27 @@ public final class FastArmoredToiletBbModel {
     /** Adds group "shell" from fast_armored_skibidi_toilet.bbmodel. */
     public static ModelPartData addShell(ModelPartData parent) {
         ModelPartData part = parent.addChild("shell", ModelPartBuilder.create()
-                .uv(32, 24).cuboid(-5.5f, 22, -6.5f, 11, 2, 11)  // base
-                .uv(76, 0).cuboid(-5, 15, -6, 10, 7, 10)  // bowl
-                .uv(0, 40).cuboid(-5.5f, 14, -6.5f, 11, 1, 10)  // rim
-                .uv(48, 0).cuboid(-5, 4, 3.5f, 10, 18, 4)  // back_unit
-                .uv(80, 40).cuboid(-3.5f, 2, 1.5f, 7, 2, 5)  // sink
-                .uv(104, 40).cuboid(-0.5f, 0, 5, 1, 2, 1)  // faucet
-                .uv(0, 0).cuboid(-11, 0, 7.5f, 22, 22, 2)  // plate
-                .uv(0, 24).cuboid(-4, 6, -5, 8, 8, 8)  // head
-                .uv(76, 24).cuboid(-4.5f, 5, -5.5f, 9, 4, 9)  // helmet
-                .uv(64, 40).cuboid(-2, 14, -3, 4, 5, 4)  // neck
-                .uv(42, 40).cuboid(-14, 2, 9.5f, 4, 4, 7)  // rocket0_right
-                .uv(42, 40).mirrored().cuboid(10, 2, 9.5f, 4, 4, 7)  // rocket0_left
-                .uv(42, 40).mirrored(false).cuboid(-14, 9, 9.5f, 4, 4, 7)  // rocket1_right
-                .uv(42, 40).mirrored().cuboid(10, 9, 9.5f, 4, 4, 7)  // rocket1_left
-                .uv(42, 40).mirrored(false).cuboid(-14, 16, 9.5f, 4, 4, 7)  // rocket2_right
-                .uv(42, 40).mirrored().cuboid(10, 16, 9.5f, 4, 4, 7),  // rocket2_left
+                .uv(64, 48).cuboid(-11, 20, -13, 22, 4, 22)  // base
+                .uv(152, 0).cuboid(-10, 6, -12, 20, 14, 20)  // bowl
+                .uv(0, 80).cuboid(-11, 4, -13, 22, 2, 20)  // rim
+                .uv(96, 0).cuboid(-10, -16, 7, 20, 36, 8)  // back_unit
+                .uv(160, 80).cuboid(-7, -20, 3, 14, 4, 10)  // sink
+                .uv(208, 80).cuboid(-1, -24, 10, 2, 4, 2)  // faucet
+                .uv(216, 80).cuboid(-1, -24, 6, 2, 2, 4)  // faucet_spout
+                .uv(0, 0).cuboid(-22, -24, 15, 44, 44, 4)  // plate
+                .uv(0, 48).cuboid(-8, -12, -10, 16, 16, 16)  // head
+                .uv(128, 80).cuboid(-4, 4, -6, 8, 10, 8)  // neck
+                .uv(236, 80).cuboid(-1, -5, -11, 2, 3, 1)  // nose
+                .uv(228, 80).cuboid(-10, -6, -4, 2, 4, 2)  // ear_right
+                .uv(228, 80).mirrored().cuboid(8, -6, -4, 2, 4, 2)  // ear_left
+                .uv(152, 48).mirrored(false).cuboid(-9, -14, -11, 18, 8, 18)  // helmet
+                .uv(0, 102).cuboid(-9, -8, -13, 18, 2, 2)  // helmet_brim
+                .uv(84, 80).cuboid(-28, -20, 19, 8, 8, 14)  // rocket0_right
+                .uv(84, 80).mirrored().cuboid(20, -20, 19, 8, 8, 14)  // rocket0_left
+                .uv(84, 80).mirrored(false).cuboid(-28, -6, 19, 8, 8, 14)  // rocket1_right
+                .uv(84, 80).mirrored().cuboid(20, -6, 19, 8, 8, 14)  // rocket1_left
+                .uv(84, 80).mirrored(false).cuboid(-28, 8, 19, 8, 8, 14)  // rocket2_right
+                .uv(84, 80).mirrored().cuboid(20, 8, 19, 8, 8, 14),  // rocket2_left
                 ModelTransform.NONE);
         return part;
     }

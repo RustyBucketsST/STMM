@@ -110,141 +110,146 @@ def porcelain(u, v, w, h, d, hi=GLAZE_HI, lo=GLAZE_LO):
     return f
 
 
-def skin_extras():
-    """Neck 4x6x4 at (108, 96) and ears 1x2x1 at (118, 80), in the skin tone of the head just drawn."""
-    pixels = [px[x, y] for x in range(16, 24) for y in range(8)]   # underside of the chin is always bare skin
-    skin = tuple(sorted(p[i] for p in pixels)[len(pixels) // 2] for i in range(3))
-    dark = tuple(round(c * 0.84) for c in skin)
-    f = faces(108, 96, 4, 6, 4)
-    for r in sides(f):
-        gradient(r, dark, skin, 4)                   # shadowed just under the jaw
-    rect(*f["top"], skin, 4)
-    rect(*f["bottom"], dark, 2)
-    f = faces(118, 80, 1, 2, 1)
-    box(118, 80, 1, 2, 1, skin, 4)
-    rect(*f["front"], dark, 0)
-
-
-def head8(skin, hair, face, colors=None, top=True, side_rows=2, back_rows=5):
-    """An 8x8x8 head at (0, 0): skin, hair over the top, sides and back, and an 8x8 pixel-art face, where
-    H is hair, s skin, d shade, D dark lines, b brow, W eye white, p pupil, t teeth, m mouth, l lip."""
-    box(0, 0, 8, 8, 8, skin)
-    if top:
-        rect(8, 0, 8, 8, hair)
-    if side_rows:
-        rect(0, 8, 32, side_rows, hair)
-    if back_rows:
-        rect(24, 8, 8, back_rows, hair)
-    palette = {"H": hair, "s": skin, "d": tuple(round(c * 0.88) for c in skin),
-               "D": tuple(round(c * 0.66) for c in skin), "b": tuple(round(c * 0.8) for c in hair),
-               "W": (240, 240, 236), "p": (30, 30, 30), "t": (240, 238, 228), "m": (80, 18, 18),
-               "l": (200, 90, 90), **(colors or {})}
-    for k, row in enumerate(face):
-        for i, ch in enumerate(row):
-            px[8 + i, 8 + k] = shade(palette[ch], 4 if ch in "sdH" else 1)
-
-
 URINAL_HAIR = (60, 40, 28)
 
 
-def urinal_head():
-    # Head 8x8x8 at (0, 0): neat dark hair and a mustache, mouth open mid-song.
-    box(0, 0, 8, 8, 8, SKIN)
-    rect(8, 0, 8, 8, URINAL_HAIR)
-    rect(0, 8, 32, 1, URINAL_HAIR)
-    rect(24, 8, 8, 5, URINAL_HAIR)
-    fx, fy = 8, 8
-    for x in (1, 5):
-        rect(fx + x, fy + 2, 2, 1, URINAL_HAIR, 0)
-        px[fx + x, fy + 3] = (255, 255, 255, 255)
-        px[fx + x + 1, fy + 3] = (30, 30, 30, 255)
-    rect(fx + 2, fy + 5, 4, 1, URINAL_HAIR, 0)     # mustache
-    rect(fx + 3, fy + 6, 2, 2, (90, 20, 20), 0)    # singing mouth
-
-
 def urinal():
+    # The Skibidi Urinal (skibidi_urinal.bbmodel): a floor-standing urinal with a chrome flush pipe, and a singer
+    # with neat dark hair and a mustache, mouth open mid-song
+    b = bb_boxes("skibidi_urinal")
     new_image(128, 18)
-    urinal_head()
-    skin_extras()
-    # Shell 10x21x3 at (0, 64): the tall back of a floor-standing urinal, with a chrome spreader at the top
-    f = porcelain(0, 64, 10, 21, 3, GLAZE_HI, (214, 219, 225))
+    head16(b, SKIN, URINAL_HAIR, [
+        "HHHHHHHHHHHHHHHH",
+        "HHHHHHHHHHHhHHHH",
+        "HHHssssssssssHHH",
+        "HssssssssssssssH",
+        "ssbbbbssssbbbbss",
+        "ssssssssssssssss",
+        "ssWWWWssssWWWWss",
+        "ssWpiWssssWipWss",
+        "sssddssssssddsss",
+        "ssssssddddssssss",
+        "ssssHHHHHHHHssss",
+        "sssHHHssssHHHsss",
+        "sssssllllllsssss",
+        "ssssslmmmmlsssss",
+        "sssssslmmlssssss",
+        "sssssssllsssssss"])
+    f = porcelain(*b["shell"], GLAZE_HI, (214, 219, 225))
     x, y, w, h = f["front"]
-    rect(x + 1, y + 4, w - 2, h - 5, (232, 235, 239), 2)  # the recessed back of the bowl
-    rect(x + 3, y + 1, 4, 1, CHROME, 4)
-    porcelain(0, 88, 8, 1, 3)                              # rounded top 8x1x3
-    porcelain(26, 64, 1, 17, 3)                            # side wings 1x17x3
-    # Bowl 8x5x7 at (34, 64): the top is the opening the head comes out of
-    f = porcelain(34, 64, 8, 5, 7, (246, 248, 250), (222, 226, 232))
-    x, y, w, h = f["top"]
-    rect(x + 1, y + 1, w - 2, h - 2, (204, 210, 218), 2)
-    rect(x + 2, y + 1, w - 4, h - 3, (70, 120, 160), 6)
-    rect(x + 3, y + 2, w - 6, 1, (40, 80, 120), 6)
-    porcelain(34, 76, 6, 3, 5, (222, 226, 232), (206, 211, 217))   # lower bowl 6x3x5
-    # Flush pipe 2x5x2 at (80, 64) and valve 3x2x3 at (88, 64)
-    box(80, 64, 2, 5, 2, CHROME, 6)
-    box(88, 64, 3, 2, 3, (170, 177, 188), 6)
-    rect(88, 67, 12, 1, (220, 226, 234), 3)
+    rect(x + 2, y + 8, w - 4, h - 10, (232, 235, 239), 2)   # the recessed back of the bowl
+    rect(x + 6, y + 2, 8, 2, CHROME, 4)                     # chrome spreader
+    porcelain(*b["shell_top"])
+    porcelain(*b["wing_right"])
+    f = porcelain(*b["bowl"], (246, 248, 250), (222, 226, 232))
+    x, y, w, h = f["top"]                                   # the opening the head comes out of
+    rect(x + 2, y + 2, w - 4, h - 4, (204, 210, 218), 2)
+    rect(x + 4, y + 3, w - 8, h - 6, (70, 120, 160), 5)
+    rect(x + 5, y + 4, w - 10, 2, (40, 80, 120), 5)
+    porcelain(*b["bowl_front"], (246, 248, 250), (222, 226, 232))
+    for name in ("bowl", "bowl_front"):
+        x, y, w, h = faces(*b[name])["front"]
+        rect(x + 1, y, w - 2, 1, (255, 255, 255), 1)        # shine on the rim
+    porcelain(*b["bowl_lower"], (222, 226, 232), (206, 211, 217))
+    f = faces(*b["drain"])
+    box(*b["drain"], CHROME, 4)
+    x, y, w, h = f["front"]
+    for i in range(0, w, 2):
+        px[x + i, y + 1] = (90, 96, 106, 255)               # drain holes
+    box(*b["pipe"], CHROME, 6)
+    x, y, w, h = faces(*b["pipe"])["front"]
+    rect(x + 1, y, 1, h, (232, 238, 244), 2)                # shine down the pipe
+    f = faces(*b["valve"])
+    box(*b["valve"], (170, 177, 188), 6)
+    for r in sides(f):
+        rect(r[0], r[1] + r[3] - 1, r[2], 1, (220, 226, 234), 3)
+    box(*b["flush_button"], (220, 226, 234), 2)
     return img
-
-
-def head_strip(head, seed):
-    """Draws a head on a scratch image and returns its 32x16 texture strip, to place anywhere."""
-    global img, px
-    saved = img, px
-    new_image(64, seed)
-    head()
-    strip = img.crop((0, 0, 32, 16))
-    img, px = saved
-    return strip
 
 
 TRIPLE_SKIN = (150, 106, 78)
 
 
-def triple_face(face):
-    return lambda: head8(TRIPLE_SKIN, TRIPLE_SKIN, face, {"b": (70, 48, 36)}, side_rows=0, back_rows=0)
-
-
 def triple():
     # Two toilets joined on a platform and a third behind them (triple_skibidi_toilet.bbmodel), with three
-    # bald heads grinning ear to ear: the top one at u 0 (with horns), the others' strips at u 64 and 96
+    # bald heads grinning ear to ear: the top one horned and angry, the left one goggle-eyed, the right one smug
     b = bb_boxes("triple_skibidi_toilet")
-    new_image(128, 20)
-    triple_face(["ssssssss", "sdssssds", "sbbssbbs", "sWpssWps", "sssdDsss", "DttttttD", "sDmmmmDs", "ssssssss"])()
-    img.paste(head_strip(triple_face(["ssssssss", "ssssssss", "sbbssbbs", "WpWsWpWs", "sssdDsss",
-                                      "sDttttDs", "ssDmmDss", "ssssssss"]), 21), (64, 0))
-    img.paste(head_strip(triple_face(["ssssssss", "ssssssss", "bbsssbbs", "sWpssWps", "sssdDsss",
-                                      "DttttttD", "ssDmmDss", "ssssssss"]), 22), (96, 0))
-    for name in ("head_neck", "head_left_neck", "head_ear_right"):
-        u, v, w, h, d = b[name]
-        box(u, v, w, h, d, TRIPLE_SKIN, 4)
-        for r in sides(faces(u, v, w, h, d)):
-            x, y, rw, rh = r
-            rect(x, y, rw, 1, tuple(round(c * 0.82) for c in TRIPLE_SKIN), 2)   # under the jaw
-    f = faces(*b["horn_right"])
-    for r in sides(f):
-        gradient(r, (60, 54, 50), (110, 100, 92), 3)                            # dark horns, lighter at the base
-    rect(*f["top"], (44, 40, 38), 2)
+    new_image(256, 20)
+    look = dict(top=False, side_rows=0, back_rows=0, colors={"b": (70, 48, 36)})
+    head16(b, TRIPLE_SKIN, TRIPLE_SKIN, [
+        "ssssssssssssssss",
+        "sssssseessssssss",
+        "ssddssssssssddss",
+        "ssssssssssssssss",
+        "sbbbssssssssbbbs",
+        "sssbbbssssbbbsss",
+        "ssWWWWssssWWWWss",
+        "ssWWpWssssWpWWss",
+        "ssssDDssssDDssss",
+        "ssssssddddssssss",
+        "DssssssssssssssD",
+        "DlttttttttttttlD",
+        "sDtTtTtTtTtTtTDs",
+        "ssDmmmmmmmmmmDss",
+        "sssDDDDDDDDDDsss",
+        "ssssssssssssssss"], part="head", prefix="head_", **look)
+    head16(b, TRIPLE_SKIN, TRIPLE_SKIN, [
+        "ssssssssssssssss",
+        "ssssssssssssssss",
+        "sssssseessssssss",
+        "ssssssssssssssss",
+        "ssbbbbssssbbbbss",
+        "ssssssssssssssss",
+        "ssWWWWssssWWWWss",
+        "sspWWWssssWWpWss",
+        "ssWWWWssssWWWWss",
+        "ssssssddddssssss",
+        "ssDssssssssssDss",
+        "sssDttttttttDsss",
+        "sssDtTtTtTtTDsss",
+        "ssssDmmmmmmDssss",
+        "sssssDDDDDDsssss",
+        "ssssssssssssssss"], part="head_left", prefix="head_left_", **look)
+    head16(b, TRIPLE_SKIN, TRIPLE_SKIN, [
+        "ssssssssssssssss",
+        "ssssssssssssssss",
+        "sssssseessssssss",
+        "ssssssssssbbbbss",
+        "ssbbbbssssssssss",
+        "ssssssssssssssss",
+        "ssWWWWssssWWWWss",
+        "ssWpWWssssWpWWss",
+        "sssddssssssddsss",
+        "ssssssddddssssss",
+        "sDssssssssssssDs",
+        "DlttttttttttttlD",
+        "sDttTttTttTttTDs",
+        "sssDmmmmmmmmDsss",
+        "ssssDDDDDDDDssss",
+        "ssssssssssssssss"], part="head_right", prefix="head_right_", **look)
+    for name in ("horn_right", "horn_tip_right"):
+        f = faces(*b[name])
+        for r in sides(f):
+            gradient(r, (60, 54, 50), (110, 100, 92), 3)        # dark horns, lighter at the base
+        rect(*f["top"], (44, 40, 38), 2)
     # Porcelain, with the inside of each bowl seen from above and oval lids like the regular toilets
-    for name in ("pedestal_right", "bowl_lower_right", "bowl_right", "lid_top_right", "tank", "tank_lid",
-                 "back_pedestal", "back_bowl", "back_tank"):
+    for name in ("pedestal_right", "bowl_lower_right", "bowl_right", "bowl_front_right", "lid_top_right", "tank",
+                 "tank_lid", "back_pedestal", "back_bowl", "back_tank"):
         porcelain(*b[name])
     for name in ("bowl_right", "back_bowl"):
         x, y, w, h = faces(*b[name])["top"]
-        rect(x + 2, y + 2, w - 4, h - 4, (204, 210, 218), 2)
-        rect(x + 3, y + 3, w - 6, h - 6, WATER, 6)
-    f = porcelain(*b["lid_right"], (248, 249, 251), (226, 230, 235))
-    x, y, w, h = f["front"]
-    for k in range(h):
-        for i in range(w):
-            r = math.hypot((i - (w - 1) / 2) / (w / 2), (k - (h - 1) / 2) / (h / 2))
-            if 0.62 < r < 0.86:
-                px[x + i, y + k] = shade((230, 233, 237), 2)
-            elif r >= 1.0:
-                px[x + i, y + k] = shade((214, 218, 224), 2)
+        rect(x + 3, y + 3, w - 6, h - 6, (210, 216, 223), 2)
+        rect(x + 5, y + 5, w - 10, h - 10, (190, 198, 208), 2)
+        rect(x + 7, y + 7, w - 14, h - 14, WATER, 5)
+    x, y, w, h = faces(*b["tank_lid"])["top"]
+    rect(x + 2, y + 2, w - 4, 1, (255, 255, 255), 0)            # glossy highlight
+    lid_oval(porcelain(*b["lid_right"], (248, 249, 251), (226, 230, 235)))
     f = faces(*b["platform"])
     for r in f.values():
-        rect(*r, (120, 124, 130), 4)                                            # a grey stone platform
+        rect(*r, (120, 124, 130), 4)                            # a grey stone platform
+    x, y, w, h = f["top"]
+    for i in range(0, w, 9):
+        rect(x + i, y, 1, h, (104, 108, 114), 0)                # slabs
     return img
 
 
@@ -255,30 +260,38 @@ def fast_armored():
     # The Fast Armored Skibidi Toilet (fast_armored_skibidi_toilet.bbmodel): a brushed-steel prison toilet with
     # a sink on top, a head in a black helmet with blank white eyes, a dark plate behind with six rockets
     b = bb_boxes("fast_armored_skibidi_toilet")
-    new_image(128, 24, 64)
+    new_image(256, 24, 128)
     skin = (186, 140, 108)
-    u, v, w, h, d = b["head"]
-    f = faces(u, v, w, h, d)
-    for r in f.values():
-        rect(*r, skin, 4)
-    rect(*f["top"], (30, 26, 24), 3)
-    pixel_art(*f["front"][:2], ["HHHHHHHH", "HHHHHHHH", "HssssssH", "sWWssWWs",
-                                "sssdDsss", "sDttttDs", "ssDmmDss", "ssssssss"],
-              {"H": (30, 26, 24), "s": skin, "d": (164, 122, 94), "D": (120, 88, 66), "W": (250, 250, 250),
-               "t": (236, 232, 220), "m": (70, 16, 16)})
+    head16(b, skin, (30, 26, 24), [
+        "HHHHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHHHH",
+        "HHHHHHHHHHHHHHHH",
+        "ssssssssssssssss",
+        "ssWWWWssssWWWWss",
+        "ssWWWWssssWWWWss",
+        "ssssssddddssssss",
+        "sDssssssssssssDs",
+        "sDlttttttttttlDs",
+        "ssDtTtTtTtTtTDss",
+        "sssDmmmmmmmmDsss",
+        "ssssDDDDDDDDssss",
+        "ssssssssssssssss"], {"W": (250, 250, 250)}, side_rows=6, back_rows=8, sideburns=False)
+    f = faces(*b["head"])
     for key in ("right", "left"):
         x, y, rw, rh = f[key]
-        rect(x + rw // 2, y + 3, 1, rh - 3, (50, 44, 36), 0)   # helmet strap down to the chin
-    rect(*f["bottom"], (164, 122, 94), 2)
-    f = faces(*b["helmet"])
-    for r in sides(f):
-        gradient(r, (40, 40, 44), (22, 22, 26), 3)
-    rect(*f["top"], (46, 46, 50), 3)
-    rect(*f["bottom"], (16, 16, 18), 0)
-    f = faces(*b["neck"])
-    for r in sides(f):
-        gradient(r, (150, 112, 86), skin, 3)
-    for name in ("base", "bowl", "rim", "back_unit", "sink", "faucet"):
+        rect(x + rw // 2, y + 6, 2, rh - 6, (50, 44, 36), 0)    # helmet strap down to the chin
+    for name in ("helmet", "helmet_brim"):
+        f = faces(*b[name])
+        for r in sides(f):
+            gradient(r, (40, 40, 44), (22, 22, 26), 3)
+        rect(*f["top"], (46, 46, 50), 3)
+        rect(*f["bottom"], (16, 16, 18), 0)
+    x, y, w, h = faces(*b["helmet"])["top"]
+    rect(x + w // 2 - 1, y + 2, 2, h - 4, (60, 60, 66), 2)      # ridge
+    for name in ("base", "bowl", "rim", "back_unit", "sink", "faucet", "faucet_spout"):
         f = faces(*b[name])
         for r in sides(f):
             x, y, rw, rh = r
@@ -288,33 +301,37 @@ def fast_armored():
         rect(*f["top"], tuple(c + 16 for c in STEEL), 3)
         rect(*f["bottom"], (90, 92, 98), 2)
     x, y, w, h = faces(*b["rim"])["top"]
-    rect(x + 2, y + 2, w - 4, h - 4, (70, 74, 82), 2)          # the inside of the bowl
-    rect(x + 3, y + 3, w - 6, h - 6, (60, 100, 140), 6)
+    rect(x + 3, y + 3, w - 6, h - 6, (70, 74, 82), 2)          # the inside of the bowl
+    rect(x + 5, y + 5, w - 10, h - 10, (60, 100, 140), 5)
     x, y, w, h = faces(*b["sink"])["top"]
-    rect(x + 1, y + 1, w - 2, h - 2, (100, 104, 110), 2)       # basin
-    px[x + w // 2, y + h // 2] = (40, 40, 44, 255)            # drain
+    rect(x + 2, y + 2, w - 4, h - 4, (100, 104, 110), 2)       # basin
+    rect(x + w // 2 - 1, y + h // 2 - 1, 2, 2, (40, 40, 44), 0)  # drain
     f = faces(*b["plate"])
     for r in f.values():
         rect(*r, (62, 64, 70), 3)
-    x, y, w, h = f["back"]
-    for k in range(0, h, 7):
-        rect(x, y + k, w, 1, (48, 50, 54), 0)                  # panel seams
-    for i in range(1, w, 4):
-        for k in (1, h - 2):
-            px[x + i, y + k] = (104, 106, 112, 255)            # rivets
+    for key in ("back", "front"):
+        x, y, w, h = f[key]
+        for k in range(0, h, 11):
+            rect(x, y + k, w, 1, (48, 50, 54), 0)              # panel seams
+        for i in range(2, w, 6):
+            for k in (2, h - 3):
+                px[x + i, y + k] = (104, 106, 112, 255)        # rivets
     f = faces(*b["rocket0_right"])
     for r in sides(f):
         gradient(r, (124, 126, 132), (90, 92, 98), 3)
         x, y, rw, rh = r
-        rect(x, y + rh - 1, rw, 1, (60, 62, 66), 0)
+        rect(x, y + rh - 2, rw, 2, (60, 62, 66), 0)
     for key in ("top", "bottom"):
         x, y, rw, rh = f[key]
         rect(x, y, rw, rh, (110, 112, 118), 3)
-        for k in range(1, rh, 2):
+        for k in range(2, rh, 4):
             rect(x, y + k, rw, 1, (80, 82, 88), 0)             # bands along the rocket
     x, y, w, h = f["back"]
     rect(x, y, w, h, (40, 40, 44), 0)                          # nozzle...
     rect(x + 1, y + 1, w - 2, h - 2, (250, 170, 60), 6)        # ...glowing hot
+    rect(x + 3, y + 3, w - 6, h - 6, (255, 230, 140), 4)
+    x, y, w, h = f["front"]
+    rect(x + 2, y + 2, w - 4, h - 4, (150, 40, 36), 3)         # red warhead
     return img
 
 
@@ -367,12 +384,13 @@ def camera_strider():
 
 # ---- The toilets at twice the detail (skibidi_toilet.bbmodel, 256x256; UVs read by cube name)
 
-def head16(b, skin, hair, face, colors=None, top=True, side_rows=4, back_rows=10, sideburns=True):
-    """The 16x16x16 head, its nose, ears and neck: skin, hair over the top, sides and back, and a 16x16
-    pixel-art face, where H is hair, h a lighter streak of it, s skin, e a highlight, d shade, w a wrinkle,
-    D dark lines, b brow, W eye white, i iris, p pupil, t teeth, T the gaps between them, m mouth, l lip,
-    n nostril."""
-    u, v, w, h, d = b["head"]
+def head16(b, skin, hair, face, colors=None, top=True, side_rows=4, back_rows=10, sideburns=True, part="head",
+           prefix=""):
+    """The 16x16x16 head (cube `part`), its nose, ears and neck (cubes `prefix` + "nose" etc.): skin, hair over
+    the top, sides and back, and a 16x16 pixel-art face, where H is hair, h a lighter streak of it, s skin, e a
+    highlight, d shade, w a wrinkle, D dark lines, b brow, W eye white, i iris, p pupil, t teeth, T the gaps
+    between them, m mouth, l lip, n nostril."""
+    u, v, w, h, d = b[part]
     box(u, v, w, h, d, skin, 4)
     f = faces(u, v, w, h, d)
     if top:
@@ -402,19 +420,19 @@ def head16(b, skin, hair, face, colors=None, top=True, side_rows=4, back_rows=10
         assert len(row) == 16, row
         for i, ch in enumerate(row):
             px[x + i, y + k] = shade(palette[ch], 3 if ch in "sdeHh" else 1)
-    nf = faces(*b["nose"])
-    box(*b["nose"], skin, 3)
+    nf = faces(*b[prefix + "nose"])
+    box(*b[prefix + "nose"], skin, 3)
     for name in ("right", "left", "bottom"):
         rect(*nf[name], palette["d"], 2)
     x, y, nw, nh = nf["front"]
     rect(x, y, nw, 1, palette["e"], 2)                           # the bridge catching the light
     rect(x, y + nh - 1, nw, 1, palette["n"], 1)                  # nostrils
-    ef = faces(*b["ear_right"])
-    box(*b["ear_right"], skin, 3)
+    ef = faces(*b[prefix + "ear_right"])
+    box(*b[prefix + "ear_right"], skin, 3)
     rect(*ef["front"], palette["d"], 2)
     x, y, ew, eh = ef["right"]
     rect(x, y + 1, ew, eh - 2, palette["w"], 2)                  # the hollow of the ear
-    nk = faces(*b["neck"])
+    nk = faces(*b[prefix + "neck"])
     for r in sides(nk):
         gradient(r, palette["D"], skin, 3)                       # shadowed just under the jaw
     rect(*nk["top"], skin, 3)

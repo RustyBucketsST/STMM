@@ -10,8 +10,7 @@ import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.util.math.MathHelper;
 
 /**
- * The toilet without its pedestal, standing on four spider legs per side, at the toilet's detail. Legs are listed
- * front (-Z) to back.
+ * The toilet without its pedestal, standing on four spider legs per side. Legs are listed front (-Z) to back.
  */
 public class SpiderToiletModel extends SkibidiToiletModel {
     private static final int LEGS_PER_SIDE = 4;
@@ -27,7 +26,7 @@ public class SpiderToiletModel extends SkibidiToiletModel {
     private final ModelPart[] leftLegs = new ModelPart[LEGS_PER_SIDE];
 
     public SpiderToiletModel(ModelPart root) {
-        super(root, DETAILED);
+        super(root);
         for (int i = 0; i < LEGS_PER_SIDE; i++) {
             this.rightLegs[i] = root.getChild("right_leg_" + i);
             this.leftLegs[i] = root.getChild("left_leg_" + i);

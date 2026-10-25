@@ -17,16 +17,23 @@ public class ScaledMobRenderer<T extends MobEntity, M extends EntityModel<T>> ex
     private final Identifier texture;
     private final float scale;
 
-    public ScaledMobRenderer(EntityRendererFactory.Context context, M model, Identifier texture, float scale) {
+    private ScaledMobRenderer(EntityRendererFactory.Context context, M model, Identifier texture, float scale,
+                              float detail) {
         super(context, model, 0.5f * scale);
         this.texture = texture;
-        this.scale = scale;
+        this.scale = scale / detail;
     }
 
     public static <T extends MobEntity, M extends EntityModel<T>> EntityRendererFactory<T> factory(
             EntityModelLayer layer, Function<ModelPart, M> model, String textureName, float scale) {
+        return factory(layer, model, textureName, scale, 1.0f);
+    }
+
+    /** A model built at {@code detail} units per pixel, drawn so that it ends up {@code scale} times normal size. */
+    public static <T extends MobEntity, M extends EntityModel<T>> EntityRendererFactory<T> factory(
+            EntityModelLayer layer, Function<ModelPart, M> model, String textureName, float scale, float detail) {
         Identifier texture = SkibidiToiletMod.id("textures/entity/" + textureName + ".png");
-        return context -> new ScaledMobRenderer<>(context, model.apply(context.getPart(layer)), texture, scale);
+        return context -> new ScaledMobRenderer<>(context, model.apply(context.getPart(layer)), texture, scale, detail);
     }
 
     @Override
