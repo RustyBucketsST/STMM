@@ -49,13 +49,12 @@ public final class GearRenderer {
         public static final Fit DETAILED = new Fit(2.15f, 2.0f, 2.3f, 2.25f, 2.0f, 2.25f, 0.0f, true, true, true);
 
         /**
-         * A Titan built at {@code detail} units per pixel: his own shoulder gear shows instead, and plates on his chest
-         * would hide his core.
+         * A Titan (built at four units per pixel, with a wider body): his own shoulder gear shows instead, and plates
+         * on his chest would hide his core.
          */
-        public static Fit titan(AllianceType type, float detail) {
+        public static Fit titan(AllianceType type) {
             boolean jetpack = type == AllianceType.TV_MAN;
-            float k = detail / 2.0f;
-            return new Fit(2.75f * k, 2.0f * k, 3.0f * k, 2.5f * k, 2.0f * k, 2.5f * k, 5.0f, jetpack, false, false);
+            return new Fit(5.5f, 4.0f, 6.0f, 5.0f, 4.0f, 5.0f, 5.0f, jetpack, false, false);
         }
     }
 

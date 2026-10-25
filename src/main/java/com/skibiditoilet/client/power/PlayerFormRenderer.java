@@ -80,9 +80,8 @@ public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlaye
                     GearRenderer.Fit.DETAILED, List.of()));
             for (Form form : new Form[]{Form.TITAN, Form.TITAN_2}) {
                 String texture = "titan_" + type.asString() + (form == Form.TITAN_2 ? "_2" : "");
-                float detail = form == Form.TITAN_2 ? TitanModel.DETAIL_2 : TitanModel.DETAIL;
-                put(form, type, new PlayerFormRenderer(context, titanLayer(type, form), texture, detail,
-                        form.scale(type) / detail, 14.0f * detail, true, GearRenderer.Fit.titan(type, detail),
+                put(form, type, new PlayerFormRenderer(context, titanLayer(type, form), texture, TitanModel.DETAIL,
+                        form.scale(type) / TitanModel.DETAIL, 56.0f, true, GearRenderer.Fit.titan(type),
                         titanShoulders(type, form)));
             }
         }
@@ -104,9 +103,11 @@ public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlaye
     private static List<String> titanShoulders(AllianceType type, Form form) {
         if (form == Form.TITAN_2) {
             return switch (type) {
-                case CAMERAMAN -> bothSides("shoulder_cam", "shoulder_cam_lens");
-                case SPEAKERMAN -> bothSides("tower", "tower_plate");
-                case TV_MAN -> bothSides("shoulder_tv", "claw0", "claw1", "claw2");
+                case CAMERAMAN -> bothSides("shoulder_cam", "shoulder_cam_hood", "shoulder_cam_lens");
+                case SPEAKERMAN -> Stream.concat(Stream.of("tower_plate_right_r", "tower_plate_left_r"),
+                        titanShoulders(type, Form.TITAN).stream()).toList();
+                case TV_MAN -> Stream.concat(bothSides("shoulder_tv", "shoulder_tv_screen").stream(),
+                        titanShoulders(type, Form.TITAN).stream()).toList();
             };
         }
         return switch (type) {

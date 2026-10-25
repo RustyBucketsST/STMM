@@ -10,15 +10,13 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.TexturedModelData;
 
 /**
- * A Titan, modelled in blockbench/titan_*.bbmodel. The 1.0 Titans (the mobs and the Titan form) are built at four
- * times the detail of a normal mob and drawn at a quarter of the Titan scale, so their textures stay fine at their
- * size; the 2.0s (only the Titan 2.0 form) at twice, like the other Alliance members.
+ * A Titan, modelled in blockbench/titan_*.bbmodel (the 1.0s for the mobs and the Titan form, the 2.0s for the
+ * Titan 2.0 form) at four times the detail of a normal mob and drawn at a quarter of the Titan scale, so their
+ * textures stay fine at their size.
  */
 public class TitanModel extends AllianceModel {
-    /** Model units per pixel of the 1.0 Titans. */
+    /** Model units per pixel. */
     public static final float DETAIL = 4.0f;
-    /** Model units per pixel of the 2.0 Titans. */
-    public static final float DETAIL_2 = AllianceModel.DETAILED;
 
     public TitanModel(ModelPart root) {
         super(root, DETAIL);
@@ -50,21 +48,21 @@ public class TitanModel extends AllianceModel {
      * cameras, a silver winged jetpack, a railgun and a hammer, shin plates.
      */
     public static TexturedModelData getCameraman2ModelData() {
-        return detailed(TitanCameraman2BbModel.TEXTURE_WIDTH, TitanCameraman2BbModel.TEXTURE_HEIGHT,
+        return detailedAt(DETAIL, TitanCameraman2BbModel.TEXTURE_WIDTH, TitanCameraman2BbModel.TEXTURE_HEIGHT,
                 TitanCameraman2BbModel::addHead, TitanCameraman2BbModel::addBody, TitanCameraman2BbModel::addRightArm,
                 TitanCameraman2BbModel::addLeftArm, TitanCameraman2BbModel::addRightLeg, TitanCameraman2BbModel::addLeftLeg);
     }
 
     /** Titan Speakerman 2.0: a helmet over his speakers, red plated towers, a huge jetpack, cannons on both arms. */
     public static TexturedModelData getSpeakerman2ModelData() {
-        return detailed(TitanSpeakerman2BbModel.TEXTURE_WIDTH, TitanSpeakerman2BbModel.TEXTURE_HEIGHT,
+        return detailedAt(DETAIL, TitanSpeakerman2BbModel.TEXTURE_WIDTH, TitanSpeakerman2BbModel.TEXTURE_HEIGHT,
                 TitanSpeakerman2BbModel::addHead, TitanSpeakerman2BbModel::addBody, TitanSpeakerman2BbModel::addRightArm,
                 TitanSpeakerman2BbModel::addLeftArm, TitanSpeakerman2BbModel::addRightLeg, TitanSpeakerman2BbModel::addLeftLeg);
     }
 
     /** Titan TV Man 2.0: a wide flat TV with a crown, shoulder TVs, a big purple core, an energy sword. */
     public static TexturedModelData getTvMan2ModelData() {
-        return detailed(TitanTvMan2BbModel.TEXTURE_WIDTH, TitanTvMan2BbModel.TEXTURE_HEIGHT,
+        return detailedAt(DETAIL, TitanTvMan2BbModel.TEXTURE_WIDTH, TitanTvMan2BbModel.TEXTURE_HEIGHT,
                 TitanTvMan2BbModel::addHead, TitanTvMan2BbModel::addBody, TitanTvMan2BbModel::addRightArm,
                 TitanTvMan2BbModel::addLeftArm, TitanTvMan2BbModel::addRightLeg, TitanTvMan2BbModel::addLeftLeg);
     }

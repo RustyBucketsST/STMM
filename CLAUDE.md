@@ -117,9 +117,10 @@ a story mode, player characters with Alliance powers. Modeled on how DragonMine 
   fingers, shaped shoes/boots; round parts are three-box discs `_wide`/`_mid`/`_tall`, drawn by `disc_front` in
   gen_texture.py). `TitanModel` is an `AllianceModel`; `AllianceRenderer.titanFactory` draws it at a quarter of the
   Titan scale, plus `textures/entity/titan_*_glow.png` full-bright (cores, screens, red drivers, claw edges).
-- **Titan 2.0s** (`titan_cameraman_2`, `titan_speakerman_2`, `titan_tv_man_2`, from the wiki's 2.0 pictures and
-  descriptions) are still at two units per pixel (`TitanModel.DETAIL_2`, 2x pivots like the other Alliance members),
-  with `_2` textures and glow textures. Only players in the Titan 2.0 form use them (no 2.0 mobs). Their shoulder gear parts (rotated, so separate) are listed in
+- **Titan 2.0s** (`titan_cameraman_2`, `titan_speakerman_2`, `titan_tv_man_2`, from the wiki's 2.0 pictures
+  `TitanCameramanWithHammer.png`, `UTSM3.png`, `UTTVM 68.png` and descriptions) are built the same way, at four units
+  per pixel, with `_2` textures and glow textures (Titan Speakerman's head texture is shared by both his forms). Only
+  players in the Titan 2.0 form use them (no 2.0 mobs). Their shoulder gear parts (rotated, so separate) are listed in
   `PlayerFormRenderer.titanShoulders`.
 - **G-Toilet** (`gman_toilet.bbmodel`, from the wiki picture of his 1.0 form): a tall seatless bowl, a tall
   cistern with a ledge and flush knob, and G-Man's head with its own brow and nose cubes. The Giant Flying

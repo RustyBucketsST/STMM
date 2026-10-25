@@ -9,8 +9,8 @@ import net.minecraft.client.model.ModelTransform;
  * change the model in Blockbench, then run the script again.
  */
 public final class TitanSpeakerman2BbModel {
-    public static final int TEXTURE_WIDTH = 256;
-    public static final int TEXTURE_HEIGHT = 128;
+    public static final int TEXTURE_WIDTH = 512;
+    public static final int TEXTURE_HEIGHT = 512;
 
     private TitanSpeakerman2BbModel() {
     }
@@ -18,102 +18,294 @@ public final class TitanSpeakerman2BbModel {
     /** Adds group "head" from titan_speakerman_2.bbmodel. */
     public static ModelPartData addHead(ModelPartData parent) {
         ModelPartData part = parent.addChild("head", ModelPartBuilder.create()
-                .uv(0, 97).cuboid(-3, -3, -3, 6, 3, 6)  // mount
-                .uv(98, 65).cuboid(-9, -8, -6, 18, 6, 8)  // lower_speaker
-                .uv(212, 39).cuboid(-4, -20, -5, 8, 12, 7)  // center_speaker
-                .uv(116, 39).cuboid(-7, -23, 2, 14, 16, 6)  // back_cabinet
-                .uv(60, 84).cuboid(-6, -23, -6, 12, 3, 9),  // helmet
-                ModelTransform.pivot(0, -24, 0));
-        ModelPartData frame_right_r1 = part.addChild("frame_right_r", ModelPartBuilder.create()
-                .uv(168, 84).cuboid(-0.5f, -10, -0.5f, 1, 10, 1),  // frame_right
-                ModelTransform.of(-5, -23, -1, 0, 0, -0.523599f));
-        ModelPartData frame_left_r1 = part.addChild("frame_left_r", ModelPartBuilder.create()
-                .uv(168, 84).mirrored().cuboid(-0.5f, -10, -0.5f, 1, 10, 1),  // frame_left
-                ModelTransform.of(5, -23, -1, 0, 0, 0.523599f));
+                .uv(348, 215).cuboid(-6, -6, -6, 12, 6, 12)  // neck
+                .uv(312, 128).cuboid(-18, -16, -12, 36, 12, 16)  // lower_speaker
+                .uv(396, 215).cuboid(-18.5f, -16.5f, -12.5f, 37, 1, 17)  // lower_trim
+                .uv(32, 267).cuboid(-13.5f, -12.5f, -13, 9, 5, 1)  // lower_woofer_wide_right
+                .uv(32, 267).mirrored().cuboid(4.5f, -12.5f, -13, 9, 5, 1)  // lower_woofer_wide_left
+                .uv(334, 255).mirrored(false).cuboid(-12.5f, -13.5f, -13, 7, 7, 1)  // lower_woofer_mid_right
+                .uv(334, 255).mirrored().cuboid(5.5f, -13.5f, -13, 7, 7, 1)  // lower_woofer_mid_left
+                .uv(248, 255).mirrored(false).cuboid(-11.5f, -14.5f, -13, 5, 9, 1)  // lower_woofer_tall_right
+                .uv(248, 255).mirrored().cuboid(6.5f, -14.5f, -13, 5, 9, 1)  // lower_woofer_tall_left
+                .uv(368, 267).mirrored(false).cuboid(-1.5f, -11.5f, -13, 3, 3, 1)  // lower_tweeter
+                .uv(226, 78).cuboid(-8, -40, -10, 16, 24, 14)  // center_speaker
+                .uv(52, 267).cuboid(-6.5f, -27.5f, -11, 13, 5, 1)  // center_woofer_wide
+                .uv(404, 237).cuboid(-5.5f, -30.5f, -11, 11, 11, 1)  // center_woofer_mid
+                .uv(258, 237).cuboid(-2.5f, -31.5f, -11, 5, 13, 1)  // center_woofer_tall
+                .uv(428, 267).cuboid(-3, -26, -12, 6, 2, 1)  // center_cone_wide
+                .uv(418, 255).cuboid(-3, -28, -12, 6, 6, 1)  // center_cone_mid
+                .uv(432, 255).cuboid(-1, -28, -12, 2, 6, 1)  // center_cone_tall
+                .uv(248, 267).cuboid(-2, -37, -11, 4, 4, 1)  // center_tweeter
+                .uv(136, 78).cuboid(-14, -46, 4, 28, 32, 12)  // back_cabinet
+                .uv(48, 255).cuboid(-13, -47, 5, 26, 1, 10)  // back_cabinet_top
+                .uv(142, 190).cuboid(-12, -46, -12, 24, 6, 18)  // helmet
+                .uv(326, 267).cuboid(-10, -44, -13, 20, 3, 1)  // helmet_visor
+                .uv(398, 255).cuboid(-3, -66, -4, 6, 3, 4),  // frame_top
+                ModelTransform.pivot(0, -72, 0));
         ModelPartData column_right_r1 = part.addChild("column_right_r", ModelPartBuilder.create()
-                .uv(96, 0).cuboid(-3, -25, -3.5f, 6, 25, 7),  // column_right
-                ModelTransform.of(-9, -5, 0, 0, 0, -0.10472f));
+                .uv(192, 0).cuboid(-6, -50, -7, 12, 50, 14),  // column_right
+                ModelTransform.of(-18, -10, 0, 0, 0, -0.10472f));
         ModelPartData column_left_r1 = part.addChild("column_left_r", ModelPartBuilder.create()
-                .uv(96, 0).mirrored().cuboid(-3, -25, -3.5f, 6, 25, 7),  // column_left
-                ModelTransform.of(9, -5, 0, 0, 0, 0.10472f));
+                .uv(192, 0).mirrored().cuboid(-6, -50, -7, 12, 50, 14),  // column_left
+                ModelTransform.of(18, -10, 0, 0, 0, 0.10472f));
+        ModelPartData column_cap_right_r1 = part.addChild("column_cap_right_r", ModelPartBuilder.create()
+                .uv(78, 237).cuboid(-6.5f, -51, -7.5f, 13, 1, 15),  // column_cap_right
+                ModelTransform.of(-18, -10, 0, 0, 0, -0.10472f));
+        ModelPartData column_cap_left_r1 = part.addChild("column_cap_left_r", ModelPartBuilder.create()
+                .uv(78, 237).mirrored().cuboid(-6.5f, -51, -7.5f, 13, 1, 15),  // column_cap_left
+                ModelTransform.of(18, -10, 0, 0, 0, 0.10472f));
+        ModelPartData column_woofer_wide_right_r1 = part.addChild("column_woofer_wide_right_r", ModelPartBuilder.create()
+                .uv(80, 267).cuboid(-4.5f, -40.5f, -8, 9, 5, 1),  // column_woofer_wide_right
+                ModelTransform.of(-18, -10, 0, 0, 0, -0.10472f));
+        ModelPartData column_woofer_wide_left_r1 = part.addChild("column_woofer_wide_left_r", ModelPartBuilder.create()
+                .uv(80, 267).mirrored().cuboid(-4.5f, -40.5f, -8, 9, 5, 1),  // column_woofer_wide_left
+                ModelTransform.of(18, -10, 0, 0, 0, 0.10472f));
+        ModelPartData column_woofer_mid_right_r1 = part.addChild("column_woofer_mid_right_r", ModelPartBuilder.create()
+                .uv(350, 255).cuboid(-3.5f, -41.5f, -8, 7, 7, 1),  // column_woofer_mid_right
+                ModelTransform.of(-18, -10, 0, 0, 0, -0.10472f));
+        ModelPartData column_woofer_mid_left_r1 = part.addChild("column_woofer_mid_left_r", ModelPartBuilder.create()
+                .uv(350, 255).mirrored().cuboid(-3.5f, -41.5f, -8, 7, 7, 1),  // column_woofer_mid_left
+                ModelTransform.of(18, -10, 0, 0, 0, 0.10472f));
+        ModelPartData column_woofer_tall_right_r1 = part.addChild("column_woofer_tall_right_r", ModelPartBuilder.create()
+                .uv(260, 255).cuboid(-2.5f, -42.5f, -8, 5, 9, 1),  // column_woofer_tall_right
+                ModelTransform.of(-18, -10, 0, 0, 0, -0.10472f));
+        ModelPartData column_woofer_tall_left_r1 = part.addChild("column_woofer_tall_left_r", ModelPartBuilder.create()
+                .uv(260, 255).mirrored().cuboid(-2.5f, -42.5f, -8, 5, 9, 1),  // column_woofer_tall_left
+                ModelTransform.of(18, -10, 0, 0, 0, 0.10472f));
+        ModelPartData column_woofer_low_wide_right_r1 = part.addChild("column_woofer_low_wide_right_r", ModelPartBuilder.create()
+                .uv(100, 267).cuboid(-4.5f, -29.5f, -8, 9, 5, 1),  // column_woofer_low_wide_right
+                ModelTransform.of(-18, -10, 0, 0, 0, -0.10472f));
+        ModelPartData column_woofer_low_wide_left_r1 = part.addChild("column_woofer_low_wide_left_r", ModelPartBuilder.create()
+                .uv(100, 267).mirrored().cuboid(-4.5f, -29.5f, -8, 9, 5, 1),  // column_woofer_low_wide_left
+                ModelTransform.of(18, -10, 0, 0, 0, 0.10472f));
+        ModelPartData column_woofer_low_mid_right_r1 = part.addChild("column_woofer_low_mid_right_r", ModelPartBuilder.create()
+                .uv(366, 255).cuboid(-3.5f, -30.5f, -8, 7, 7, 1),  // column_woofer_low_mid_right
+                ModelTransform.of(-18, -10, 0, 0, 0, -0.10472f));
+        ModelPartData column_woofer_low_mid_left_r1 = part.addChild("column_woofer_low_mid_left_r", ModelPartBuilder.create()
+                .uv(366, 255).mirrored().cuboid(-3.5f, -30.5f, -8, 7, 7, 1),  // column_woofer_low_mid_left
+                ModelTransform.of(18, -10, 0, 0, 0, 0.10472f));
+        ModelPartData column_woofer_low_tall_right_r1 = part.addChild("column_woofer_low_tall_right_r", ModelPartBuilder.create()
+                .uv(272, 255).cuboid(-2.5f, -31.5f, -8, 5, 9, 1),  // column_woofer_low_tall_right
+                ModelTransform.of(-18, -10, 0, 0, 0, -0.10472f));
+        ModelPartData column_woofer_low_tall_left_r1 = part.addChild("column_woofer_low_tall_left_r", ModelPartBuilder.create()
+                .uv(272, 255).mirrored().cuboid(-2.5f, -31.5f, -8, 5, 9, 1),  // column_woofer_low_tall_left
+                ModelTransform.of(18, -10, 0, 0, 0, 0.10472f));
+        ModelPartData column_tweeter_right_r1 = part.addChild("column_tweeter_right_r", ModelPartBuilder.create()
+                .uv(376, 267).cuboid(-1.5f, -47, -8, 3, 3, 1),  // column_tweeter_right
+                ModelTransform.of(-18, -10, 0, 0, 0, -0.10472f));
+        ModelPartData column_tweeter_left_r1 = part.addChild("column_tweeter_left_r", ModelPartBuilder.create()
+                .uv(376, 267).mirrored().cuboid(-1.5f, -47, -8, 3, 3, 1),  // column_tweeter_left
+                ModelTransform.of(18, -10, 0, 0, 0, 0.10472f));
+        ModelPartData frame_right_r1 = part.addChild("frame_right_r", ModelPartBuilder.create()
+                .uv(466, 190).cuboid(-1, -20, -1, 2, 20, 2),  // frame_right
+                ModelTransform.of(-10, -46, -2, 0, 0, 0.523599f));
+        ModelPartData frame_left_r1 = part.addChild("frame_left_r", ModelPartBuilder.create()
+                .uv(466, 190).mirrored().cuboid(-1, -20, -1, 2, 20, 2),  // frame_left
+                ModelTransform.of(10, -46, -2, 0, 0, -0.523599f));
         return part;
     }
 
     /** Adds group "body" from titan_speakerman_2.bbmodel. */
     public static ModelPartData addBody(ModelPartData parent) {
         ModelPartData part = parent.addChild("body", ModelPartBuilder.create()
-                .uv(0, 39).cuboid(-11, 0, -6, 22, 14, 12)  // chest
-                .uv(156, 39).cuboid(-9, 14, -5, 18, 10, 10)  // waist
-                .uv(0, 84).cuboid(-9.5f, 21, -5.5f, 19, 2, 11)  // belt
-                .uv(194, 84).cuboid(-5, -1, -4, 10, 2, 8)  // collar
-                .uv(172, 84).cuboid(-5, 3, -7, 10, 10, 1)  // core_ring
-                .uv(230, 84).cuboid(-4, 4, -9, 8, 8, 2)  // core_glass
-                .uv(24, 97).cuboid(-3, 5, -10, 6, 6, 1)  // core
-                .uv(102, 84).cuboid(-10.5f, 3, -8, 5, 10, 2)  // core_speaker_right
-                .uv(102, 84).mirrored().cuboid(5.5f, 3, -8, 5, 10, 2)  // core_speaker_left
-                .uv(38, 97).mirrored(false).cuboid(-2.5f, 15, -6.5f, 5, 4, 2)  // belly_speaker_mid
-                .uv(52, 97).cuboid(-8, 15, -6.5f, 5, 4, 2)  // belly_speaker_right
-                .uv(52, 97).mirrored().cuboid(3, 15, -6.5f, 5, 4, 2)  // belly_speaker_left
-                .uv(68, 39).mirrored(false).cuboid(-9, 0, 6, 18, 20, 6)  // jetpack
-                .uv(122, 0).cuboid(-16, -3, 6, 7, 20, 8)  // jetpack_turbine_right
-                .uv(122, 0).mirrored().cuboid(9, -3, 6, 7, 20, 8),  // jetpack_turbine_left
-                ModelTransform.pivot(0, -24, 0));
+                .uv(0, 78).cuboid(-22, 0, -12, 44, 26, 24)  // chest
+                .uv(216, 163).cuboid(-20, 26, -11, 40, 4, 22)  // chest_low
+                .uv(286, 78).cuboid(-18, 28, -10, 36, 18, 20)  // waist
+                .uv(340, 163).cuboid(-19, 41, -11, 38, 4, 22)  // belt
+                .uv(438, 255).cuboid(-3, 40, -12, 6, 6, 1)  // buckle
+                .uv(226, 190).cuboid(-11, -3, -10, 22, 4, 20)  // shirt_collar
+                .uv(258, 267).cuboid(-7, 0, -13, 4, 4, 1)  // collar_point_right
+                .uv(258, 267).mirrored().cuboid(3, 0, -13, 4, 4, 1)  // collar_point_left
+                .uv(216, 78).mirrored(false).cuboid(-2, 1, -13, 4, 40, 1)  // placket
+                .uv(428, 237).cuboid(-11, 10, -14, 22, 10, 2)  // core_ring_wide
+                .uv(164, 215).cuboid(-9, 6, -14, 18, 18, 2)  // core_ring_mid
+                .uv(310, 190).cuboid(-5, 4, -14, 10, 22, 2)  // core_ring_tall
+                .uv(120, 255).cuboid(-9, 11, -17, 18, 8, 3)  // core_glass_wide
+                .uv(44, 237).cuboid(-7, 8, -17, 14, 14, 3)  // core_glass_mid
+                .uv(74, 215).cuboid(-4, 6, -17, 8, 18, 3)  // core_glass_tall
+                .uv(452, 255).cuboid(-5.5f, 12.5f, -19, 11, 5, 2)  // core_dome_wide
+                .uv(162, 255).cuboid(-4.5f, 10.5f, -19, 9, 9, 2)  // core_dome_mid
+                .uv(306, 237).cuboid(-2.5f, 9.5f, -19, 5, 11, 2)  // core_dome_tall
+                .uv(478, 255).cuboid(-3, 12, -20, 6, 6, 1)  // core_light
+                .uv(334, 190).cuboid(-22, 4, -16, 10, 20, 4)  // core_speaker_right
+                .uv(334, 190).mirrored().cuboid(12, 4, -16, 10, 20, 4)  // core_speaker_left
+                .uv(384, 267).mirrored(false).cuboid(-20.5f, 8.5f, -17, 7, 3, 1)  // core_driver_wide_right
+                .uv(384, 267).mirrored().cuboid(13.5f, 8.5f, -17, 7, 3, 1)  // core_driver_wide_left
+                .uv(120, 267).mirrored(false).cuboid(-19.5f, 7.5f, -17, 5, 5, 1)  // core_driver_mid_right
+                .uv(120, 267).mirrored().cuboid(14.5f, 7.5f, -17, 5, 5, 1)  // core_driver_mid_left
+                .uv(382, 255).mirrored(false).cuboid(-18.5f, 6.5f, -17, 3, 7, 1)  // core_driver_tall_right
+                .uv(382, 255).mirrored().cuboid(15.5f, 6.5f, -17, 3, 7, 1)  // core_driver_tall_left
+                .uv(400, 267).mirrored(false).cuboid(-20.5f, 17.5f, -17, 7, 3, 1)  // core_driver_low_wide_right
+                .uv(400, 267).mirrored().cuboid(13.5f, 17.5f, -17, 7, 3, 1)  // core_driver_low_wide_left
+                .uv(132, 267).mirrored(false).cuboid(-19.5f, 16.5f, -17, 5, 5, 1)  // core_driver_low_mid_right
+                .uv(132, 267).mirrored().cuboid(14.5f, 16.5f, -17, 5, 5, 1)  // core_driver_low_mid_left
+                .uv(390, 255).mirrored(false).cuboid(-18.5f, 15.5f, -17, 3, 7, 1)  // core_driver_low_tall_right
+                .uv(390, 255).mirrored().cuboid(15.5f, 15.5f, -17, 3, 7, 1)  // core_driver_low_tall_left
+                .uv(134, 237).mirrored(false).cuboid(-12, 28, -14, 24, 12, 4)  // belly_box
+                .uv(268, 267).cuboid(-4, 32, -15, 8, 4, 1)  // belly_driver_wide
+                .uv(492, 255).cuboid(-3, 31, -15, 6, 6, 1)  // belly_driver_mid
+                .uv(324, 255).cuboid(-2, 30, -15, 4, 8, 1)  // belly_driver_tall
+                .uv(416, 267).cuboid(-9.5f, 32.5f, -15, 5, 3, 1)  // belly_driver_side_wide_right
+                .uv(416, 267).mirrored().cuboid(4.5f, 32.5f, -15, 5, 3, 1)  // belly_driver_side_wide_left
+                .uv(144, 267).mirrored(false).cuboid(-9.5f, 31.5f, -15, 5, 5, 1)  // belly_driver_side_mid_right
+                .uv(144, 267).mirrored().cuboid(4.5f, 31.5f, -15, 5, 5, 1)  // belly_driver_side_mid_left
+                .uv(156, 267).mirrored(false).cuboid(-8.5f, 31.5f, -15, 3, 5, 1)  // belly_driver_side_tall_right
+                .uv(156, 267).mirrored().cuboid(5.5f, 31.5f, -15, 3, 5, 1)  // belly_driver_side_tall_left
+                .uv(304, 0).mirrored(false).cuboid(-18, 0, 12, 36, 40, 12)  // jetpack
+                .uv(138, 128).cuboid(-13, 4, 24, 26, 30, 1)  // jetpack_panel
+                .uv(244, 0).cuboid(-33, -6, 12, 14, 40, 16)  // jetpack_turbine_right
+                .uv(244, 0).mirrored().cuboid(19, -6, 12, 14, 40, 16)  // jetpack_turbine_left
+                .uv(96, 215).mirrored(false).cuboid(-34, 6, 11, 16, 3, 18)  // turbine_ring_right
+                .uv(96, 215).mirrored().cuboid(18, 6, 11, 16, 3, 18)  // turbine_ring_left
+                .uv(0, 237).mirrored(false).cuboid(-31, 34, 14, 10, 6, 12)  // turbine_nozzle_right
+                .uv(0, 237).mirrored().cuboid(21, 34, 14, 10, 6, 12),  // turbine_nozzle_left
+                ModelTransform.pivot(0, -72, 0));
         ModelPartData tower_right_r1 = part.addChild("tower_right_r", ModelPartBuilder.create()
-                .uv(64, 0).cuboid(-4.5f, -28, -3.5f, 9, 30, 7),  // tower_right
-                ModelTransform.of(-10, 2, 3, 0, 0, -0.488692f));
+                .uv(128, 0).cuboid(-9, -56, -7, 18, 60, 14),  // tower_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
         ModelPartData tower_left_r1 = part.addChild("tower_left_r", ModelPartBuilder.create()
-                .uv(64, 0).mirrored().cuboid(-4.5f, -28, -3.5f, 9, 30, 7),  // tower_left
-                ModelTransform.of(10, 2, 3, 0, 0, 0.488692f));
+                .uv(128, 0).mirrored().cuboid(-9, -56, -7, 18, 60, 14),  // tower_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
         ModelPartData tower_plate_right_r1 = part.addChild("tower_plate_right_r", ModelPartBuilder.create()
-                .uv(0, 65).cuboid(-5, -24, 3.5f, 10, 18, 1),  // tower_plate_right
-                ModelTransform.of(-10, 2, 3, 0, 0, -0.488692f));
+                .uv(398, 78).cuboid(-10, -48, 7, 20, 36, 2),  // tower_plate_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
         ModelPartData tower_plate_left_r1 = part.addChild("tower_plate_left_r", ModelPartBuilder.create()
-                .uv(0, 65).mirrored().cuboid(-5, -24, 3.5f, 10, 18, 1),  // tower_plate_left
-                ModelTransform.of(10, 2, 3, 0, 0, 0.488692f));
+                .uv(398, 78).mirrored().cuboid(-10, -48, 7, 20, 36, 2),  // tower_plate_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
+        ModelPartData tower_cap_right_r1 = part.addChild("tower_cap_right_r", ModelPartBuilder.create()
+                .uv(190, 237).cuboid(-9.5f, -57, -7.5f, 19, 1, 15),  // tower_cap_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
+        ModelPartData tower_cap_left_r1 = part.addChild("tower_cap_left_r", ModelPartBuilder.create()
+                .uv(190, 237).mirrored().cuboid(-9.5f, -57, -7.5f, 19, 1, 15),  // tower_cap_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
+        ModelPartData tower_driver_wide_right_r1 = part.addChild("tower_driver_wide_right_r", ModelPartBuilder.create()
+                .uv(164, 267).cuboid(-6.5f, -47.5f, -8, 13, 5, 1),  // tower_driver_wide_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
+        ModelPartData tower_driver_wide_left_r1 = part.addChild("tower_driver_wide_left_r", ModelPartBuilder.create()
+                .uv(164, 267).mirrored().cuboid(-6.5f, -47.5f, -8, 13, 5, 1),  // tower_driver_wide_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
+        ModelPartData tower_driver_mid_right_r1 = part.addChild("tower_driver_mid_right_r", ModelPartBuilder.create()
+                .uv(476, 237).cuboid(-5.5f, -50.5f, -8, 11, 11, 1),  // tower_driver_mid_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
+        ModelPartData tower_driver_mid_left_r1 = part.addChild("tower_driver_mid_left_r", ModelPartBuilder.create()
+                .uv(476, 237).mirrored().cuboid(-5.5f, -50.5f, -8, 11, 11, 1),  // tower_driver_mid_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
+        ModelPartData tower_driver_tall_right_r1 = part.addChild("tower_driver_tall_right_r", ModelPartBuilder.create()
+                .uv(270, 237).cuboid(-2.5f, -51.5f, -8, 5, 13, 1),  // tower_driver_tall_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
+        ModelPartData tower_driver_tall_left_r1 = part.addChild("tower_driver_tall_left_r", ModelPartBuilder.create()
+                .uv(270, 237).mirrored().cuboid(-2.5f, -51.5f, -8, 5, 13, 1),  // tower_driver_tall_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
+        ModelPartData tower_driver_mid_wide_right_r1 = part.addChild("tower_driver_mid_wide_right_r", ModelPartBuilder.create()
+                .uv(192, 267).cuboid(-6.5f, -32.5f, -8, 13, 5, 1),  // tower_driver_mid_wide_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
+        ModelPartData tower_driver_mid_wide_left_r1 = part.addChild("tower_driver_mid_wide_left_r", ModelPartBuilder.create()
+                .uv(192, 267).mirrored().cuboid(-6.5f, -32.5f, -8, 13, 5, 1),  // tower_driver_mid_wide_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
+        ModelPartData tower_driver_mid_mid_right_r1 = part.addChild("tower_driver_mid_mid_right_r", ModelPartBuilder.create()
+                .uv(0, 255).cuboid(-5.5f, -35.5f, -8, 11, 11, 1),  // tower_driver_mid_mid_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
+        ModelPartData tower_driver_mid_mid_left_r1 = part.addChild("tower_driver_mid_mid_left_r", ModelPartBuilder.create()
+                .uv(0, 255).mirrored().cuboid(-5.5f, -35.5f, -8, 11, 11, 1),  // tower_driver_mid_mid_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
+        ModelPartData tower_driver_mid_tall_right_r1 = part.addChild("tower_driver_mid_tall_right_r", ModelPartBuilder.create()
+                .uv(282, 237).cuboid(-2.5f, -36.5f, -8, 5, 13, 1),  // tower_driver_mid_tall_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
+        ModelPartData tower_driver_mid_tall_left_r1 = part.addChild("tower_driver_mid_tall_left_r", ModelPartBuilder.create()
+                .uv(282, 237).mirrored().cuboid(-2.5f, -36.5f, -8, 5, 13, 1),  // tower_driver_mid_tall_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
+        ModelPartData tower_driver_low_wide_right_r1 = part.addChild("tower_driver_low_wide_right_r", ModelPartBuilder.create()
+                .uv(220, 267).cuboid(-6.5f, -17.5f, -8, 13, 5, 1),  // tower_driver_low_wide_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
+        ModelPartData tower_driver_low_wide_left_r1 = part.addChild("tower_driver_low_wide_left_r", ModelPartBuilder.create()
+                .uv(220, 267).mirrored().cuboid(-6.5f, -17.5f, -8, 13, 5, 1),  // tower_driver_low_wide_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
+        ModelPartData tower_driver_low_mid_right_r1 = part.addChild("tower_driver_low_mid_right_r", ModelPartBuilder.create()
+                .uv(24, 255).cuboid(-5.5f, -20.5f, -8, 11, 11, 1),  // tower_driver_low_mid_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
+        ModelPartData tower_driver_low_mid_left_r1 = part.addChild("tower_driver_low_mid_left_r", ModelPartBuilder.create()
+                .uv(24, 255).mirrored().cuboid(-5.5f, -20.5f, -8, 11, 11, 1),  // tower_driver_low_mid_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
+        ModelPartData tower_driver_low_tall_right_r1 = part.addChild("tower_driver_low_tall_right_r", ModelPartBuilder.create()
+                .uv(294, 237).cuboid(-2.5f, -21.5f, -8, 5, 13, 1),  // tower_driver_low_tall_right
+                ModelTransform.of(-20, 4, 6, 0, 0, -0.488692f));
+        ModelPartData tower_driver_low_tall_left_r1 = part.addChild("tower_driver_low_tall_left_r", ModelPartBuilder.create()
+                .uv(294, 237).mirrored().cuboid(-2.5f, -21.5f, -8, 5, 13, 1),  // tower_driver_low_tall_left
+                ModelTransform.of(20, 4, 6, 0, 0, 0.488692f));
         return part;
     }
 
     /** Adds group "right_arm" from titan_speakerman_2.bbmodel. */
     public static ModelPartData addRightArm(ModelPartData parent) {
         ModelPartData part = parent.addChild("right_arm", ModelPartBuilder.create()
-                .uv(22, 65).cuboid(-9, -5, -5.5f, 10, 7, 11)  // shoulder_right
-                .uv(152, 0).cuboid(-8, 2, -4.5f, 8, 19, 9)  // sleeve_right
-                .uv(150, 65).cuboid(-8.5f, 17.5f, -5, 9, 4, 10)  // cuff_right
-                .uv(64, 65).cuboid(-8, 21.5f, -4.5f, 8, 9, 9)  // hand_right
-                .uv(0, 0).cuboid(-13, 4, -5.5f, 5, 28, 11)  // cannon_right
-                .uv(116, 84).cuboid(-12.5f, 32, -4.5f, 4, 3, 9),  // cannon_muzzle_right
-                ModelTransform.pivot(-10, -20, 0));
+                .uv(60, 128).cuboid(-17, -9, -10, 19, 13, 20)  // shoulder_right
+                .uv(400, 0).cuboid(-16, 4, -9, 16, 34, 18)  // sleeve_right
+                .uv(0, 190).cuboid(-16.5f, 37, -9.5f, 17, 6, 19)  // cuff_right
+                .uv(244, 128).cuboid(-16, 43, -9, 16, 11, 18)  // palm_right
+                .uv(320, 237).cuboid(-14, 44, -12, 7, 10, 3)  // thumb_right
+                .uv(184, 255).cuboid(-15, 54, -9, 12, 7, 4)  // finger0_right
+                .uv(340, 237).cuboid(-15, 54, -4.5f, 12, 9, 4)  // finger1_right
+                .uv(372, 237).cuboid(-15, 54, 0, 12, 9, 4)  // finger2_right
+                .uv(216, 255).cuboid(-15, 54, 4.5f, 12, 7, 4)  // finger3_right
+                .uv(0, 0).cuboid(-26, 8, -11, 10, 56, 22)  // cannon_right
+                .uv(362, 190).cuboid(-25, 64, -9, 8, 6, 18)  // cannon_muzzle_right
+                .uv(204, 215).cuboid(-25, 0, -6, 8, 8, 12)  // cannon_frame_right
+                .uv(284, 255).cuboid(-24, -6, -2, 6, 6, 4)  // cannon_hook_right
+                .uv(416, 128).cuboid(-27, 20, -12, 12, 3, 24)  // cannon_band0_right
+                .uv(0, 163).cuboid(-27, 44, -12, 12, 3, 24),  // cannon_band1_right
+                ModelTransform.pivot(-20, -64, 0));
         return part;
     }
 
     /** Adds group "left_arm" from titan_speakerman_2.bbmodel. */
     public static ModelPartData addLeftArm(ModelPartData parent) {
         ModelPartData part = parent.addChild("left_arm", ModelPartBuilder.create()
-                .uv(22, 65).mirrored().cuboid(-1, -5, -5.5f, 10, 7, 11)  // shoulder_left
-                .uv(152, 0).cuboid(0, 2, -4.5f, 8, 19, 9)  // sleeve_left
-                .uv(150, 65).cuboid(-0.5f, 17.5f, -5, 9, 4, 10)  // cuff_left
-                .uv(64, 65).cuboid(0, 21.5f, -4.5f, 8, 9, 9)  // hand_left
-                .uv(32, 0).mirrored(false).cuboid(8, 4, -5.5f, 5, 28, 11)  // cannon_left
-                .uv(142, 84).cuboid(8.5f, 32, -4.5f, 4, 3, 9),  // cannon_muzzle_left
-                ModelTransform.pivot(10, -20, 0));
+                .uv(60, 128).mirrored().cuboid(-2, -9, -10, 19, 13, 20)  // shoulder_left
+                .uv(400, 0).cuboid(0, 4, -9, 16, 34, 18)  // sleeve_left
+                .uv(0, 190).cuboid(-0.5f, 37, -9.5f, 17, 6, 19)  // cuff_left
+                .uv(244, 128).cuboid(0, 43, -9, 16, 11, 18)  // palm_left
+                .uv(320, 237).cuboid(7, 44, -12, 7, 10, 3)  // thumb_left
+                .uv(184, 255).cuboid(3, 54, -9, 12, 7, 4)  // finger0_left
+                .uv(340, 237).cuboid(3, 54, -4.5f, 12, 9, 4)  // finger1_left
+                .uv(372, 237).cuboid(3, 54, 0, 12, 9, 4)  // finger2_left
+                .uv(216, 255).cuboid(3, 54, 4.5f, 12, 7, 4)  // finger3_left
+                .uv(64, 0).mirrored(false).cuboid(16, 8, -11, 10, 56, 22)  // cannon_left
+                .uv(414, 190).cuboid(17, 64, -9, 8, 6, 18)  // cannon_muzzle_left
+                .uv(244, 215).cuboid(17, 0, -6, 8, 8, 12)  // cannon_frame_left
+                .uv(304, 255).cuboid(18, -6, -2, 6, 6, 4)  // cannon_hook_left
+                .uv(72, 163).cuboid(15, 20, -12, 12, 3, 24)  // cannon_band0_left
+                .uv(144, 163).cuboid(15, 44, -12, 12, 3, 24),  // cannon_band1_left
+                ModelTransform.pivot(20, -64, 0));
         return part;
     }
 
     /** Adds group "right_leg" from titan_speakerman_2.bbmodel. */
     public static ModelPartData addRightLeg(ModelPartData parent) {
         ModelPartData part = parent.addChild("right_leg", ModelPartBuilder.create()
-                .uv(186, 0).cuboid(-3.5f, 0, -3.5f, 7, 20, 7)  // trouser_right
-                .uv(188, 65).cuboid(-4, 20, -6, 8, 4, 10),  // shoe_right
-                ModelTransform.pivot(-3.8f, 0, 0.2f));
+                .uv(442, 78).cuboid(-7, 0, -7, 14, 22, 14)  // thigh_right
+                .uv(192, 128).cuboid(-6.5f, 22, -6.5f, 13, 18, 13)  // shin_right
+                .uv(0, 128).cuboid(-7.5f, 22, -7.5f, 15, 20, 15)  // boot_right
+                .uv(284, 215).cuboid(-8, 21, -8, 16, 3, 16)  // boot_top_right
+                .uv(72, 190).cuboid(-8, 40, -12, 16, 6, 19)  // shoe_right
+                .uv(0, 267).cuboid(-7, 41, -14, 14, 5, 2)  // toe_right
+                .uv(0, 215).cuboid(-8.5f, 46, -12.5f, 17, 2, 20)  // sole_right
+                .uv(286, 267).cuboid(-8.5f, 44, 4, 17, 2, 3),  // heel_right
+                ModelTransform.pivot(-7.6f, -24, 0.4f));
         return part;
     }
 
     /** Adds group "left_leg" from titan_speakerman_2.bbmodel. */
     public static ModelPartData addLeftLeg(ModelPartData parent) {
         ModelPartData part = parent.addChild("left_leg", ModelPartBuilder.create()
-                .uv(186, 0).mirrored().cuboid(-3.5f, 0, -3.5f, 7, 20, 7)  // trouser_left
-                .uv(188, 65).cuboid(-4, 20, -6, 8, 4, 10),  // shoe_left
-                ModelTransform.pivot(3.8f, 0, 0.2f));
+                .uv(442, 78).mirrored().cuboid(-7, 0, -7, 14, 22, 14)  // thigh_left
+                .uv(192, 128).cuboid(-6.5f, 22, -6.5f, 13, 18, 13)  // shin_left
+                .uv(0, 128).cuboid(-7.5f, 22, -7.5f, 15, 20, 15)  // boot_left
+                .uv(284, 215).cuboid(-8, 21, -8, 16, 3, 16)  // boot_top_left
+                .uv(72, 190).cuboid(-8, 40, -12, 16, 6, 19)  // shoe_left
+                .uv(0, 267).cuboid(-7, 41, -14, 14, 5, 2)  // toe_left
+                .uv(0, 215).cuboid(-8.5f, 46, -12.5f, 17, 2, 20)  // sole_left
+                .uv(286, 267).cuboid(-8.5f, 44, 4, 17, 2, 3),  // heel_left
+                ModelTransform.pivot(7.6f, -24, 0.4f));
         return part;
     }
 }
