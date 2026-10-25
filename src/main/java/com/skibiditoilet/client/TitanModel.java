@@ -18,7 +18,7 @@ public class TitanModel extends AllianceModel {
     public static final float DETAIL = AllianceModel.DETAILED;
 
     public TitanModel(ModelPart root) {
-        super(root, DETAIL);
+        super(root);
     }
 
     /** Titan Cameraman 1.0: camera head, blue core, black coat, shoulder cameras, riot shield and jetpack. */

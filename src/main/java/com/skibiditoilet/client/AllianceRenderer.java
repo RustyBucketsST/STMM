@@ -15,7 +15,6 @@ public class AllianceRenderer extends MobEntityRenderer<AllianceEntity, Alliance
     private final Identifier texture;
     private final float scale;
 
-
     private AllianceRenderer(EntityRendererFactory.Context context, AllianceModel model, Identifier texture,
                              float scale, float shadowRadius) {
         super(context, model, shadowRadius);
@@ -23,12 +22,11 @@ public class AllianceRenderer extends MobEntityRenderer<AllianceEntity, Alliance
         this.scale = scale;
     }
 
-    /** An Alliance member drawn {@code scale} times normal size, with a model built at {@code detail} units per pixel. */
-    public static EntityRendererFactory<AllianceEntity> factory(EntityModelLayer layer, String textureName, float scale,
-                                                               float detail) {
+    /** An Alliance member drawn {@code scale} times normal size. */
+    public static EntityRendererFactory<AllianceEntity> factory(EntityModelLayer layer, String textureName, float scale) {
         Identifier texture = SkibidiToiletMod.id("textures/entity/" + textureName + ".png");
-        return context -> new AllianceRenderer(context, new AllianceModel(context.getPart(layer), detail), texture,
-                scale / detail, 0.5f * scale);
+        return context -> new AllianceRenderer(context, new AllianceModel(context.getPart(layer)), texture,
+                scale / AllianceModel.DETAILED, 0.5f * scale);
     }
 
     /**

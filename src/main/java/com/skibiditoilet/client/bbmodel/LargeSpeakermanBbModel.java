@@ -9,8 +9,8 @@ import net.minecraft.client.model.ModelTransform;
  * change the model in Blockbench, then run the script again.
  */
 public final class LargeSpeakermanBbModel {
-    public static final int TEXTURE_WIDTH = 64;
-    public static final int TEXTURE_HEIGHT = 64;
+    public static final int TEXTURE_WIDTH = 128;
+    public static final int TEXTURE_HEIGHT = 128;
 
     private LargeSpeakermanBbModel() {
     }
@@ -18,50 +18,64 @@ public final class LargeSpeakermanBbModel {
     /** Adds group "head" from large_speakerman.bbmodel. */
     public static ModelPartData addHead(ModelPartData parent) {
         ModelPartData part = parent.addChild("head", ModelPartBuilder.create()
-                .uv(46, 19).cuboid(-2, -1, -2, 4, 1, 4)  // mount
-                .uv(0, 0).cuboid(-4, -13, -3.5f, 8, 12, 7)  // cabinet
-                .uv(32, 19).cuboid(-3.5f, -7.5f, -4.5f, 6, 6, 1),  // woofer
-                ModelTransform.NONE);
+                .uv(26, 92).cuboid(-3, -2, -3, 6, 2, 6)  // neck
+                .uv(0, 0).cuboid(-8, -26, -7, 16, 24, 14)  // cabinet
+                .uv(64, 38).cuboid(-7.5f, -25.5f, -7.5f, 15, 23, 1)  // baffle
+                .uv(0, 92).cuboid(-7, -13, -8, 12, 8, 1)  // woofer_wide
+                .uv(38, 66).cuboid(-5, -15, -8, 8, 12, 1)  // woofer_tall
+                .uv(50, 92).cuboid(-3, -11, -8.5f, 4, 4, 1)  // dust_cap
+                .uv(60, 92).cuboid(-3, -23, -8, 4, 4, 1)  // tweeter
+                .uv(70, 92).cuboid(-3, -8, 6.5f, 6, 3, 1),  // port
+                ModelTransform.pivot(0, -24, 0));
         return part;
     }
 
     /** Adds group "body" from large_speakerman.bbmodel. */
     public static ModelPartData addBody(ModelPartData parent) {
         ModelPartData part = parent.addChild("body", ModelPartBuilder.create()
-                .uv(30, 0).cuboid(-4, 0, -2, 8, 12, 4),  // torso
-                ModelTransform.NONE);
+                .uv(60, 0).cuboid(-8, 0, -4, 16, 21, 8)  // shirt
+                .uv(0, 80).cuboid(-8.5f, 21, -4.5f, 17, 3, 9)  // belt
+                .uv(88, 80).cuboid(-4.5f, -1, -4.5f, 9, 2, 9)  // collar
+                .uv(96, 38).cuboid(-1, 1, -5, 2, 13, 1),  // tie
+                ModelTransform.pivot(0, -24, 0));
         return part;
     }
 
     /** Adds group "right_arm" from large_speakerman.bbmodel. */
     public static ModelPartData addRightArm(ModelPartData parent) {
         ModelPartData part = parent.addChild("right_arm", ModelPartBuilder.create()
-                .uv(0, 19).cuboid(-3, -2, -2, 4, 12, 4),  // arm_right
-                ModelTransform.pivot(-5, 2, 0));
+                .uv(32, 38).cuboid(-6, -4, -4, 8, 19, 8)  // shirt_sleeve_right
+                .uv(52, 80).cuboid(-6.5f, 15, -4.5f, 9, 3, 9)  // cuff_right
+                .uv(56, 66).cuboid(-5.5f, 17.5f, -3.5f, 7, 6, 7),  // hand_right
+                ModelTransform.pivot(-10, -20, 0));
         return part;
     }
 
     /** Adds group "left_arm" from large_speakerman.bbmodel. */
     public static ModelPartData addLeftArm(ModelPartData parent) {
         ModelPartData part = parent.addChild("left_arm", ModelPartBuilder.create()
-                .uv(0, 19).mirrored().cuboid(-1, -2, -2, 4, 12, 4),  // arm_left
-                ModelTransform.pivot(5, 2, 0));
+                .uv(32, 38).mirrored().cuboid(-2, -4, -4, 8, 19, 8)  // shirt_sleeve_left
+                .uv(52, 80).cuboid(-2.5f, 15, -4.5f, 9, 3, 9)  // cuff_left
+                .uv(56, 66).cuboid(-1.5f, 17.5f, -3.5f, 7, 6, 7),  // hand_left
+                ModelTransform.pivot(10, -20, 0));
         return part;
     }
 
     /** Adds group "right_leg" from large_speakerman.bbmodel. */
     public static ModelPartData addRightLeg(ModelPartData parent) {
         ModelPartData part = parent.addChild("right_leg", ModelPartBuilder.create()
-                .uv(16, 19).cuboid(-2, 0, -2, 4, 12, 4),  // leg_right
-                ModelTransform.pivot(-1.9f, 12, 0.1f));
+                .uv(0, 38).cuboid(-4, 0, -4, 8, 20, 8)  // trouser_right
+                .uv(0, 66).cuboid(-4.5f, 20, -6, 9, 4, 10),  // shoe_right
+                ModelTransform.pivot(-3.8f, 0, 0.2f));
         return part;
     }
 
     /** Adds group "left_leg" from large_speakerman.bbmodel. */
     public static ModelPartData addLeftLeg(ModelPartData parent) {
         ModelPartData part = parent.addChild("left_leg", ModelPartBuilder.create()
-                .uv(16, 19).mirrored().cuboid(-2, 0, -2, 4, 12, 4),  // leg_left
-                ModelTransform.pivot(1.9f, 12, 0.1f));
+                .uv(0, 38).mirrored().cuboid(-4, 0, -4, 8, 20, 8)  // trouser_left
+                .uv(0, 66).cuboid(-4.5f, 20, -6, 9, 4, 10),  // shoe_left
+                ModelTransform.pivot(3.8f, 0, 0.2f));
         return part;
     }
 }

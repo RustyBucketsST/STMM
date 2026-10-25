@@ -2,6 +2,7 @@ package com.skibiditoilet.client.power;
 
 import com.skibiditoilet.SkibidiToiletMod;
 import com.skibiditoilet.character.AllianceType;
+import com.skibiditoilet.client.AllianceModel;
 import com.skibiditoilet.client.SkibidiToiletClient;
 import com.skibiditoilet.client.TitanModel;
 import com.skibiditoilet.power.Form;
@@ -74,8 +75,9 @@ public class PlayerFormRenderer extends LivingEntityRenderer<AbstractClientPlaye
     public static void init(EntityRendererFactory.Context context) {
         RENDERERS.clear();
         for (AllianceType type : AllianceType.values()) {
-            put(Form.LARGE, type, new PlayerFormRenderer(context, largeLayer(type), "large_" + type.asString(), 1.0f,
-                    Form.LARGE.scale(type), 10.0f, false, GearRenderer.Fit.NORMAL, List.of()));
+            put(Form.LARGE, type, new PlayerFormRenderer(context, largeLayer(type), "large_" + type.asString(),
+                    AllianceModel.DETAILED, Form.LARGE.scale(type) / AllianceModel.DETAILED, 21.0f, false,
+                    GearRenderer.Fit.DETAILED, List.of()));
             for (Form form : new Form[]{Form.TITAN, Form.TITAN_2}) {
                 String texture = "titan_" + type.asString() + (form == Form.TITAN_2 ? "_2" : "");
                 put(form, type, new PlayerFormRenderer(context, titanLayer(type, form), texture,

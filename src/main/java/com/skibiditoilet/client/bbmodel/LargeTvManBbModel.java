@@ -9,8 +9,8 @@ import net.minecraft.client.model.ModelTransform;
  * change the model in Blockbench, then run the script again.
  */
 public final class LargeTvManBbModel {
-    public static final int TEXTURE_WIDTH = 64;
-    public static final int TEXTURE_HEIGHT = 64;
+    public static final int TEXTURE_WIDTH = 128;
+    public static final int TEXTURE_HEIGHT = 128;
 
     private LargeTvManBbModel() {
     }
@@ -18,70 +18,98 @@ public final class LargeTvManBbModel {
     /** Adds group "head" from large_tv_man.bbmodel. */
     public static ModelPartData addHead(ModelPartData parent) {
         ModelPartData part = parent.addChild("head", ModelPartBuilder.create()
-                .uv(44, 32).cuboid(-0.5f, -4, -0.5f, 1, 4, 1)  // pipe
-                .uv(0, 41).cuboid(-4, -5, -1.5f, 8, 1, 3)  // bracket
-                .uv(0, 0).cuboid(-6, -14, -4, 12, 9, 7)  // tv
-                .uv(32, 16).cuboid(-4.5f, -12.5f, 3, 9, 6, 3)  // tv_back
-                .uv(40, 32).cuboid(6, -12, -0.5f, 1, 7, 1)  // rod
-                .uv(22, 41).cuboid(-4, -15, -3, 1, 1, 1)  // knob_right
-                .uv(22, 41).mirrored().cuboid(3, -15, -3, 1, 1, 1),  // knob_left
-                ModelTransform.NONE);
+                .uv(74, 93).cuboid(-1, -8, -1, 2, 8, 2)  // pipe
+                .uv(40, 107).cuboid(-8, -10, -3, 16, 2, 6)  // bracket
+                .uv(0, 0).cuboid(-12, -28, -8, 24, 18, 14)  // tv
+                .uv(0, 60).cuboid(-9, -25, 6, 18, 12, 6)  // tv_back
+                .uv(52, 122).cuboid(-12, -28, -9, 24, 2, 1)  // bezel_top
+                .uv(0, 117).cuboid(-12, -14, -9, 24, 4, 1)  // bezel_bottom
+                .uv(38, 93).cuboid(-12, -26, -9, 3, 12, 1)  // bezel_side_right
+                .uv(38, 93).mirrored().cuboid(9, -26, -9, 3, 12, 1)  // bezel_side_left
+                .uv(48, 60).mirrored(false).cuboid(12, -24, -1, 2, 14, 2)  // rod
+                .uv(50, 117).cuboid(-8, -30, -6, 2, 2, 2)  // knob_right
+                .uv(50, 117).mirrored().cuboid(6, -30, -6, 2, 2, 2),  // knob_left
+                ModelTransform.pivot(0, -24, 0));
         return part;
     }
 
     /** Adds group "body" from large_tv_man.bbmodel. */
     public static ModelPartData addBody(ModelPartData parent) {
         ModelPartData part = parent.addChild("body", ModelPartBuilder.create()
-                .uv(38, 0).cuboid(-4, 0, -2, 8, 12, 4)  // torso
-                .uv(0, 32).cuboid(-17, -7.5f, 2.5f, 6, 5, 4)  // side_tv_upper_right
-                .uv(0, 32).mirrored().cuboid(11, -7.5f, 2.5f, 6, 5, 4)  // side_tv_upper_left
-                .uv(20, 32).mirrored(false).cuboid(-15, 6.5f, 3, 6, 5, 4)  // side_tv_lower_right
-                .uv(20, 32).mirrored().cuboid(9, 6.5f, 3, 6, 5, 4),  // side_tv_lower_left
-                ModelTransform.NONE);
-        ModelPartData tendril_upper_right_r1 = part.addChild("tendril_upper_right_r", ModelPartBuilder.create()
-                .uv(26, 41).cuboid(-12, -0.5f, -0.5f, 12, 1, 1),  // tendril_upper_right
-                ModelTransform.of(-2, 2, 2.5f, 0, 0.174533f, 0.558505f));
-        ModelPartData tendril_upper_left_r1 = part.addChild("tendril_upper_left_r", ModelPartBuilder.create()
-                .uv(26, 41).mirrored().cuboid(0, -0.5f, -0.5f, 12, 1, 1),  // tendril_upper_left
-                ModelTransform.of(2, 2, 2.5f, 0, -0.174533f, -0.558505f));
-        ModelPartData tendril_lower_right_r1 = part.addChild("tendril_lower_right_r", ModelPartBuilder.create()
-                .uv(0, 45).cuboid(-10, -0.5f, -0.5f, 10, 1, 1),  // tendril_lower_right
-                ModelTransform.of(-2, 6, 2.5f, 0, 0.174533f, -0.261799f));
-        ModelPartData tendril_lower_left_r1 = part.addChild("tendril_lower_left_r", ModelPartBuilder.create()
-                .uv(0, 45).mirrored().cuboid(0, -0.5f, -0.5f, 10, 1, 1),  // tendril_lower_left
-                ModelTransform.of(2, 6, 2.5f, 0, -0.174533f, 0.261799f));
+                .uv(32, 32).cuboid(-8.5f, 0, -4.5f, 17, 15, 9)  // jacket
+                .uv(56, 60).cuboid(-8, 15, -4, 16, 7, 8)  // jacket_waist
+                .uv(82, 93).cuboid(-4.5f, -1, -4, 9, 2, 8)  // collar
+                .uv(32, 107).cuboid(-6.5f, 0.5f, -5, 3, 8, 1)  // lapel_right
+                .uv(32, 107).mirrored().cuboid(3.5f, 0.5f, -5, 3, 8, 1)  // lapel_left
+                .uv(64, 78).mirrored(false).cuboid(-1, 1, -5, 2, 13, 1)  // tie
+                .uv(70, 78).cuboid(-8.5f, 21, -4.5f, 17, 5, 9)  // jacket_hem
+                .uv(0, 78).cuboid(-30, -6, 7, 9, 8, 7)  // side_tv_upper_right
+                .uv(0, 78).mirrored().cuboid(21, -6, 7, 9, 8, 7)  // side_tv_upper_left
+                .uv(32, 78).mirrored(false).cuboid(-26, 19, 9, 9, 8, 7)  // side_tv_lower_right
+                .uv(32, 78).mirrored().cuboid(17, 19, 9, 9, 8, 7),  // side_tv_lower_left
+                ModelTransform.pivot(0, -24, 0));
+        ModelPartData cable_upper_inner_right_r1 = part.addChild("cable_upper_inner_right_r", ModelPartBuilder.create()
+                .uv(58, 117).cuboid(-14, -1, -1, 14, 2, 2),  // cable_upper_inner_right
+                ModelTransform.of(-3, 4, 5, 0, 0.261799f, 0.610865f));
+        ModelPartData cable_upper_inner_left_r1 = part.addChild("cable_upper_inner_left_r", ModelPartBuilder.create()
+                .uv(58, 117).mirrored().cuboid(0, -1, -1, 14, 2, 2),  // cable_upper_inner_left
+                ModelTransform.of(3, 4, 5, 0, -0.261799f, -0.610865f));
+        ModelPartData cable_upper_outer_right_r1 = part.addChild("cable_upper_outer_right_r", ModelPartBuilder.create()
+                .uv(90, 117).cuboid(-11, -1, -1, 11, 2, 2),  // cable_upper_outer_right
+                ModelTransform.of(-13.5f, -4, 8, 0, 0.436332f, -0.261799f));
+        ModelPartData cable_upper_outer_left_r1 = part.addChild("cable_upper_outer_left_r", ModelPartBuilder.create()
+                .uv(90, 117).mirrored().cuboid(0, -1, -1, 11, 2, 2),  // cable_upper_outer_left
+                ModelTransform.of(13.5f, -4, 8, 0, -0.436332f, 0.261799f));
+        ModelPartData cable_lower_inner_right_r1 = part.addChild("cable_lower_inner_right_r", ModelPartBuilder.create()
+                .uv(0, 122).cuboid(-12, -1, -1, 12, 2, 2),  // cable_lower_inner_right
+                ModelTransform.of(-3, 10, 5, 0, 0.261799f, -0.349066f));
+        ModelPartData cable_lower_inner_left_r1 = part.addChild("cable_lower_inner_left_r", ModelPartBuilder.create()
+                .uv(0, 122).mirrored().cuboid(0, -1, -1, 12, 2, 2),  // cable_lower_inner_left
+                ModelTransform.of(3, 10, 5, 0, -0.261799f, 0.349066f));
+        ModelPartData cable_lower_outer_right_r1 = part.addChild("cable_lower_outer_right_r", ModelPartBuilder.create()
+                .uv(28, 122).cuboid(-10, -1, -1, 10, 2, 2),  // cable_lower_outer_right
+                ModelTransform.of(-13.5f, 14, 8, 0, 0.436332f, -0.785398f));
+        ModelPartData cable_lower_outer_left_r1 = part.addChild("cable_lower_outer_left_r", ModelPartBuilder.create()
+                .uv(28, 122).mirrored().cuboid(0, -1, -1, 10, 2, 2),  // cable_lower_outer_left
+                ModelTransform.of(13.5f, 14, 8, 0, -0.436332f, 0.785398f));
         return part;
     }
 
     /** Adds group "right_arm" from large_tv_man.bbmodel. */
     public static ModelPartData addRightArm(ModelPartData parent) {
         ModelPartData part = parent.addChild("right_arm", ModelPartBuilder.create()
-                .uv(0, 16).cuboid(-3, -2, -2, 4, 12, 4),  // arm_right
-                ModelTransform.pivot(-5, 2, 0));
+                .uv(76, 0).cuboid(-6.5f, -4.5f, -4.5f, 9, 20, 9)  // sleeve_right
+                .uv(0, 107).cuboid(-6, 15.5f, -4, 8, 2, 8)  // cuff_right
+                .uv(46, 93).cuboid(-5.5f, 17.5f, -3.5f, 7, 6, 7),  // hand_right
+                ModelTransform.pivot(-10, -20, 0));
         return part;
     }
 
     /** Adds group "left_arm" from large_tv_man.bbmodel. */
     public static ModelPartData addLeftArm(ModelPartData parent) {
         ModelPartData part = parent.addChild("left_arm", ModelPartBuilder.create()
-                .uv(0, 16).mirrored().cuboid(-1, -2, -2, 4, 12, 4),  // arm_left
-                ModelTransform.pivot(5, 2, 0));
+                .uv(76, 0).mirrored().cuboid(-2.5f, -4.5f, -4.5f, 9, 20, 9)  // sleeve_left
+                .uv(0, 107).cuboid(-2, 15.5f, -4, 8, 2, 8)  // cuff_left
+                .uv(46, 93).cuboid(-1.5f, 17.5f, -3.5f, 7, 6, 7),  // hand_left
+                ModelTransform.pivot(10, -20, 0));
         return part;
     }
 
     /** Adds group "right_leg" from large_tv_man.bbmodel. */
     public static ModelPartData addRightLeg(ModelPartData parent) {
         ModelPartData part = parent.addChild("right_leg", ModelPartBuilder.create()
-                .uv(16, 16).cuboid(-2, 0, -2, 4, 12, 4),  // leg_right
-                ModelTransform.pivot(-1.9f, 12, 0.1f));
+                .uv(0, 32).cuboid(-4, 0, -4, 8, 20, 8)  // trouser_right
+                .uv(0, 93).cuboid(-4.5f, 20, -6, 9, 4, 10),  // shoe_right
+                ModelTransform.pivot(-3.8f, 0, 0.2f));
         return part;
     }
 
     /** Adds group "left_leg" from large_tv_man.bbmodel. */
     public static ModelPartData addLeftLeg(ModelPartData parent) {
         ModelPartData part = parent.addChild("left_leg", ModelPartBuilder.create()
-                .uv(16, 16).mirrored().cuboid(-2, 0, -2, 4, 12, 4),  // leg_left
-                ModelTransform.pivot(1.9f, 12, 0.1f));
+                .uv(0, 32).mirrored().cuboid(-4, 0, -4, 8, 20, 8)  // trouser_left
+                .uv(0, 93).cuboid(-4.5f, 20, -6, 9, 4, 10),  // shoe_left
+                ModelTransform.pivot(3.8f, 0, 0.2f));
         return part;
     }
 }

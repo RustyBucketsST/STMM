@@ -9,8 +9,8 @@ import net.minecraft.client.model.ModelTransform;
  * change the model in Blockbench, then run the script again.
  */
 public final class LargeCameramanBbModel {
-    public static final int TEXTURE_WIDTH = 64;
-    public static final int TEXTURE_HEIGHT = 64;
+    public static final int TEXTURE_WIDTH = 128;
+    public static final int TEXTURE_HEIGHT = 128;
 
     private LargeCameramanBbModel() {
     }
@@ -18,59 +18,83 @@ public final class LargeCameramanBbModel {
     /** Adds group "head" from large_cameraman.bbmodel. */
     public static ModelPartData addHead(ModelPartData parent) {
         ModelPartData part = parent.addChild("head", ModelPartBuilder.create()
-                .uv(0, 42).cuboid(-2, -1, -2, 4, 1, 4)  // mount
-                .uv(0, 0).cuboid(-3, -7, -5, 6, 6, 11)  // camcorder
-                .uv(26, 33).cuboid(-2.5f, -6.5f, -8, 5, 5, 3)  // lens
-                .uv(42, 17).cuboid(-1, -10, -4, 2, 1, 9)  // handle
-                .uv(16, 42).cuboid(-1, -9, -4, 2, 2, 1)  // handle_front
-                .uv(22, 42).cuboid(-1, -9, 4, 2, 2, 1)  // handle_back
-                .uv(42, 33).cuboid(-5, -6, 2, 2, 2, 4),  // viewfinder
-                ModelTransform.NONE);
+                .uv(18, 104).cuboid(-2, -3, -2, 4, 3, 4)  // neck
+                .uv(64, 29).cuboid(-4, -4, -8, 8, 1, 14)  // baseplate
+                .uv(32, 94).cuboid(-3, -3, -15, 1, 1, 8)  // rail_right
+                .uv(32, 94).mirrored().cuboid(2, -3, -15, 1, 1, 8)  // rail_left
+                .uv(0, 29).mirrored(false).cuboid(-4, -13, -7, 8, 9, 14)  // camera_body
+                .uv(50, 94).cuboid(-2.5f, -11.5f, -11, 5, 5, 4)  // lens
+                .uv(46, 81).cuboid(-5, -13, -15, 10, 8, 4)  // matte_box
+                .uv(34, 104).cuboid(-5, -14, -16, 10, 1, 5)  // top_flag
+                .uv(38, 67).cuboid(-6, -13, -16, 1, 8, 5)  // side_flag_right
+                .uv(38, 67).mirrored().cuboid(5, -13, -16, 1, 8, 5)  // side_flag_left
+                .uv(50, 67).mirrored(false).cuboid(-2, -19.5f, -5, 4, 5, 8)  // reel_front_wide
+                .uv(74, 67).cuboid(-2, -21, -3.5f, 4, 8, 5)  // reel_front_tall
+                .uv(92, 67).cuboid(-2, -19.5f, 2, 4, 5, 8)  // reel_back_wide
+                .uv(0, 81).cuboid(-2, -21, 3.5f, 4, 8, 5)  // reel_back_tall
+                .uv(0, 104).cuboid(-1, -15, -12, 2, 1, 7)  // top_handle
+                .uv(74, 104).cuboid(-1, -14, -7, 2, 1, 1)  // handle_post
+                .uv(68, 94).cuboid(4, -12, -4, 3, 3, 6)  // viewfinder
+                .uv(64, 104).cuboid(4, -12.5f, 2, 3, 4, 2)  // eyepiece
+                .uv(74, 81).cuboid(-6, -11, -2, 2, 5, 7)  // side_monitor
+                .uv(86, 94).cuboid(-3, -11, 7, 6, 6, 3),  // battery
+                ModelTransform.pivot(0, -24, 0));
         return part;
     }
 
     /** Adds group "body" from large_cameraman.bbmodel. */
     public static ModelPartData addBody(ModelPartData parent) {
         ModelPartData part = parent.addChild("body", ModelPartBuilder.create()
-                .uv(34, 0).cuboid(-4, 0, -2, 8, 12, 4)  // torso
-                .uv(0, 33).cuboid(-4.5f, 11, 2, 9, 8, 1)  // coat_back
-                .uv(32, 17).cuboid(-4.5f, 11, -2, 1, 8, 4)  // coat_side_right
-                .uv(32, 17).mirrored().cuboid(3.5f, 11, -2, 1, 8, 4)  // coat_side_left
-                .uv(20, 33).mirrored(false).cuboid(-4.5f, 11, -3, 2, 8, 1)  // coat_front_right
-                .uv(20, 33).mirrored().cuboid(2.5f, 11, -3, 2, 8, 1),  // coat_front_left
-                ModelTransform.NONE);
+                .uv(68, 0).cuboid(-8.5f, 0, -4.5f, 17, 15, 9)  // jacket
+                .uv(0, 52).cuboid(-8, 15, -4, 16, 7, 8)  // jacket_waist
+                .uv(92, 81).cuboid(-4.5f, -1, -4, 9, 2, 8)  // collar
+                .uv(104, 94).cuboid(-6.5f, 0.5f, -5, 3, 8, 1)  // lapel_right
+                .uv(104, 94).mirrored().cuboid(3.5f, 0.5f, -5, 3, 8, 1)  // lapel_left
+                .uv(48, 52).mirrored(false).cuboid(-1, 1, -5, 2, 13, 1)  // tie
+                .uv(54, 52).cuboid(-8.5f, 21, 3.5f, 17, 13, 1)  // coat_back
+                .uv(44, 29).cuboid(-9, 21, -4.5f, 1, 13, 9)  // coat_side_right
+                .uv(44, 29).mirrored().cuboid(8, 21, -4.5f, 1, 13, 9)  // coat_side_left
+                .uv(90, 52).mirrored(false).cuboid(-9, 21, -5, 4, 13, 1)  // coat_front_right
+                .uv(90, 52).mirrored().cuboid(5, 21, -5, 4, 13, 1),  // coat_front_left
+                ModelTransform.pivot(0, -24, 0));
         return part;
     }
 
     /** Adds group "right_arm" from large_cameraman.bbmodel. */
     public static ModelPartData addRightArm(ModelPartData parent) {
         ModelPartData part = parent.addChild("right_arm", ModelPartBuilder.create()
-                .uv(0, 17).cuboid(-3, -2, -2, 4, 12, 4),  // arm_right
-                ModelTransform.pivot(-5, 2, 0));
+                .uv(0, 0).cuboid(-6.5f, -4.5f, -4.5f, 9, 20, 9)  // sleeve_right
+                .uv(0, 94).cuboid(-6, 15.5f, -4, 8, 2, 8)  // cuff_right
+                .uv(18, 81).cuboid(-5.5f, 17.5f, -3.5f, 7, 6, 7),  // hand_right
+                ModelTransform.pivot(-10, -20, 0));
         return part;
     }
 
     /** Adds group "left_arm" from large_cameraman.bbmodel. */
     public static ModelPartData addLeftArm(ModelPartData parent) {
         ModelPartData part = parent.addChild("left_arm", ModelPartBuilder.create()
-                .uv(0, 17).mirrored().cuboid(-1, -2, -2, 4, 12, 4),  // arm_left
-                ModelTransform.pivot(5, 2, 0));
+                .uv(0, 0).mirrored().cuboid(-2.5f, -4.5f, -4.5f, 9, 20, 9)  // sleeve_left
+                .uv(0, 94).cuboid(-2, 15.5f, -4, 8, 2, 8)  // cuff_left
+                .uv(18, 81).cuboid(-1.5f, 17.5f, -3.5f, 7, 6, 7),  // hand_left
+                ModelTransform.pivot(10, -20, 0));
         return part;
     }
 
     /** Adds group "right_leg" from large_cameraman.bbmodel. */
     public static ModelPartData addRightLeg(ModelPartData parent) {
         ModelPartData part = parent.addChild("right_leg", ModelPartBuilder.create()
-                .uv(16, 17).cuboid(-2, 0, -2, 4, 12, 4),  // leg_right
-                ModelTransform.pivot(-1.9f, 12, 0.1f));
+                .uv(36, 0).cuboid(-4, 0, -4, 8, 20, 8)  // trouser_right
+                .uv(0, 67).cuboid(-4.5f, 20, -6, 9, 4, 10),  // shoe_right
+                ModelTransform.pivot(-3.8f, 0, 0.2f));
         return part;
     }
 
     /** Adds group "left_leg" from large_cameraman.bbmodel. */
     public static ModelPartData addLeftLeg(ModelPartData parent) {
         ModelPartData part = parent.addChild("left_leg", ModelPartBuilder.create()
-                .uv(16, 17).mirrored().cuboid(-2, 0, -2, 4, 12, 4),  // leg_left
-                ModelTransform.pivot(1.9f, 12, 0.1f));
+                .uv(36, 0).mirrored().cuboid(-4, 0, -4, 8, 20, 8)  // trouser_left
+                .uv(0, 67).cuboid(-4.5f, 20, -6, 9, 4, 10),  // shoe_left
+                ModelTransform.pivot(3.8f, 0, 0.2f));
         return part;
     }
 }

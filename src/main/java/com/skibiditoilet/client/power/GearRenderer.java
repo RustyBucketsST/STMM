@@ -29,8 +29,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Draws a player's gear (gear.bbmodel) on whatever model they have: their own, a Large member's or a Titan's. Each
- * piece follows the body or arm it's on. A Titan's body is wider and built at twice the detail, so there the pieces
- * are stretched to fit; a Titan has his own jetpack (except the TV Man) and shoulder gear, so those aren't added.
+ * piece follows the body or arm it's on. Large members and Titans are built at twice the detail (a Titan is also
+ * wider), so there the pieces are stretched to fit; a Titan has his own jetpack (except the TV Man) and shoulder gear,
+ * so those aren't added.
  */
 public final class GearRenderer {
     private static final Identifier TEXTURE = SkibidiToiletMod.id("textures/entity/gear.png");
@@ -41,8 +42,11 @@ public final class GearRenderer {
      */
     public record Fit(float bodyX, float bodyY, float bodyZ, float armX, float armY, float armZ, float jetpackDrop,
                       boolean jetpack, boolean shoulders, boolean chestPlates) {
-        /** A normal player or a Large member: the standard biped body. */
+        /** A normal player: the standard biped body. */
         public static final Fit NORMAL = new Fit(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, true, true, true);
+
+        /** A Large member: a suited body built at twice the detail, a little broader and deeper than a biped's. */
+        public static final Fit DETAILED = new Fit(2.15f, 2.0f, 2.3f, 2.25f, 2.0f, 2.25f, 0.0f, true, true, true);
 
         /** A Titan: his own shoulder gear shows instead, and plates on his chest would hide his core. */
         public static Fit titan(AllianceType type) {

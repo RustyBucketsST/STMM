@@ -773,6 +773,11 @@ def suited_body(b, jacket=JACKET, jacket_dark=JACKET_DARK, shirt=SHIRT, tie=TIE,
     rect(*f["top"], tuple(min(255, c + 8) for c in jacket), 3)
     rect(*f["bottom"], jacket_dark, 2)
     box(*b["cuff_right"], shirt, 2)
+    gloves_trousers_shoes(b, glove, trouser, shoe)
+
+
+def gloves_trousers_shoes(b, glove=GLOVE, trouser=(30, 31, 36), shoe=SHOE):
+    """The gloved hands, creased trousers and polished shoes of the suited bodies."""
     f = faces(*b["hand_right"])
     box(*b["hand_right"], glove, 3)
     x, y, w, h = f["front"]
@@ -972,99 +977,211 @@ def cameraman():
     return img
 
 
-def large_cameraman():
-    # The Large Cameraman (large_cameraman.bbmodel): a long black coat over a white shirt and black tie,
-    # black gloves, and a black camcorder for a head
-    b = bb_boxes("large_cameraman")
-    new_image(64, 9)
-    coat, coat_dark = (30, 30, 34), (22, 22, 26)
-    box(*b["mount"], (44, 44, 48), 3)
-    f = faces(*b["camcorder"])
+def large_camcorder(b):
+    """Large Cameraman 1.0's head: a black cinema camera on a baseplate and silver rails, a matte box with flags
+    round the lens, a twin-reel film magazine on top, a top handle, a viewfinder and a little side monitor."""
+    body, body_dark = (40, 42, 46), (28, 30, 34)
+    box(*b["neck"], (30, 30, 34), 2)
+    box(*b["baseplate"], (54, 56, 60), 2)
+    box(*b["rail_right"], (156, 158, 164), 3)
+    f = faces(*b["camera_body"])
     for r in sides(f):
-        gradient(r, (40, 40, 44), (24, 24, 28), 3)
-    rect(*f["top"], (46, 46, 50), 3)
-    x, y, w, h = f["right"]
-    rect(x + 1, y + 2, w - 2, 1, (54, 54, 60), 0)           # seam
+        gradient(r, body, body_dark, 2)
+    rect(*f["top"], (46, 48, 52), 2)
+    rect(*f["bottom"], body_dark, 2)
+    for name in ("right", "left"):
+        x, y, w, h = f[name]
+        rect(x + 1, y + 1, w - 2, 1, (56, 58, 64), 0)       # panel seams
+        rect(x + 1, y + h - 2, w - 2, 1, (56, 58, 64), 0)
+    x, y, w, h = f["left"]
+    rect(x + 2, y + 3, 4, 1, (226, 226, 222), 0)            # a white label...
+    rect(x + 2, y + 5, 2, 1, (222, 120, 40), 0)             # ...an orange tab
+    for i in (8, 10):
+        px[x + i, y + 4] = (90, 92, 98, 255)                 # buttons
     x, y, w, h = f["front"]
-    px[x + w - 1, y] = (230, 30, 30, 255)                   # red recording light
-    box(*b["lens"], (20, 20, 24), 2)
-    lens_glass(*faces(*b["lens"])["front"])
-    for name in ("handle", "handle_front", "handle_back", "viewfinder"):
-        box(*b[name], (26, 26, 30), 2)
-    f = faces(*b["torso"])
+    px[x + w - 2, y + 1] = (230, 30, 30, 255)                # red recording light
+    f = faces(*b["lens"])
     for r in sides(f):
-        rect(*r, coat, 3)
+        rect(*r, (30, 30, 34), 2)
+        x, y, w, h = r
+        rect(x, y + 1, w, 1, (70, 72, 78), 0)               # focus and zoom rings
+    f = faces(*b["matte_box"])
+    for r in f.values():
+        rect(*r, (32, 32, 36), 2)
     x, y, w, h = f["front"]
-    rect(x + 2, y, 4, 3, SHIRT, 2)                          # shirt in the open collar...
-    rect(x + 3, y, 2, 9, TIE, 2)                            # ...and a black tie
-    rect(x + 1, y, 1, 4, coat_dark, 0)                      # lapels
-    rect(x + 6, y, 1, 4, coat_dark, 0)
-    for name in ("coat_back", "coat_side_right", "coat_front_right"):
+    rect(x + 1, y + 1, w - 2, h - 2, (12, 12, 14), 0)       # looking into the box...
+    lens_glass(x + w // 2 - 2, y + h // 2 - 2, 4, 4)        # ...at the lens
+    for name in ("top_flag", "side_flag_right"):
         f = faces(*b[name])
-        for r in sides(f):
-            gradient(r, coat, coat_dark, 3)
-    f = faces(*b["arm_right"])
-    for r in sides(f):
-        x, y, w, h = r
-        rect(x, y, w, h - 3, coat, 3)
-        rect(x, y + h - 4, w, 1, SHIRT, 2)                  # shirt cuff
-        rect(x, y + h - 3, w, 3, (40, 40, 44), 3)           # black gloves
-    rect(*f["top"], coat, 3)
-    rect(*f["bottom"], (40, 40, 44), 3)
-    f = faces(*b["leg_right"])
-    for r in sides(f):
-        x, y, w, h = r
-        rect(x, y, w, h, (26, 26, 30), 3)
-        rect(x, y + h - 2, w, 2, SHOE, 2)
-    rect(*f["bottom"], SHOE, 2)
+        for r in f.values():
+            rect(*r, (30, 30, 34), 2)
+        rect(*f["bottom" if name == "top_flag" else "left"], (20, 20, 22), 0)
+
+    def reel(face, cx, cy):
+        x, y, w, h = face
+        for i in range(w):
+            for k in range(h):
+                r = math.hypot(i - cx, k - cy)
+                c = (150, 152, 158) if r < 0.9 else (34, 36, 40) if r < 1.9 else (52, 54, 58)
+                px[x + i, y + k] = shade(c, 2)
+    for which in ("front", "back"):
+        f = faces(*b[f"reel_{which}_wide"])
+        for r in f.values():
+            rect(*r, (52, 54, 58), 2)
+        for side in ("right", "left"):
+            reel(f[side], 3.5, 2)
+        f = faces(*b[f"reel_{which}_tall"])
+        for r in f.values():
+            rect(*r, (52, 54, 58), 2)
+        rect(*f["top"], (64, 66, 70), 2)
+        for side in ("right", "left"):
+            reel(f[side], 2, 3.5)
+    for name in ("top_handle", "handle_post"):
+        box(*b[name], (24, 24, 28), 2)
+    f = faces(*b["viewfinder"])
+    box(*b["viewfinder"], (30, 30, 34), 2)
+    f = faces(*b["eyepiece"])
+    box(*b["eyepiece"], (20, 20, 22), 2)
+    rect(*f["back"], (12, 12, 14), 0)                       # rubber eyecup
+    f = faces(*b["side_monitor"])
+    box(*b["side_monitor"], (30, 30, 34), 2)
+    x, y, w, h = f["right"]
+    rect(x + 1, y + 1, w - 2, h - 2, (60, 90, 120), 3)      # screen
+    px[x + 1, y + 1] = (150, 190, 220, 255)
+    f = faces(*b["battery"])
+    box(*b["battery"], (46, 48, 52), 2)
+    x, y, w, h = f["back"]
+    rect(x + 1, y + 2, w - 2, 2, (200, 200, 196), 1)        # battery label
+    px[x + w - 2, y + 1] = (60, 220, 90, 255)                # charge light
+
+
+def large_cameraman():
+    b = bb_boxes("large_cameraman")
+    new_image(128, 9)
+    suited_body(b, jacket=(30, 30, 34), jacket_dark=(20, 20, 24), shirt=(214, 112, 34), tie=(16, 16, 18))
+    large_camcorder(b)
     return img
 
 
-def large_speakerman():
-    # The Large Speakerman (large_speakerman.bbmodel): a white dress shirt and dark red tie, black trousers and
-    # gloves, and a tall black speaker for a head: a big woofer and a column of small drivers
-    b = bb_boxes("large_speakerman")
-    new_image(64, 10)
-    shirt, shirt_shade = (232, 232, 228), (200, 200, 196)
-    box(*b["mount"], (40, 40, 44), 3)
-    f = faces(*b["cabinet"])
-    for r in f.values():
-        rect(*r, SPEAKER_BODY, 3)
+def shirt_body(b, shirt=SHIRT, tie=(150, 26, 32), belt=(24, 24, 26), glove=GLOVE, trouser=(34, 36, 46),
+               shoe=SHOE):
+    """No jacket: a white dress shirt with a button placket, a breast pocket and creases, a standing collar,
+    buttoned cuffs, a tie and a belt with a buckle; then gloves, trousers and shoes."""
+    shirt_shade = tuple(c - 30 for c in shirt)
+    seam = tuple(c - 22 for c in shirt)
+    f = faces(*b["shirt"])
+    for r in sides(f):
+        gradient(r, shirt, shirt_shade, 3)
+    rect(*f["top"], shirt, 3)
     x, y, w, h = f["front"]
-    for i in range(w):
-        px[x + i, y] = shade((46, 46, 50), 2)
-    px[x + 5, y + 1] = (160, 162, 170, 255)                 # tweeter
-    for k in (3, 5, 7):
-        rect(x + 5, y + k, 2, 1, (70, 70, 76), 0)           # small drivers down the side
-        px[x + 6, y + k] = (110, 112, 120, 255)
-    box(*b["woofer"], (50, 50, 56), 2)
-    x, y, w, h = faces(*b["woofer"])["front"]
-    for i in range(w):
-        for k in range(h):
-            px[x + i, y + k] = shade(speaker_cone(i, k, w), 2)
-    f = faces(*b["torso"])
+    rect(x + w // 2 + 1, y, 1, h, seam, 0)                  # button placket...
+    for k in range(3, h, 4):
+        px[x + w // 2 + 1, y + k] = (250, 250, 250, 255)     # ...and its buttons
+    rect(x + w - 6, y + 4, 4, 1, seam, 0)                   # breast pocket
+    rect(x + w - 6, y + 4, 1, 4, seam, 0)
+    rect(x + w - 3, y + 4, 1, 4, seam, 0)
+    rect(x + w - 6, y + 8, 4, 1, seam, 0)
+    for k in (h - 6, h - 3):
+        rect(x + 2, y + k, 3, 1, seam, 0)                   # creases where it's tucked in
+        rect(x + w - 5, y + k + 1, 3, 1, seam, 0)
+    x, y, w, h = f["back"]
+    rect(x, y + 3, w, 1, seam, 0)                           # yoke
+    rect(x + w // 2, y + 4, 1, 3, seam, 0)                  # box pleat
+    for name in ("right", "left"):
+        x, y, w, h = f[name]
+        rect(x + w // 2, y, 1, h, seam, 0)                  # side seams
+    f = faces(*b["belt"])
+    for r in f.values():
+        rect(*r, belt, 2)
+    x, y, w, h = f["front"]
+    rect(x + w // 2 - 1, y, 3, h, (176, 178, 186), 2)       # buckle
+    px[x + w // 2, y + 1] = belt + (255,)
+    f = faces(*b["collar"])
+    for r in f.values():
+        rect(*r, shirt, 2)
+    x, y, w, h = f["front"]
+    rect(x + w // 2 - 1, y, 3, h, seam, 0)                  # where the collar points meet
+    f = faces(*b["tie"])
+    for r in f.values():
+        rect(*r, tie, 2)
+    x, y, w, h = f["front"]
+    rect(x, y, w, 1, tuple(max(0, c - 30) for c in tie), 0)  # knot
+    rect(x + w - 1, y + 1, 1, h - 2, tuple(min(255, c + 30) for c in tie), 0)  # sheen
+    f = faces(*b["shirt_sleeve_right"])
     for r in sides(f):
         gradient(r, shirt, shirt_shade, 3)
         x, y, w, h = r
-        rect(x, y + h - 1, w, 1, (24, 24, 26), 0)           # belt
-    x, y, w, h = f["front"]
-    rect(x + 3, y, 2, 1, (90, 14, 18), 0)                   # tie knot...
-    rect(x + 3, y + 1, 2, 8, (120, 22, 28), 2)              # ...and dark red tie
-    px[x + 2, y] = (210, 210, 206, 255)                     # collar points
-    px[x + 5, y] = (210, 210, 206, 255)
-    f = faces(*b["arm_right"])
-    for r in sides(f):
-        x, y, w, h = r
-        gradient((x, y, w, h - 3), shirt, shirt_shade, 3)
-        rect(x, y + h - 3, w, 3, (34, 34, 38), 3)           # black gloves
+        rect(x + 2, y + h // 2, w - 4, 1, seam, 0)          # crease at the elbow
+        rect(x + w // 2, y + h // 2 + 3, 1, 3, seam, 0)
     rect(*f["top"], shirt, 3)
-    rect(*f["bottom"], (34, 34, 38), 3)
-    f = faces(*b["leg_right"])
+    rect(*f["bottom"], shirt_shade, 2)
+    f = faces(*b["cuff_right"])
+    box(*b["cuff_right"], shirt, 2)
+    x, y, w, h = f["front"]
+    px[x + w - 2, y + 1] = (250, 250, 250, 255)              # cuff button
+    rect(x, y, w, 1, seam, 0)
+    gloves_trousers_shoes(b, glove, trouser, shoe)
+
+
+def large_speaker(b):
+    """Large Speakerman 1.0's head: a tall black cabinet with a bevelled front, corner screws, a big grey woofer,
+    a silver tweeter, a column of small drivers and a bass port on the back."""
+    box(*b["neck"], (36, 36, 40), 2)
+    f = faces(*b["cabinet"])
     for r in sides(f):
-        x, y, w, h = r
-        rect(x, y, w, h, (24, 24, 28), 3)
-        rect(x, y + h - 2, w, 2, SHOE, 2)
-    rect(*f["bottom"], SHOE, 2)
+        gradient(r, (34, 34, 38), (24, 24, 27), 2)
+    rect(*f["top"], (40, 40, 44), 2)
+    rect(*f["bottom"], (22, 22, 24), 2)
+    x, y, w, h = f["top"]
+    rect(x + 4, y + h // 2, w - 8, 1, (16, 16, 18), 0)      # handle slot
+    f = faces(*b["baffle"])
+    for r in f.values():
+        rect(*r, (50, 50, 56), 2)                           # the bevel catching the light
+    x, y, w, h = f["front"]
+    rect(x, y, w, h, (38, 38, 42), 2)
+    for sx, sy in ((x, y), (x + w - 1, y), (x, y + h - 1), (x + w - 1, y + h - 1)):
+        px[sx, sy] = (96, 98, 104, 255)                      # corner screws
+    for k in (3, 7, 11):                                    # small drivers down his left side
+        rect(x + w - 3, y + k, 2, 2, (20, 20, 22), 0)
+        px[x + w - 3, y + k] = (120, 122, 128, 255)
+
+    def woofer(i, k):
+        """Colour at (i, k) of the 12x12 woofer: grey cone with rings, black surround, a silver frame."""
+        r = math.hypot(i - 5.5, k - 5.5)
+        if r <= 3.6:
+            return (112, 114, 120) if round(r) % 2 else (98, 100, 106)
+        if r <= 5.0:
+            return (22, 22, 24)
+        return (150, 152, 158)
+    for name, ox, oy in (("woofer_wide", 0, 2), ("woofer_tall", 2, 0)):
+        f = faces(*b[name])
+        for r in f.values():
+            rect(*r, (70, 72, 76), 2)
+        x, y, w, h = f["front"]
+        for i in range(w):
+            for k in range(h):
+                px[x + i, y + k] = shade(woofer(i + ox, k + oy), 2)
+    f = faces(*b["dust_cap"])
+    box(*b["dust_cap"], (44, 44, 48), 2)
+    x, y, w, h = f["front"]
+    rect(x + 1, y + 1, 2, 2, (60, 60, 66), 2)
+    px[x + 1, y + 1] = (130, 132, 140, 255)                  # glint
+    f = faces(*b["tweeter"])
+    box(*b["tweeter"], (30, 30, 34), 2)
+    x, y, w, h = f["front"]
+    rect(x + 1, y + 1, 2, 2, (176, 178, 186), 3)            # silver dome
+    px[x + 1, y + 1] = (232, 234, 240, 255)
+    f = faces(*b["port"])
+    box(*b["port"], (30, 30, 34), 2)
+    x, y, w, h = f["back"]
+    rect(x + 1, y + 1, w - 2, h - 2, (8, 8, 10), 0)         # bass port
+
+
+def large_speakerman():
+    b = bb_boxes("large_speakerman")
+    new_image(128, 10)
+    shirt_body(b)
+    large_speaker(b)
     return img
 
 
@@ -1078,14 +1195,13 @@ def crt_static(r, rnd, bright=(150, 240)):
 
 
 def large_tv_man():
-    # Large TV Man 1.0 (large_tv_man.bbmodel): a big black CRT showing static on a bracket and a thin pipe, a black
-    # suit with a purple tie, black gloves, and four little static TVs on thin metal tendrils from his back
+    # Large TV Man 1.0 (large_tv_man.bbmodel): a big black CRT showing bright static on a bracket and a pipe, a
+    # black suit with a purple tie, and four little static TVs on jointed metal cables from his back
     b = bb_boxes("large_tv_man")
-    new_image(64, 11)
+    new_image(128, 11)
     rnd = random.Random(45)
+    suited_body(b, jacket=(28, 28, 32), jacket_dark=(20, 20, 24), tie=(118, 52, 186))
     plastic, plastic_dark = (36, 36, 40), (24, 24, 28)
-    suit_black, suit_dark = (28, 28, 32), (20, 20, 24)
-    purple = (118, 52, 186)
     metal = (112, 114, 122)
     for name in ("tv", "side_tv_upper_right", "side_tv_lower_right"):
         f = faces(*b[name])
@@ -1094,56 +1210,45 @@ def large_tv_man():
         rect(*f["top"], (40, 40, 44), 3)
         rect(*f["bottom"], plastic_dark, 3)
         x, y, w, h = f["front"]
-        rect(x, y, w, h, (18, 18, 20), 2)                    # bezel...
-        crt_static((x + 1, y + 1, w - 2 - (2 if name == "tv" else 0), h - 2), rnd)   # ...around the static
         if name == "tv":
-            rect(x + w - 2, y + 2, 1, 1, (90, 92, 100), 0)   # dials beside the screen
-            rect(x + w - 2, y + 4, 1, 1, (90, 92, 100), 0)
+            crt_static((x + 3, y + 2, w - 6, h - 6), rnd, (190, 255))  # behind the bezel cubes
             x, y, w, h = f["top"]
             for i in range(2, w - 2, 2):
-                rect(x + i, y + 2, 1, h - 3, (26, 26, 30), 0)   # vents
+                rect(x + i, y + 2, 1, h - 4, (26, 26, 30), 0)   # vents
+        else:
+            rect(x, y, w, h, (18, 18, 20), 2)                # bezel...
+            crt_static((x + 1, y + 1, w - 2, h - 3), rnd)    # ...round the static
+            px[x + w - 2, y + h - 1] = (60, 220, 90, 255)     # power light
+            x, y, w, h = f["back"]
+            for k in range(1, h - 1, 2):
+                rect(x + 1, y + k, w - 2, 1, (18, 18, 20), 0)  # vents
+    for name in ("bezel_top", "bezel_bottom", "bezel_side_right"):
+        f = faces(*b[name])
+        for r in f.values():
+            rect(*r, (44, 44, 48), 2)
+    x, y, w, h = faces(*b["bezel_bottom"])["front"]
+    rect(x + 3, y + 1, 4, 1, (150, 152, 160), 2)            # badge
+    for i in (w - 8, w - 5):
+        rect(x + i, y + 1, 2, 2, (22, 22, 26), 0)           # dials
+    px[x + w - 2, y + 2] = (60, 220, 90, 255)                # power light
     f = faces(*b["tv_back"])
     for r in f.values():
         rect(*r, plastic_dark, 3)
     x, y, w, h = f["back"]
     for k in range(1, h - 1, 2):
-        rect(x + 1, y + k, w - 2, 1, (16, 16, 18), 0)
-    for name in ("pipe", "bracket", "rod", "knob_right"):
+        rect(x + 1, y + k, w - 2, 1, (16, 16, 18), 0)       # vents
+    for name in ("pipe", "rod", "knob_right"):
         box(*b[name], metal, 4)
-    for name in ("tendril_upper_right", "tendril_lower_right"):
+    box(*b["bracket"], (40, 40, 44), 3)
+    for name in ("cable_upper_inner_right", "cable_upper_outer_right", "cable_lower_inner_right",
+                 "cable_lower_outer_right"):
         f = faces(*b[name])
         for r in f.values():
-            rect(*r, (58, 58, 64), 3)
-        for r in sides(f):
-            x, y, w, h = r
-            for i in range(1, w, 3):
-                px[x + i, y] = shade((84, 84, 92), 2)        # joints along the tendril
-    f = faces(*b["torso"])
-    for r in sides(f):
-        rect(*r, suit_black, 3)
-    x, y, w, h = f["front"]
-    rect(x + 2, y, 4, 4, SHIRT, 2)                           # shirt in the open collar...
-    rect(x + 3, y, 2, 1, (86, 34, 140), 0)                   # ...and a purple tie
-    rect(x + 3, y + 1, 2, 8, purple, 3)
-    rect(x + 1, y, 1, 5, suit_dark, 0)                       # lapels
-    rect(x + 6, y, 1, 5, suit_dark, 0)
-    for k in (6, 9):
-        px[x + 5, y + k] = (60, 60, 66, 255)                 # buttons
-    rect(*f["top"], suit_black, 3)
-    f = faces(*b["arm_right"])
-    for r in sides(f):
-        x, y, w, h = r
-        rect(x, y, w, h - 3, suit_black, 3)
-        rect(x, y + h - 4, w, 1, SHIRT, 2)                   # shirt cuff
-        rect(x, y + h - 3, w, 3, (38, 38, 42), 3)            # black gloves
-    rect(*f["top"], suit_black, 3)
-    rect(*f["bottom"], (38, 38, 42), 3)
-    f = faces(*b["leg_right"])
-    for r in sides(f):
-        x, y, w, h = r
-        rect(x, y, w, h, (24, 24, 28), 3)
-        rect(x, y + h - 2, w, 2, SHOE, 2)
-    rect(*f["bottom"], SHOE, 2)
+            rect(*r, (96, 98, 106), 3)
+        for key in ("top", "bottom", "front", "back"):
+            x, y, w, h = f[key]
+            for i in range(0, w, 2):
+                rect(x + i, y, 1, h, (62, 64, 70), 0)       # the joints along the cable
     return img
 
 
